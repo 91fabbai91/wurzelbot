@@ -1,6 +1,7 @@
-from . import http_connection
 import logging
 import time
+from datetime import datetime
+from . import http_connection
 
 class Garden(object):
     def __init__(self, http_connection: http_connection.HTTPConnection, garden_id: int):
@@ -11,6 +12,8 @@ class Garden(object):
         self.__logger.setLevel(logging.DEBUG)
         self.__http_connection = http_connection
         self.__number_of_fields = self.__len_x * self.__len_y
+        self.__fields = []
+        self.update_planted_fields()
 
     @property
     def id(self):
@@ -28,6 +31,19 @@ class Garden(object):
     @property
     def number_of_fields(self):
         return self.__number_of_fields
+
+    @property
+    def fields(self):
+        return self.__fields
+
+    def number_planted_plants(self, plant_id: int):
+        number_plants = 0
+        for field in self.__fields:
+            if int(field[1]) == plant_id:
+                number_plants=number_plants+1
+        return number_plants
+
+        
 
     def _get_all_field_ids_from_field_id_and_size_as_string(self, field_id, sx, sy):
         """
@@ -93,6 +109,20 @@ class Garden(object):
         jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
                   str(self.__id))
         return self.__find_weed_fields_from_json_content(jcontent)
+
+    def update_planted_fields(self):
+        jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
+                  str(self.__id))
+        plants =  self.__get_plants_on_fields(jcontent)
+        return plants
+
+    def __get_plants_on_fields(self, jcontent):
+        self.__fields = []
+        for field in jcontent['grow']:
+            field[3] = datetime.fromtimestamp(int(field[3]))
+            self.__fields.append(field)
+        
+
 
     def __find_empty_fields_from_json_content(self, jcontent):
         """

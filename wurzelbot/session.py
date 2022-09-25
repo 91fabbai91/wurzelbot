@@ -17,7 +17,7 @@ class Session(object):
         """
         Initialisierung aller Attribute mit einem Standardwert.
         """
-        self.__logger = logging.getLogger(self.__class__.__name__+ "_" + self.__session_id)
+        self.__logger = logging.getLogger(self.__class__.__name__)
         self.__session_id = None
         self.__server = None
         self.__start_time = None

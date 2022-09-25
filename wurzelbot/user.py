@@ -128,6 +128,52 @@ class User(object):
 
         return user_data
 
+    def __init_gardens(self):
+        """
+        Ermittelt die Anzahl der Gärten und initialisiert alle.
+        """
+        try:
+            tmpNumberOfGardens = self.__HTTPConn.getNumberOfGardens()
+            self.spieler.numberOfGardens = tmpNumberOfGardens
+            for i in range(1, tmpNumberOfGardens + 1):
+                self.garten.append(Garden(self.__HTTPConn, i))
+            
+            if self.spieler.isAquaGardenAvailable() is True:
+                self.wassergarten = AquaGarden(self.__HTTPConn)
+
+        except:
+            raise
+
+    def __get_number_of_gardens(self):
+        jcontent = self.__http_connection.execute_command('do=statsGetStats&which=0&start=0&additional='+\
+                  self.__user_id)
+        iNumber = self.__get_number_of_gardens_from_json_content(jcontent)
+        return iNumber
+
+
+    def __get_number_of_gardens_from_json_content(self, jContent):
+        """
+        Sucht im übergebenen JSON Objekt nach der Anzahl der Gärten und gibt diese zurück.
+        """
+        result = False
+        for i in range(0, len(jContent['table'])):
+            sGartenAnz = str(jContent['table'][i])   
+            if 'Gärten' in sGartenAnz:
+                sGartenAnz = sGartenAnz.replace('<tr>', '')
+                sGartenAnz = sGartenAnz.replace('<td>', '')
+                sGartenAnz = sGartenAnz.replace('</tr>', '')
+                sGartenAnz = sGartenAnz.replace('</td>', '')
+                sGartenAnz = sGartenAnz.replace('Gärten', '')
+                sGartenAnz = sGartenAnz.strip()
+                iGartenAnz = int(sGartenAnz)
+                result = True
+                break
+
+        if result:
+            return iGartenAnz
+        else:
+            self.__logHTTPConn.debug(jContent['table'])
+
     def is_honey_farm_available(self):
         if self.__user_data.level_number < 10:
             return False
@@ -139,6 +185,7 @@ class User(object):
                     return False
         else:
             return False
+
     
     def is_aqua_garden_available(self):
         if self.__user_data.level_number < 19:

@@ -7,4 +7,5 @@ if __name__ == "__main__":
     login_data = LoginData(46, "bongomedia",'3df5da34')
     wurzelbot = Wurzelbot()
     wurzelbot.start_wurzelbot(login_data)
+    wurzelbot.get_plants_in_garden()
     wurzelbot.stop_wurzelbot()

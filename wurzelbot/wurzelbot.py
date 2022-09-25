@@ -29,13 +29,14 @@ class Wurzelbot(object):
     def start_wurzelbot(self, login_data: login_data.LoginData):
         self.__logger.debug("Start Wurzelbot")
         self.__http_connection.login(login_data)
+        self.__user = user.User(self.__http_connection)
         self.__messenger = messenger.Messenger(self.__http_connection)
         self.__stock = stock.Stock(self.__http_connection)
         self.__town_park = town_park.TownPark(self.__http_connection,1)
-        self.__user = user.User(self.__http_connection)
         self.__city_quest = quest.CityQuest(self.__http_connection)
         self.__product_information = product_information.ProductInformation(self.__http_connection)
         self.__wurzelbot_started = True
+        self.__logger.debug("Wurzelbot started!")
 
 
     def stop_wurzelbot(self):
@@ -206,6 +207,10 @@ class Wurzelbot(object):
         self.__stock.update_number_in_stock()
 
         return planted
+
+    def get_plants_in_garden(self):
+        for garden in self.__user.gardens:
+            garden.update_planted_fields()
 
 class NotStartedException(Exception):
     def __init__(self, value):
