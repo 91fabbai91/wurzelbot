@@ -23,6 +23,8 @@ class Wurzelbot(object):
         self.__town_park = None
         self.__user = None
         self.__city_quest = None
+        self.__park_quest = None
+        self.__deco_garden_quest = None
         self.__product_information = None
         self.__wurzelbot_started = False
         
@@ -36,6 +38,8 @@ class Wurzelbot(object):
         self.__stock = stock.Stock(self.__http_connection)
         self.__town_park = town_park.TownPark(self.__http_connection,1)
         self.__city_quest = quest.CityQuest(self.__http_connection)
+        self.__deco_garden_quest = quest.DecoGardenQuest(self.__http_connection)
+        self.__park_quest = quest.ParkQuest(self.__http_connection)
         self.__product_information = product_information.ProductInformation(self.__http_connection)
         self.__wurzelbot_started = True
         self.__logger.debug("Wurzelbot started!")
@@ -98,6 +102,10 @@ class Wurzelbot(object):
             pass
 
         return weed_fields
+
+    def destroy_weed_field(self, field_id):
+        self.__http_connection.destroy_weed_field(field_id)
+
 
     def harvest_all_garden(self):
         if not self.__wurzelbot_started:
@@ -171,12 +179,12 @@ class Wurzelbot(object):
         if lowest_product_id == -1: return 'Your stock is empty'
         return self.__product_information.get_product_by_id(lowest_product_id).getName()
 
-    def renewAllItemsInPark(self):
+    def renew_all_items_in_park(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
         return self.__town_park.renew_items_in_park()
 
-    def grow_plants_in_gardens(self, productName, amount=-1):
+    def grow_plants_in_gardens_by_name(self, productName, amount=-1):
         """
         Pflanzt so viele Pflanzen von einer Sorte wie möglich über alle Gärten hinweg an.
         """
@@ -207,6 +215,13 @@ class Wurzelbot(object):
 
         return planted
 
+    
+    
+    def grow_anything(self):
+        for product_id, amount in self.__stock.get_ordered_stock_list().items():
+            product = self.__product_information.get_product_by_id(product_id)
+            self.grow_plants_in_gardens_by_name(product.name, amount)
+
     def get_plants_in_garden(self):
         gardens = []
         for garden in self.__user.gardens:
@@ -220,9 +235,9 @@ class Wurzelbot(object):
             plant_count =  plant_count + Counter(r[1] for r in garden)
         return dict(plant_count)
     
-    def get_missing_quest_amount(self) -> dict:
+    def get_missing_quest_amount(self, quest: quest.Quest) -> dict:
         missing_quest_amount = {}
-        amounts, _  = self.__city_quest.get_quest()
+        amounts, _  = quest.get_quest()
         number_of_plants = self.number_of_plants_in_garden()
         for name, value in amounts.items():
             if name[-1] == 'n':
@@ -238,10 +253,18 @@ class Wurzelbot(object):
                 missing_quest_amount.update({product.name: value-stock})
         return missing_quest_amount
 
-    def plant_according_to_quest(self):
-        missing_amount = self.get_missing_quest_amount()
+    def plant_according_to_quest(self, quest_type_name: str):
+        if quest_type_name == quest.CityQuest.__name__:
+            quest_level = self.__city_quest
+        elif quest_type_name == quest.ParkQuest.__name__:
+            quest_level = self.__park_quest
+        elif quest_type_name == quest.DecoGardenQuest.__name__:
+            quest_level = self.__deco_garden_quest
+        else:
+            raise NameError("No Element named {}".format(quest_type_name))
+        missing_amount = self.get_missing_quest_amount(quest=quest_level)
         for product_name, amount in missing_amount.items():
-            self.grow_plants_in_gardens(product_name, amount)
+            self.grow_plants_in_gardens_by_name(product_name, amount)
     
 
 

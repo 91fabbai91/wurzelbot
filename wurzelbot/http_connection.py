@@ -1,3 +1,4 @@
+from dataclasses import field
 from os import ST_APPEND
 from urllib.parse import urlencode
 import json, re, httplib2
@@ -22,6 +23,7 @@ MESSAGE_API                    = '/nachrichten/new.php'
 WATER_API                      = '/save/wasser.php'
 PLANT_API                      = '/save/pflanz.php'
 DECO_GARDEN_API                = '/ajax/decogardenajax.php?'
+DESTROY_API                    = '/abriss.php?'
 
 class HTTPConnection(object):
 
@@ -191,6 +193,18 @@ class HTTPConnection(object):
             raise
         else:
             return jcontent
+
+    def destroy_weed_field(self, field_id: int):
+        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
+                        'wunr=' + self.__user_id,
+            'Connection': 'Keep-Alive'}
+        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + DESTROY_API + "tile=" + str(field_id)
+        try:
+            response, content = self.__webclient.request(adresse, 'GET', headers = headers)
+            self.__check_if_http_status_is_ok(response)
+            jcontent = self.__generate_json_content_and_check_for_ok(content.decode('UTF-8'))
+        except:
+            raise
 
     def execute_message_command(self, message: message.Message):
         parameter = None

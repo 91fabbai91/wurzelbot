@@ -62,6 +62,8 @@ class ProductInformation(object):
             
     def get_product_by_name(self, name : str) -> product.Product:
         for product in self.__products:
+            if (name.lower() == product.name.lower()): return product
+        for product in self.__products:
             if (name.lower() in product.name.lower()): return product
         return None
 

@@ -62,14 +62,3 @@ class DecoGardenQuest(Quest):
         self._logger.debug("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
         return self._amount, self._reward
     
-class BeeQuest(Quest):
-    def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
-        super().__init__(http_connection)
-
-    def get_quest(self):
-        quest_data = self._http_connection.execute_command("do=bees_quest_get")['questData']
-        self._reward = quest_data['reward']
-        for product in quest_data['products']:
-            self._amount.update({product['name']: product['missing']})
-        self._logger.debug("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
-        return self._amount, self._reward

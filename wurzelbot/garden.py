@@ -45,7 +45,7 @@ class Garden(object):
 
         
 
-    def _get_all_field_ids_from_field_id_and_size_as_string(self, field_id, sx, sy):
+    def __get_all_field_ids_from_field_id_and_size_as_string(self, field_id, sx, sy):
         """
         Rechnet anhand der field_id und Größe der Pflanze (sx, sy) alle IDs aus und gibt diese als String zurück.
         """
@@ -67,11 +67,11 @@ class Garden(object):
         if (sx == 2 and sy == 2): return str(field_id) + ',' + str(field_id + 1) + ',' + str(field_id + 17) + ',' + str(field_id + 18)
         self.__logger.debug('Error der plant_size --> sx: ' + str(sx) + ' sy: ' + str(sy))
 
-    def _get_all_field_ids_from_field_id_and_size_as_int_list(self, field_id, sx, sy):
+    def __get_all_field_ids_from_field_id_and_size_as_int_list(self, field_id, sx, sy):
         """
         Rechnet anhand der field_id und Größe der Pflanze (sx, sy) alle IDs aus und gibt diese als Integer-Liste zurück.
         """
-        sFields =self._get_all_field_ids_from_field_id_and_size_as_string(field_id, sx, sy)
+        sFields =self.__get_all_field_ids_from_field_id_and_size_as_string(field_id, sx, sy)
         listFields = sFields.split(',') #Stringarray
                         
         for i in range(0, len(listFields)):
@@ -99,6 +99,7 @@ class Garden(object):
         # Alle benötigten Felder der Pflanze müssen leer sein
         if not (fields_to_plantSet.issubset(empty_fieldsSet)): return False
         return True
+    
 
     def get_empty_fields(self):
         jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
@@ -169,11 +170,11 @@ class Garden(object):
             for field in range(1, self.__number_of_fields + 1):
                 if planted == amount: break
             
-                fields_to_plant =self._get_all_field_ids_from_field_id_and_size_as_string(field, sx, sy)
+                fields_to_plant =self.__get_all_field_ids_from_field_id_and_size_as_int_list(field, sx, sy)
                 
                 if (self.__is_plant_growable_on_field(field, empty_fields, fields_to_plant, sx)):
-                        fields =self._get_all_field_ids_from_field_id_and_size_as_string(field, sx, sy)
-                        self.__http_connection.grow_plants(field, plant_id, self.__id, fields)
+                        fields =self.__get_all_field_ids_from_field_id_and_size_as_string(field, sx, sy)
+                        self.__http_connection.grow_plant(field, plant_id, self.__id, fields)
                         planted += 1
 
                         #Nach dem Anbau belegte Felder aus der Liste der leeren Felder loeschen
@@ -182,7 +183,8 @@ class Garden(object):
                         tmpSet = empty_fieldsSet - fields_to_plantSet
                         empty_fields = list(tmpSet)
 
-        except:
+        except Exception as e:
+            self.__logger.error(e)
             self.__logger.error('Im Garten ' + str(self.__id) + ' konnte nicht gepflanzt werden.')
             return 0    
         else:
@@ -236,9 +238,10 @@ class Garden(object):
             plants = self.__find_plants_to_be_watered_from_json_content(jcontent)
             nPlants = len(plants['fieldID'])
             for i in range(0, nPlants):
-                sFields =self._get_all_field_ids_from_field_id_and_size_as_string(plants['fieldID'][i], plants['sx'][i], plants['sy'][i])
-                self.__http_connection.waterPlantInGarden(self.__id, plants['fieldID'][i], sFields)
-        except:
+                sFields =self.__get_all_field_ids_from_field_id_and_size_as_string(plants['fieldID'][i], plants['sx'][i], plants['sy'][i])
+                self.__http_connection.water_plant(self.__id, plants['fieldID'][i], sFields)
+        except Exception as e:
+            self.__logger.error(e)
             self.__logger.error('Garten ' + str(self.__id) + ' konnte nicht bewässert werden.')
         else:
             self.__logger.info('Im Garten ' + str(self.__id) + ' wurden ' + str(nPlants) + ' Pflanzen gegossen.')
@@ -258,7 +261,7 @@ class AquaGarden(Garden):
             plants = self.__find_plants_to_be_watered_from_json_content(jcontent)
             nPlants = len(plants['fieldID'])
             for i in range(0, nPlants):
-                sFields = self._get_all_field_ids_from_field_id_and_size_as_string(plants['fieldID'][i], plants['sx'][i], plants['sy'][i])
+                sFields = self.__get_all_field_ids_from_field_id_and_size_as_string(plants['fieldID'][i], plants['sx'][i], plants['sy'][i])
                 self.__http_connection.waterPlantInAquaGarden(plants['fieldID'][i], sFields)
         except:
             self.__logger.error('Wassergarten konnte nicht bewässert werden.')
