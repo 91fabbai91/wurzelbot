@@ -4,13 +4,13 @@ from datetime import datetime
 from . import http_connection
 
 class Garden(object):
-    def __init__(self, http_connection: http_connection.HTTPConnection, garden_id: int):
+    def __init__(self, http_connection1: http_connection.HTTPConnection, garden_id: int):
         self.__id = garden_id
         self.__len_x = 17
         self.__len_y = 12
-        self.__logger = logging.getLogger("Garden_" + self.__id)
+        self.__logger = logging.getLogger("Garden{id}".format(id=self.__id))
         self.__logger.setLevel(logging.DEBUG)
-        self.__http_connection = http_connection
+        self.__http_connection = http_connection1
         self.__number_of_fields = self.__len_x * self.__len_y
         self.__fields = []
         self.update_planted_fields()
@@ -121,7 +121,7 @@ class Garden(object):
         for field in jcontent['grow']:
             field[3] = datetime.fromtimestamp(int(field[3]))
             self.__fields.append(field)
-        
+        return self.__fields
 
 
     def __find_empty_fields_from_json_content(self, jcontent):
@@ -158,7 +158,7 @@ class Garden(object):
         return weed_fields
 
     def harvest(self):
-        self.__http_connection.execute_command('do=changeGarden&garden=' + self.__id)
+        self.__http_connection.execute_command('do=changeGarden&garden={id}'.format(id=self.__id))
         self.__http_connection.execute_command('do=gardenHarvestAll')
 
     def grow_plants(self, plant_id, sx, sy, amount):

@@ -1,5 +1,7 @@
 from ast import If
+from itertools import product
 import logging
+from collections import Counter
 from . import http_connection
 from . import login_data
 from . import user
@@ -54,6 +56,7 @@ class Wurzelbot(object):
         for garden in self.__user.gardens:
             garden.water_plants()
 
+
     def get_empty_fields_of_gardens(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
@@ -103,16 +106,12 @@ class Wurzelbot(object):
         try:
             for garden in self.__user.gardens:
                 garden.harvest()
-                
-            if self.__user.is_aqua_garden_available():
-                pass#self.waterPlantsInAquaGarden()
 
             self.__stock.update_number_in_stock()
         except:
             self.__logger.error('Konnte nicht alle Gärten ernten.')
         else:
             self.__logger.info('Konnte alle Gärten ernten.')
-            pass
 
     def collectCashFromPark(self):
         if not self.__wurzelbot_started:
@@ -193,24 +192,59 @@ class Wurzelbot(object):
             print(logMsg)
             return -1
 
-        if not product.isPlant() or not product.isPlantable():
+        if not product.is_plant or not product.is_plantable:
             logMsg = '"' + productName + '" kann nicht angepflanzt werden'
             self.__logger.error(logMsg)
             print(logMsg)
             return -1
 
         for garden in self.__user.gardens:
-            if amount == -1 or amount > self.__stock.get_stock_by_product_id(product.getID()):
-                amount = self.__stock.get_stock_by_product_id(product.getID())
-            planted += garden.grow_plants(product.getID(), product.getSX(), product.getSY(), amount)
+            if amount == -1 or amount > self.__stock.get_stock_by_product_id(product.id):
+                amount = self.__stock.get_stock_by_product_id(product.id)
+            planted += garden.grow_plants(product.id, product.sx, product.sy, amount)
         
         self.__stock.update_number_in_stock()
 
         return planted
 
     def get_plants_in_garden(self):
+        gardens = []
         for garden in self.__user.gardens:
             garden.update_planted_fields()
+            gardens.append(garden.fields)
+        return gardens
+
+    def number_of_plants_in_garden(self):
+        plant_count = Counter()
+        for garden in self.get_plants_in_garden():
+            plant_count =  plant_count + Counter(r[1] for r in garden)
+        return dict(plant_count)
+    
+    def get_missing_quest_amount(self) -> dict:
+        missing_quest_amount = {}
+        amounts, _  = self.__city_quest.get_quest()
+        number_of_plants = self.number_of_plants_in_garden()
+        for name, value in amounts.items():
+            if name[-1] == 'n':
+                name = name.rstrip(name[-1])
+            product = self.__product_information.get_product_by_name(name)
+            stock = self.__stock.get_stock_by_product_id(product.id)
+            try:
+                stock = stock + product.crop * number_of_plants[product.id]
+            except KeyError:
+                self.__logger.debug("No product of id {id} planted".format(id=product.id))
+            self.__logger.debug(" missing amount: {amount} {product}".format(amount=value-stock, product=product.name))
+            if value-stock > 0:
+                missing_quest_amount.update({product.name: value-stock})
+        return missing_quest_amount
+
+    def plant_according_to_quest(self):
+        missing_amount = self.get_missing_quest_amount()
+        for product_name, amount in missing_amount.items():
+            self.grow_plants_in_gardens(product_name, amount)
+    
+
+
 
 class NotStartedException(Exception):
     def __init__(self, value):

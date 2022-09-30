@@ -21,6 +21,7 @@ class User(object):
         self.__mail_addresse_confirmed = False
         self.__get_username_from_server()
         self.__get_user_data_from_server()
+        self.__init_gardens()
     
     @property
     def account_login(self):
@@ -55,8 +56,8 @@ class User(object):
         if(nr<0 or nr >5):
             raise ValueError("Wrong number of gardens provided")
         self.__number_of_gardens = nr
-        for i in range(self.__number_of_gardens):
-            self.__gardens.append(garden.Garden(http_connection, i))
+        for i in range(1,self.__number_of_gardens+1):
+            self.__gardens.append(garden.Garden(self.__http_connection, i))
 
     @property
     def user_data(self):
@@ -132,17 +133,26 @@ class User(object):
         """
         Ermittelt die Anzahl der Gärten und initialisiert alle.
         """
-        try:
-            tmpNumberOfGardens = self.__HTTPConn.getNumberOfGardens()
-            self.spieler.numberOfGardens = tmpNumberOfGardens
-            for i in range(1, tmpNumberOfGardens + 1):
-                self.garten.append(Garden(self.__HTTPConn, i))
-            
-            if self.spieler.isAquaGardenAvailable() is True:
-                self.wassergarten = AquaGarden(self.__HTTPConn)
+        jContent = self.__http_connection.execute_command("do=statsGetStats&which=0&start=0&additional="+
+                self.__user_id)
 
-        except:
-            raise
+        result = False
+        for i in range(0, len(jContent['table'])):
+            sGartenAnz = str(jContent['table'][i])   
+            if 'Gärten' in sGartenAnz:
+                sGartenAnz = sGartenAnz.replace('<tr>', '')
+                sGartenAnz = sGartenAnz.replace('<td>', '')
+                sGartenAnz = sGartenAnz.replace('</tr>', '')
+                sGartenAnz = sGartenAnz.replace('</td>', '')
+                sGartenAnz = sGartenAnz.replace('Gärten', '')
+                sGartenAnz = sGartenAnz.strip()
+                tmp_number_of_gardens = int(sGartenAnz)
+                result = True
+                break
+
+        if result:
+            self.number_of_gardens = tmp_number_of_gardens
+
 
     def __get_number_of_gardens(self):
         jcontent = self.__http_connection.execute_command('do=statsGetStats&which=0&start=0&additional='+\

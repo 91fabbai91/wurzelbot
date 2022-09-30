@@ -1,3 +1,4 @@
+import re
 import logging
 import json
 from . import http_connection
@@ -10,25 +11,28 @@ class ProductInformation(object):
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__http_connection = http_connection
         self.__products = []
+        self.init_all_products()
 
     def __set_all_prices_of_npc(self):
         """
         Ermittelt alle möglichen NPC Preise und setzt diese in den Produkten.
         """
         
-        dNPC = self.__http_connection.get_npc_prices
+        dNPC = self.__http_connection.get_npc_prices()
         dNPCKeys = dNPC.keys()
         
         for product in self.__products:
-            productname = product.getName()
+            productname = product.name
             if productname in dNPCKeys:
-                product.setPriceNPC(dNPC[productname])
+                product.price_npc = dNPC[productname]
 
     def init_all_products(self):
         """
         Initialisiert alle Produkte.
         """
-        products = self.__http_connection.get_all_product_informations()
+        content = self.__http_connection.get_all_product_informations()
+        reProducts = re.search(r'data_products = ({.*}});var', content)
+        products = reProducts.group(1)
         jProducts = json.loads(products)
         dictProducts = dict(jProducts)
         keys = dictProducts.keys()
@@ -54,11 +58,11 @@ class ProductInformation(object):
 
     def get_product_by_id(self, id) -> product.Product:
         for product in self.__products:
-            if int(id) == int(product.getID()): return product
+            if int(id) == int(product.id): return product
             
     def get_product_by_name(self, name : str) -> product.Product:
         for product in self.__products:
-            if (name.lower() == product.getName().lower()): return product
+            if (name.lower() in product.name.lower()): return product
         return None
 
     def get_list_of_all_product_ids(self) -> list:
@@ -66,7 +70,7 @@ class ProductInformation(object):
         product_id_list = []
         
         for product in self.__products:
-            id = product.getID()
+            id = product.id
             product_id_list.append(id)
             
         return product_id_list

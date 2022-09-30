@@ -9,7 +9,7 @@ class Product():
         self.__level = lvl
         self.__crop = crop
         self.__is_plantable = plantable
-        self.__timeUntilHarvest = time
+        self.__time_until_harvest = time
         self.__price_npc = None
    
     @property
@@ -39,6 +39,18 @@ class Product():
     @property
     def is_plantable(self):
         return self.__is_plantable
+
+    @property
+    def time_unti_harvest(self):
+        return self.__time_until_harvest
+
+    @property
+    def crop(self):
+        return self.__crop
+    
+    @property
+    def level(self):
+        return self.__level
 
    
     def is_plant(self):

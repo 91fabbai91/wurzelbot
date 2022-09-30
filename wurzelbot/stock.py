@@ -11,10 +11,10 @@ class Stock(object):
         self.__logger.setLevel(logging.DEBUG)
         self.__product_information = None
         self.__products = {}
-        
+        self.get_product_information_from_server()
+        self.init_product_list(self.__product_information)
+        self.update_number_in_stock()
     
-    def read_from_server(self):
-        self.__http_connection.read_storage_from_server()
 
     def get_product_information_from_server(self):
         content = self.__http_connection.get_all_product_informations()

@@ -379,7 +379,7 @@ class HTTPConnection(object):
         except:
             raise
         else:
-            print(jContent['produkte'])
+            return jContent['produkte']
 
     def get_all_product_informations(self):
         """
