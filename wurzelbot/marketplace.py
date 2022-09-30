@@ -6,7 +6,6 @@ from . import http_connection
 class Marketplace(object):
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
         self.__logger = logging.getLogger(self.__class__.__name__)
-        self.__logger.setLevel(logging.DEBUG)
         self.__http_connection = http_connection
         self.__tradeable_product_ids = None
 
@@ -58,6 +57,9 @@ class Marketplace(object):
         
         else: #No Offers
             return None
+
+    def sell_on_market(self, item_id: int , price: float, number: int):
+        self.__http_connection.sell_on_market(item_id, price, number)
 
     def find_big_gap_in_product_offers(self, id, npcPrice):
         """

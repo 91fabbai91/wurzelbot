@@ -10,13 +10,13 @@ from . import stock
 from . import messenger
 from . import quest
 from . import product_information
+from . import marketplace
 
 
 class Wurzelbot(object):
 
     def __init__(self):
         self.__logger = logging.getLogger(self.__class__.__name__)
-        self.__logger.setLevel(logging.DEBUG)
         self.__http_connection = http_connection.HTTPConnection()
         self.__messenger = None
         self.__stock = None
@@ -26,7 +26,9 @@ class Wurzelbot(object):
         self.__park_quest = None
         self.__deco_garden_quest = None
         self.__product_information = None
+        self.__market_place = None
         self.__wurzelbot_started = False
+
         
 
 
@@ -41,6 +43,7 @@ class Wurzelbot(object):
         self.__deco_garden_quest = quest.DecoGardenQuest(self.__http_connection)
         self.__park_quest = quest.ParkQuest(self.__http_connection)
         self.__product_information = product_information.ProductInformation(self.__http_connection)
+        self.__marketplace = marketplace.Marketplace(self.__http_connection)
         self.__wurzelbot_started = True
         self.__logger.debug("Wurzelbot started!")
 
@@ -50,6 +53,8 @@ class Wurzelbot(object):
         self.__http_connection.logout()
         self.__wurzelbot_started = False
 
+    def sell_on_market(self, item_id: int , price: float, number: int):
+        self.__marketplace.sell_on_market(item_id, price, number)
 
     def water_plants_in_all_gardens(self):
         """

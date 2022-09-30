@@ -2,6 +2,7 @@ from dataclasses import field
 from os import ST_APPEND
 from urllib.parse import urlencode
 import json, re, httplib2
+from math import floor
 from http.cookies import SimpleCookie
 from . import session
 import yaml, time, logging, math, io
@@ -24,6 +25,7 @@ WATER_API                      = '/save/wasser.php'
 PLANT_API                      = '/save/pflanz.php'
 DECO_GARDEN_API                = '/ajax/decogardenajax.php?'
 DESTROY_API                    = '/abriss.php?'
+MARKET_API                     = '/stadt/marktstand.php'
 
 class HTTPConnection(object):
 
@@ -37,7 +39,6 @@ class HTTPConnection(object):
         self.__webclient = httplib2.Http(disable_ssl_certificate_validation=True)
         self.__webclient.follow_redirects = False
         self.__logger = logging.getLogger(self.__class__.__name__)
-        self.__logger.setLevel(logging.DEBUG)
         self.__session = session.Session()
         self.__token = None
         self.__user_id = None
@@ -95,6 +96,45 @@ class HTTPConnection(object):
             raise
         else:
             self.__del__()
+
+    def sell_on_market(self, item_id: int , price: float, number: int):
+        self.__go_to_city()
+        self.__get_to_market()
+        parameter = urlencode({'p_anzahl': number, 'p_preis1': floor(price), 'p_preis2': '{:02d}'.format(int(100*price-floor(price))),'p_id':'p'+str(item_id), 'prepare_market':'true'}) 
+    
+        headers = {'Content-type': 'application/x-www-form-urlencoded',
+                   'Connection': 'keep-alive'}
+        response, content = self.__webclient.request('http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_API, \
+                                                    'POST', \
+                                                    parameter, \
+                                                    headers)
+
+        self.__check_if_http_status_is_ok(response)
+        self.read_storage_from_server()
+        parameter = urlencode({'p_anzahl': number, 'p_preis1': floor(price), 'p_preis2': '{:02d}'.format(int(100*price-floor(price))),'p_id':str(item_id), 'verkaufe_markt':'OK'}) 
+        print(parameter)
+        response, content = self.__webclient.request('http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_API, \
+                                                    'POST', \
+                                                    parameter, \
+                                                    headers)
+
+    def __get_to_market(self):
+        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
+                        'wunr=' + self.__user_id,
+            'Connection': 'Keep-Alive'}
+        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_API
+        
+        response, content = self.__webclient.request(adresse, 'GET', headers = headers)
+        self.__check_if_http_status_is_ok(response)
+
+    def __go_to_city(self):
+        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
+                        'wunr=' + self.__user_id,
+            'Connection': 'Keep-Alive'}
+        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + '/stadt/index.php?karte=1'
+        
+        response, content = self.__webclient.request(adresse, 'GET', headers = headers)
+        self.__check_if_http_status_is_ok(response)
 
 
 

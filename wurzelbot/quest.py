@@ -9,7 +9,6 @@ class Quest(metaclass=abc.ABCMeta):
         self._amount = {}
         self._reward = []
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._logger.setLevel(logging.DEBUG)
 
     def get_quest(self):
         raise NotImplementedError

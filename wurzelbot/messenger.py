@@ -17,7 +17,6 @@ class Messenger(object):
     def __init__(self, http_connection: http_connection.HTTPConnection):
         self.__http_connection = http_connection
         self.__logger = logging.getLogger()
-        self.__logger.setLevel(logging.DEBUG)
         self. __inbox = []
         self.__outbox = []
         self.__system = []

@@ -8,7 +8,6 @@ class Stock(object):
     def __init__(self, http_connection: http_connection.HTTPConnection):
         self.__http_connection = http_connection
         self.__logger = logging.getLogger(self.__class__.__name__)
-        self.__logger.setLevel(logging.DEBUG)
         self.__product_information = None
         self.__products = {}
         self.get_product_information_from_server()
