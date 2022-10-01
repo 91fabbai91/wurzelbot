@@ -16,5 +16,6 @@ if __name__ == "__main__":
     wurzelbot.harvest_all_garden()
     wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()
-    wurzelbot.sell_on_market(2,0.02,1)
+    wurzelbot.collectCashFromPark()
+    wurzelbot.renew_all_items_in_park()
     wurzelbot.stop_wurzelbot()

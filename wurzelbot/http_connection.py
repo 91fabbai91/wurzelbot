@@ -395,7 +395,7 @@ class HTTPConnection(object):
         headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
                              'wunr=' + self.__user_id,
                    'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + \
+        adresse = 'http://s' + str(self.__session.server) \
                   + STATIC_DOMAIN + '/ajax/gettrophies.php?category=giver'
         
 
@@ -415,7 +415,7 @@ class HTTPConnection(object):
 
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
-        return content
+        return content.decode('utf-8')
 
     def read_storage_from_server(self):
 

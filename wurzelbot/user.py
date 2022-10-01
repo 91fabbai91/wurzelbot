@@ -21,6 +21,10 @@ class User(object):
         self.__get_username_from_server()
         self.__get_user_data_from_server()
         self.__init_gardens()
+        self.aqua_garden_available = self.is_aqua_garden_available()
+        self.honey_farm_available = self.is_honey_farm_available()
+        self.town_park_available = self.is_town_park_available()
+        self.is_mail_address_confirmed = self.is_mail_address_confirmed()
     
     @property
     def account_login(self):
@@ -159,6 +163,14 @@ class User(object):
         iNumber = self.__get_number_of_gardens_from_json_content(jcontent)
         return iNumber
 
+    def __go_to_bees(self):
+        jcontent = self.__http_connection.execute_command('do=bees_init')
+        return jcontent
+
+    def __go_to_town_park(self):
+        jcontent = self.__http_connection.execute_command('do=park_init')
+        return jcontent
+
 
     def __get_number_of_gardens_from_json_content(self, jContent):
         """
@@ -186,14 +198,21 @@ class User(object):
     def is_honey_farm_available(self):
         if self.__user_data.level_number < 10:
             return False
-        jContent = self.__http_connection.get_trophies()
-        if '316' in jContent['gifts']:
-                if (jContent['gifts']['316']['name'] == 'Bienen-Fan'):
-                    return True
-                else:
-                    return False
+        jContent = self.__go_to_bees()
+        if jContent['init'] == 1:
+            return True
         else:
             return False
+
+    def is_town_park_available(self):
+        if self.__user_data.level_number < 5:
+            return False
+        jContent = self.__go_to_town_park()
+        if jContent['init'] == 1:
+            return True
+        else:
+            return False
+
 
     
     def is_aqua_garden_available(self):
