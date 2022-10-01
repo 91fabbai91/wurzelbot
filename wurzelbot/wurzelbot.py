@@ -138,7 +138,8 @@ class Wurzelbot(object):
     def collectCashFromPark(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        self.__town_park.collect_cash_points_from_park()
+        if self.__user.is_town_park_available():
+            self.__town_park.collect_cash_points_from_park()
 
     def print_stock(self):
         if not self.__wurzelbot_started:
@@ -196,7 +197,7 @@ class Wurzelbot(object):
     def renew_all_items_in_park(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        if not self.__user.is_town_park_available():
+        if self.__user.town_park_available:
             self.__town_park.renew_all_items_in_park()
 
     def grow_plants_in_gardens_by_name(self, productName, amount=-1):

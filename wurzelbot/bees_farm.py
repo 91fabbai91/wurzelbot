@@ -15,8 +15,7 @@ class BeesFarm(object):
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__hives = []
         self.__setup_bees_farm()
-        self.__hives
-
+        
     @property
     def hives(self):
         return self.__hives
