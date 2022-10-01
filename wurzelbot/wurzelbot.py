@@ -25,6 +25,7 @@ class Wurzelbot(object):
         self.__city_quest = None
         self.__park_quest = None
         self.__deco_garden_quest = None
+        self.__bee_farm_quest = None
         self.__product_information = None
         self.__marketplace = None
         self.__bees_farm = None
@@ -44,6 +45,7 @@ class Wurzelbot(object):
         self.__city_quest = quest.CityQuest(self.__http_connection)
         self.__deco_garden_quest = quest.DecoGardenQuest(self.__http_connection)
         self.__park_quest = quest.ParkQuest(self.__http_connection)
+        self.__bee_farm_quest = quest.BeesGardenQuest(self.__http_connection)
         self.__product_information = product_information.ProductInformation(self.__http_connection)
         self.__marketplace = marketplace.Marketplace(self.__http_connection)
         if self.__user.is_honey_farm_available():
@@ -274,10 +276,12 @@ class Wurzelbot(object):
     def plant_according_to_quest(self, quest_type_name: str):
         if quest_type_name == quest.CityQuest.__name__:
             quest_level = self.__city_quest
-        elif quest_type_name == quest.ParkQuest.__name__:
+        elif quest_type_name == quest.ParkQuest.__name__ and self.__user.town_park_available:
             quest_level = self.__park_quest
-        elif quest_type_name == quest.DecoGardenQuest.__name__:
+        elif quest_type_name == quest.DecoGardenQuest.__name_:
             quest_level = self.__deco_garden_quest
+        elif quest_type_name == quest.BeesGardenQuest.__name__ and self.__user.honey_farm_available:
+            quest_level = self.__bee_farm_quest
         else:
             raise NameError("No Element named {}".format(quest_type_name))
         missing_amount = self.get_missing_quest_amount(quest=quest_level)

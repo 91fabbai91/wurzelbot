@@ -18,13 +18,15 @@ class User(object):
         self.__aqua_garden_available = False
         self.__town_park_available = False
         self.__mail_addresse_confirmed = False
+        self.__deco_garden_available = False
         self.__get_username_from_server()
         self.__get_user_data_from_server()
         self.__init_gardens()
         self.aqua_garden_available = self.is_aqua_garden_available()
         self.honey_farm_available = self.is_honey_farm_available()
         self.town_park_available = self.is_town_park_available()
-        self.is_mail_address_confirmed = self.is_mail_address_confirmed()
+        self.deco_garden_available = self.is_deco_garden_available()
+        self.mail_address_confirmed = self.is_mail_address_confirmed()
     
     @property
     def account_login(self):
@@ -93,6 +95,14 @@ class User(object):
     @town_park_available.setter
     def town_park_available(self, town: bool):
         self.__town_park_available = town
+
+    @property
+    def deco_garden_available(self):
+        return self.__deco_garden_available
+
+    @deco_garden_available.setter
+    def deco_garden_available(self, deco_garden: bool):
+        self.__deco_garden_available = deco_garden
 
     @property
     def mail_addresse_confirmed(self):
@@ -221,6 +231,15 @@ class User(object):
         jContent = self.__http_connection.get_trophies()
         result = re.search(r'trophy_54.png\);[^;]*(gray)[^;^class$]*class', jContent['html'])
         if result == None:
+            return True
+        else:
+            return False
+
+    def is_deco_garden_available(self):
+        if self.__user_data.level_number < 13:
+            return False
+        jContent = self.__http_connection.execute_decogarden_command("")
+        if jContent["status"] == 'ok':
             return True
         else:
             return False

@@ -12,6 +12,7 @@ from wurzelbot.quest import CityQuest, ParkQuest, DecoGardenQuest
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Wurzelimperium Bot - the pythonic way')
     parser.add_argument('--growPlants', default=argparse.SUPPRESS,nargs='*')
+    parser.add_argument('--growForQuests', default=argparse.SUPPRESS,nargs='*')
     parser.add_argument('--farmTownPark', default=argparse.SUPPRESS, action='store_true')
     parser.add_argument('--startBeesTour', default=argparse.SUPPRESS, action='store_true')
 
@@ -24,7 +25,10 @@ if __name__ == "__main__":
     wurzelbot = Wurzelbot()
     wurzelbot.start_wurzelbot(login_data)
     wurzelbot.harvest_all_garden()
-    if('growPlants' in args):
+    if('growForQuests' in args):
+        for quest_name in args.growForQuests:
+            wurzelbot.plant_according_to_quest(quest_name)
+    elif('growPlants' in args):
         for plant in args.growPlants:
             wurzelbot.grow_plants_in_gardens_by_name(plant)
     else:
