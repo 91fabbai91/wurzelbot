@@ -26,7 +26,7 @@ class Wurzelbot(object):
         self.__park_quest = None
         self.__deco_garden_quest = None
         self.__product_information = None
-        self.__market_place = None
+        self.__marketplace = None
         self.__wurzelbot_started = False
 
         
@@ -187,7 +187,8 @@ class Wurzelbot(object):
     def renew_all_items_in_park(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        return self.__town_park.renew_items_in_park()
+        if not self.__user.is_town_park_available():
+            self.__town_park.renew_all_items_in_park()
 
     def grow_plants_in_gardens_by_name(self, productName, amount=-1):
         """
@@ -225,7 +226,9 @@ class Wurzelbot(object):
     def grow_anything(self):
         for product_id, amount in self.__stock.get_ordered_stock_list().items():
             product = self.__product_information.get_product_by_id(product_id)
-            self.grow_plants_in_gardens_by_name(product.name, amount)
+            if self.grow_plants_in_gardens_by_name(product.name, amount) == 0 and product.sx == 1 and product.sy == 1:
+                return
+            
 
     def get_plants_in_garden(self):
         gardens = []

@@ -29,6 +29,10 @@ class TownPark(object):
                 renewableItems.update({i:item})
         return renewableItems
 
-    def renew_items_in_park(self, item_tile):
+    def __renew_items_in_park(self, item_tile):
         self.__http_connection.execute_command('park_renewitem&parkid=' + str(self.__id) \
                 + '&tile=' + str(item_tile))
+
+    def renew_all_items_in_park(self):
+        for item in self.__get_renewable_deko_from_park():
+            self.__renew_items_in_park(item)
