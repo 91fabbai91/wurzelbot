@@ -15,17 +15,18 @@ class BeesFarm(object):
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__hives = []
         self.__setup_bees_farm()
-        
+
     @property
     def hives(self):
         return self.__hives
 
     def __setup_bees_farm(self):
         bee_state = self.__go_to_bees()
-        for _ ,hive in bee_state['data']['data']['hives'].items():
+        for index ,hive in bee_state['data']['data']['hives'].items():
             try:
                 if hive['time']:
                     self.__hives.append(hive)
+                    self.__logger.debug("Added Hive with id {index}".format(index=index))
             except:
                 pass
     
