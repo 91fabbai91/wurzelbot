@@ -11,7 +11,7 @@ from . import messenger
 from . import quest
 from . import product_information
 from . import marketplace
-
+from . import bees_farm
 
 class Wurzelbot(object):
 
@@ -27,6 +27,7 @@ class Wurzelbot(object):
         self.__deco_garden_quest = None
         self.__product_information = None
         self.__marketplace = None
+        self.__bees_farm = None
         self.__wurzelbot_started = False
 
         
@@ -38,12 +39,15 @@ class Wurzelbot(object):
         self.__user = user.User(self.__http_connection)
         self.__messenger = messenger.Messenger(self.__http_connection)
         self.__stock = stock.Stock(self.__http_connection)
-        self.__town_park = town_park.TownPark(self.__http_connection,1)
+        if self.__user.is_town_park_available():
+            self.__town_park = town_park.TownPark(self.__http_connection,1)
         self.__city_quest = quest.CityQuest(self.__http_connection)
         self.__deco_garden_quest = quest.DecoGardenQuest(self.__http_connection)
         self.__park_quest = quest.ParkQuest(self.__http_connection)
         self.__product_information = product_information.ProductInformation(self.__http_connection)
         self.__marketplace = marketplace.Marketplace(self.__http_connection)
+        if self.__user.is_honey_farm_available():
+            self.__bees_farm = bees_farm.BeesFarm(self.__http_connection)
         self.__wurzelbot_started = True
         self.__logger.debug("Wurzelbot started!")
 
@@ -52,6 +56,11 @@ class Wurzelbot(object):
         self.__logger.debug("Stop Wurzelbot")
         self.__http_connection.logout()
         self.__wurzelbot_started = False
+
+    def start_all_bees_tour(self):
+        if self.__user.is_honey_farm_available():
+            self.__bees_farm.start_all_bees_tour(bees_farm.BeesTour.TWO_HOURS_TOUR)
+
 
     def sell_on_market(self, item_id: int , price: float, number: int):
         self.__marketplace.sell_on_market(item_id, price, number)

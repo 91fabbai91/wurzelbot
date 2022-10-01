@@ -13,6 +13,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Wurzelimperium Bot - the pythonic way')
     parser.add_argument('--growPlants', default=argparse.SUPPRESS,nargs='*')
     parser.add_argument('--farmTownPark', default=argparse.SUPPRESS, action='store_true')
+    parser.add_argument('--startBeesTour', default=argparse.SUPPRESS, action='store_true')
 
     args, left_overs = parser.parse_known_args()
 
@@ -29,7 +30,8 @@ if __name__ == "__main__":
     else:
         wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()
-
+    if('startBeesTour' in args):
+        wurzelbot.start_all_bees_tour()
     if('farmTownPark' in args):
         wurzelbot.collectCashFromPark()
         wurzelbot.renew_all_items_in_park()
