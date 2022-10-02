@@ -17,9 +17,9 @@ def generate_json_content_and_check_for_success(content):
     """
     jContent = json.loads(content)
     if (jContent['success'] == 1): return jContent
-    else: raise JSONError
+    else: raise JSONError('JSON not successful')
 
-def parse_npc_prices_from_html(html):
+def parse_npc_prices_from_html(html: str):
     """
     Parsen aller NPC Preise aus dem HTML Skript der Spielehilfe.
     """
@@ -55,7 +55,7 @@ def parse_npc_prices_from_html(html):
             
     return dictResult
 
-def generate_yaml_content_and_check_status_for_ok( content):
+def generate_yaml_content_and_check_status_for_ok(content: str):
     """
     Aufbereitung und Prüfung der vom Server empfangenen YAML Daten auf iO Status.
     """
