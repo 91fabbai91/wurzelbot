@@ -1,15 +1,15 @@
-from dataclasses import field
-from os import ST_APPEND
+
 from urllib.parse import urlencode
-import json, re, httplib2
+import re
+import httplib2
 from math import floor
 from http.cookies import SimpleCookie
 from . import session
-import yaml, time, logging, math, io
-import xml.etree.ElementTree as eTree
+import logging
 from lxml import html
 from . import login_data
 from . import message
+from . import parsing_utils
 
 #Defines
 HTTP_STATE_CONTINUE            = 100
@@ -68,7 +68,7 @@ class HTTPConnection(object):
                                                     headers)
 
             self.__check_if_http_status_is_ok(response)
-            jcontent = self.__generate_json_content_and_check_for_ok(content)
+            jcontent = parsing_utils.generate_json_content_and_check_for_ok(content)
             self.__get_token_from_url(jcontent['url'])
             url = jcontent['url']
             response, content = self.__webclient.request(url, 'GET', headers=headers)
@@ -136,31 +136,6 @@ class HTTPConnection(object):
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
 
-
-
-    def __check_if_http_status_is_ok(self, response):
-        if not (response['status'] == str(HTTP_STATE_OK)):
-            self.__logger.debug('HTTP State: ' + str(response['status']))
-            raise HTTPStateError('HTTP Status is not ok')
-
-
-    def __generate_json_content_and_check_for_success(self, content):
-        """
-        Aufbereitung und Prüfung der vom Server empfangenen JSON Daten.
-        """
-        jContent = json.loads(content)
-        if (jContent['success'] == 1): return jContent
-        else: raise JSONError
-
-
-    def __generate_json_content_and_check_for_ok(self, content : str):
-        """
-        Aufbereitung und Prüfung der vom Server empfangenen JSON Daten.
-        """
-        jContent = json.loads(content)
-        if (jContent['status'] == 'ok'): return jContent
-        else: raise JSONError('JSON not ok')
-
     def __get_token_from_url(self, url):
 
         #token extrahieren
@@ -213,7 +188,7 @@ class HTTPConnection(object):
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
-            jcontent = self.__generate_json_content_and_check_for_ok(content.decode('UTF-8'))
+            jcontent = parsing_utils.generate_json_content_and_check_for_ok(content.decode('UTF-8'))
         except:
             raise
         else:
@@ -228,7 +203,7 @@ class HTTPConnection(object):
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
-            jcontent = self.__generate_json_content_and_check_for_ok(content.decode('UTF-8'))
+            jcontent = parsing_utils.generate_json_content_and_check_for_ok(content.decode('UTF-8'))
         except:
             raise
         else:
@@ -242,7 +217,7 @@ class HTTPConnection(object):
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
-            jcontent = self.__generate_json_content_and_check_for_ok(content.decode('UTF-8'))
+            jcontent = parsing_utils.generate_json_content_and_check_for_ok(content.decode('UTF-8'))
         except:
             raise
 
@@ -281,7 +256,7 @@ class HTTPConnection(object):
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
         #jcontent
-        return self.__generate_json_content_and_check_for_success(content)
+        return parsing_utils.generate_json_content_and_check_for_success(content)
         
 
     def grow_plant(self, field, plant, garden_id, fields):
@@ -316,7 +291,7 @@ class HTTPConnection(object):
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
-            self.__generate_yaml_content_and_check_for_success(content.decode('UTF-8'))
+            parsing_utils.generate_yaml_content_and_check_for_success(content.decode('UTF-8'))
         except:
             raise
 
@@ -332,58 +307,15 @@ class HTTPConnection(object):
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
-            jContent = self.__generate_json_content_and_check_for_ok(content)
-            userName = self.__get_username_from_json_content(jContent)
+            jContent = parsing_utils.generate_json_content_and_check_for_ok(content)
+            userName = parsing_utils.get_username_from_json_content(jContent)
         except:
             raise
         else:
             return userName
 
-    def __get_username_from_json_content(self, jContent):
-        """
-        Sucht im übergebenen JSON Objekt nach dem Usernamen und gibt diesen zurück.
-        """
-        result = False
-        for i in range(0, len(jContent['table'])):
-            sUserName = str(jContent['table'][i])  
-            if 'Spielername' in sUserName:
-                sUserName = sUserName.replace('<tr>', '')
-                sUserName = sUserName.replace('<td>', '')
-                sUserName = sUserName.replace('</tr>', '')
-                sUserName = sUserName.replace('</td>', '')
-                sUserName = sUserName.replace('Spielername', '')
-                sUserName = sUserName.replace('&nbsp;', '')
-                sUserName = sUserName.strip()
-                result = True
-                break
-        if result:
-            return sUserName
-        else:
-            self.__logger.debug(jContent['table'])
-            raise JSONError('Spielername nicht gefunden.')
-
-    def __generate_yaml_content_and_check_for_success(self, content : str):
-        """
-        Aufbereitung und Prüfung der vom Server empfangenen YAML Daten auf Erfolg.
-        """
-        content = content.replace('\n', ' ')
-        content = content.replace('\t', ' ')
-        yContent = yaml.load(content, Loader=yaml.FullLoader)
-        
-        if (yContent['success'] != 1):
-            raise YAMLError("YAML Error")
 
 
-    def __generate_yaml_content_and_check_status_for_ok(self, content):
-        """
-        Aufbereitung und Prüfung der vom Server empfangenen YAML Daten auf iO Status.
-        """
-        content = content.replace('\n', ' ')
-        content = content.replace('\t', ' ')
-        yContent = yaml.load(content, Loader=yaml.FullLoader)
-        
-        if (yContent['status'] != 'ok'):
-            raise YAMLError("YAMLError")
 
     def get_trophies(self):
         """
@@ -401,7 +333,7 @@ class HTTPConnection(object):
 
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
-        return self.__generate_json_content_and_check_for_ok(content)
+        return parsing_utils.generate_json_content_and_check_for_ok(content)
 
     def get_user_profile(self):
         """
@@ -429,7 +361,7 @@ class HTTPConnection(object):
         try:
             response, content = self.__webclient.request(adress, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
-            jContent = self.__generate_json_content_and_check_for_ok(content)
+            jContent = parsing_utils.generate_json_content_and_check_for_ok(content)
         except:
             raise
         else:
@@ -539,47 +471,17 @@ class HTTPConnection(object):
         content = content.decode('UTF-8').replace('Gärten & Regale', 'Gärten und Regale')
         content = bytearray(content, encoding='UTF-8')
 
-        dictNPCPrices = self.__parse_npc_prices_from_html(content)
+        dictNPCPrices = parsing_utils.parse_npc_prices_from_html(content)
         #except:
         #    pass #TODO Exception definieren
         #else:
         return dictNPCPrices
 
-    def __parse_npc_prices_from_html(self, html):
-            """
-            Parsen aller NPC Preise aus dem HTML Skript der Spielehilfe.
-            """
-            #ElementTree benötigt eine Datei zum Parsen.
-            #Mit BytesIO wird eine Datei im Speicher angelegt, nicht auf der Festplatte.
-            html_file = io.BytesIO(html)
-            
-            html_tree = eTree.parse(html_file)
-            root = html_tree.getroot()
-            table = root.find('./body/div[@id="content"]/table')
-            
-            dictResult = {}
-            
-            for row in table.iter('tr'):
-                
-                produktname = row[0].text
-                npc_preis = row[1].text
-                
-                #Bei der Tabellenüberschrift ist der Text None
-                if produktname != None and npc_preis != None:
-                    # NPC-Preis aufbereiten
-                    npc_preis = str(npc_preis)
-                    npc_preis = npc_preis.replace(' wT', '')
-                    npc_preis = npc_preis.replace('.', '')
-                    npc_preis = npc_preis.replace(',', '.')
-                    npc_preis = npc_preis.strip()
-                    if '-' in npc_preis:
-                        npc_preis = None
-                    else:
-                        npc_preis = float(npc_preis)
-                        
-                    dictResult[produktname] = npc_preis
-                    
-            return dictResult
+    def __check_if_http_status_is_ok(self, response):
+        if not (response['status'] == str(HTTP_STATE_OK)):
+            raise HTTPStateError('HTTP Status is not ok')
+
+
 
 class HTTPStateError(Exception):
     def __init__(self, value):
@@ -599,8 +501,4 @@ class HTTPRequestError(Exception):
     def __str__(self):
         return repr(self.value)
 
-class YAMLError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
+
