@@ -2,6 +2,7 @@ __pycache__
 config.yaml
 .vscode
 *.lock
+*.log
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

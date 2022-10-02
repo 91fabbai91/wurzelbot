@@ -18,4 +18,4 @@ RUN poetry config virtualenvs.create false \
   && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
 COPY wurzelbot /code/wurzelbot
 COPY main.py /code/
-ENTRYPOINT [ "python", "main.py" ]
+ENTRYPOINT [ "poetry", "run", "python", "main.py" ]

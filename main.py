@@ -10,15 +10,19 @@ from wurzelbot.quest import CityQuest, ParkQuest, DecoGardenQuest
 
 
 if __name__ == "__main__":
+    config_path = 'config/config.yaml'
     parser = argparse.ArgumentParser(description='Wurzelimperium Bot - the pythonic way')
+    parser.add_argument('--configFile',default=argparse.SUPPRESS)
     parser.add_argument('--growPlants', default=argparse.SUPPRESS,nargs='*')
     parser.add_argument('--growForQuests', default=argparse.SUPPRESS,nargs='*')
     parser.add_argument('--farmTownPark', default=argparse.SUPPRESS, action='store_true')
     parser.add_argument('--startBeesTour', default=argparse.SUPPRESS, action='store_true')
 
-    args, left_overs = parser.parse_known_args()
 
-    config_file = io.FileIO('config/config.yaml','r')
+    args, left_overs = parser.parse_known_args()
+    if('configFile' in args):
+        config_path = "config/" + args.configFile
+    config_file = io.FileIO(config_path,'r')
     config = yaml.safe_load(config_file)
     logging.basicConfig(filename=config['logging']['filename'], level=config['logging']['level'], format='%(asctime)s - %(message)s')
     login_data = LoginData(config['logins']['server'], config['logins']['name'],config['logins']['password'])

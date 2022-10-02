@@ -1,0 +1,7 @@
+logins:
+  server: <server>
+  name: <your-username>
+  password: <your-password>
+logging:
+  level: DEBUG
+  filename: wurzelbot.log
