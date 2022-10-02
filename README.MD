@@ -38,6 +38,11 @@ This repo is mainly inspired by MrFlamez WurzelimperiumBot on github
 * Build the container with podman or docker  ```docker build . -t <name-of-your-choice>```
 * Run the container with podman or docker ```docker run -v $(pwd)/config:/code/config <name-of-your-choice>```
 
+### Periodic execution (with crontab)
+
+* Edit the crontabs ```crontab -e```
+* Set the tool to be executed every 10 minutes ```*/10 * * * * docker run -v /home/ubuntu/wurzelbot/config:/code/config wurzelbot``` or ```*/10 * * * * poetry run python main.py```
+
 ## Authors
 
 Contributors names and contact info
@@ -56,7 +61,7 @@ Inspiration, code snippets, etc.
 ## Ideas for further steps
 
 * Sell automatically fruits and vegetables
-* Improve unit Tests
-* Command line interface
-* Tutorial to run this as a batch job in Cloud environments
+* Improve unit tests
+* Add Command line interface
+* Tutorial to run this as a batch job in cloud environments
 
