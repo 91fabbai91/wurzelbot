@@ -101,28 +101,33 @@ class HTTPConnection(object):
     def sell_on_market(self, item_id: int , price: float, number: int):
         self.__go_to_city()
         self.__get_to_market()
+        self.update_storage()
         parameter = urlencode({'p_anzahl': number, 'p_preis1': floor(price), 'p_preis2': '{:02d}'.format(int(100*price-floor(price))),'p_id':'p'+str(item_id), 'prepare_market':'true'}) 
     
-        headers = {'Content-type': 'application/x-www-form-urlencoded',
-                   'Connection': 'keep-alive'}
+        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
+                        'wunr=' + self.__user_id,
+            'Connection': 'Keep-Alive'}
         response, content = self.__webclient.request('http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_API, \
                                                     'POST', \
                                                     parameter, \
                                                     headers)
 
         self.__check_if_http_status_is_ok(response)
-        self.read_storage_from_server()
+        self.read_user_data_from_server()
+        self.update_storage()
         parameter = urlencode({'p_anzahl': number, 'p_preis1': floor(price), 'p_preis2': '{:02d}'.format(int(100*price-floor(price))),'p_id':str(item_id), 'verkaufe_markt':'OK'}) 
-        print(parameter)
         response, content = self.__webclient.request('http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_API, \
                                                     'POST', \
                                                     parameter, \
                                                     headers)
+        self.read_user_data_from_server()
 
     def __get_to_market(self):
         headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
                         'wunr=' + self.__user_id,
             'Connection': 'Keep-Alive'}
+        adresse= 'http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_API +'?page=1&order=&v='
+        response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_API
         
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -368,6 +373,25 @@ class HTTPConnection(object):
         else:
             return jContent['produkte']
 
+    def update_storage(self):
+        headers = {'User-Agent': USER_AGENT,\
+                   'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
+                             'wunr=' + self.__user_id}
+
+        adress = 'http://s' + str(self.__session.server) + STATIC_DOMAIN +'/ajax/updatelager.php'
+        parameter = urlencode({'all': 1,
+                    'sort': 1,
+                    'type': 'normal',
+                    'token': self.__token}) 
+        try:
+            response, content = self.__webclient.request('https://www.wurzelimperium.de/dispatch.php', \
+                                        'POST', \
+                                        parameter, \
+                                        headers)
+        except:
+            raise
+
+
     def get_all_product_informations(self):
         """
         Sammelt alle Produktinformationen und gibt diese zur Weiterverarbeitung zurück.
@@ -398,6 +422,8 @@ class HTTPConnection(object):
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
         return content
+
+    
 
     def get_offers_from_product(self, id):
         """
