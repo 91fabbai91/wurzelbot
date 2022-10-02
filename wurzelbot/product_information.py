@@ -1,8 +1,8 @@
 import re
 import logging
 import json
-from . import http_connection
-from . import product
+import http_connection
+import product
 
 
 class ProductInformation(object):

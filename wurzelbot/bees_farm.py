@@ -1,6 +1,6 @@
 import logging
 from enum import Enum, unique
-from . import http_connection
+import http_connection
 
 @unique
 class BeesTour(Enum):

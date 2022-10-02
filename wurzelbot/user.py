@@ -1,6 +1,6 @@
 from distutils.command.build import build
-from . import http_connection
-from . import garden
+import http_connection
+import garden
 import logging
 import re
 

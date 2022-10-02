@@ -1,7 +1,7 @@
 import logging
 import re
-from . import http_connection
-from . import message
+import http_connection
+import message
 
 
 # Message States

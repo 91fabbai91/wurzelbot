@@ -4,9 +4,9 @@ import yaml
 import io
 from distutils.command.config import config
 import argparse
-from wurzelbot.wurzelbot import Wurzelbot
-from wurzelbot.login_data import LoginData
-from wurzelbot.quest import CityQuest, ParkQuest, DecoGardenQuest
+from wurzelbot import Wurzelbot
+from login_data import LoginData
+from quest import CityQuest, ParkQuest, DecoGardenQuest
 
 
 if __name__ == "__main__":

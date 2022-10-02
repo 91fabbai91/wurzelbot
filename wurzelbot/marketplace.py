@@ -1,6 +1,6 @@
 import logging
 import re
-from . import http_connection
+import http_connection
 
 
 class Marketplace(object):

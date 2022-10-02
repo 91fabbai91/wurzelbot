@@ -1,7 +1,7 @@
 import logging
 import abc
 import re
-from . import http_connection
+import http_connection
 
 class Quest(metaclass=abc.ABCMeta):
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:

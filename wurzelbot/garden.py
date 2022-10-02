@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import datetime
-from . import http_connection
+import http_connection
 
 class Garden(object):
     def __init__(self, http_connection1: http_connection.HTTPConnection, garden_id: int):

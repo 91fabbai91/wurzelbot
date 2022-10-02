@@ -1,5 +1,5 @@
 import logging
-from . import http_connection
+import http_connection
 
 class TownPark(object):
     def __init__(self, http_connection: http_connection.HTTPConnection, park_id: int):

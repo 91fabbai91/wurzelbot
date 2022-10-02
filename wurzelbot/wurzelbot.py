@@ -2,16 +2,16 @@ from ast import If
 from itertools import product
 import logging
 from collections import Counter
-from . import http_connection
-from . import login_data
-from . import user
-from . import town_park
-from . import stock
-from . import messenger
-from . import quest
-from . import product_information
-from . import marketplace
-from . import bees_farm
+import http_connection
+import login_data
+import user
+import town_park
+import stock
+import messenger
+import quest
+import product_information
+import marketplace
+import bees_farm
 
 class Wurzelbot(object):
 

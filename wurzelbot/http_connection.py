@@ -4,12 +4,12 @@ import re
 import httplib2
 from math import floor
 from http.cookies import SimpleCookie
-from . import session
+import session
 import logging
 from lxml import html
-from . import login_data
-from . import message
-from . import parsing_utils
+import login_data
+import message
+import parsing_utils
 
 #Defines
 HTTP_STATE_CONTINUE            = 100

@@ -2,7 +2,7 @@ import json
 import logging
 import re
 from bidict import bidict
-from . import http_connection
+import http_connection
 
 class Stock(object):
     def __init__(self, http_connection: http_connection.HTTPConnection):
