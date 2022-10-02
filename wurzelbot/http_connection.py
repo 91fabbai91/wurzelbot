@@ -1,6 +1,7 @@
 
 from urllib.parse import urlencode
 import re
+import io
 import httplib2
 from math import floor
 from http.cookies import SimpleCookie
@@ -232,7 +233,7 @@ class HTTPConnection(object):
                     'msg_subject': message.subject,
                     'msg_body': message.body,
                     'msg_send': 'senden'}) 
-        adresse = 'http://s' + str(self.__session.server()) + STATIC_DOMAIN + MESSAGE_API        
+        adresse = 'http://s' + str(self.__session.server()) + STATIC_DOMAIN + MESSAGE_API
         try:
             if parameter is not None:
                 response, content = self.__webclient.request(adresse, 'POST', parameter, headers)
@@ -409,7 +410,6 @@ class HTTPConnection(object):
 
         nextPage = True
         iPage = 1
-        listOffers = []
         while (nextPage):
             
             nextPage = False
@@ -431,27 +431,32 @@ class HTTPConnection(object):
                 else:
                     #range von 1 bis länge-1, da erste Zeile Überschriften sind und die letzte Weiter/Zurück.
                     #Falls es mehrere seiten gibt.
-                    for i in range(1, len(table)-1):
-                        anzahl = table[i][0].text
-                        anzahl = anzahl.encode('utf-8')
-                        anzahl = anzahl.replace('.', '')
-                        
-                        preis = table[i][3].text
-                        preis = preis.encode('utf-8')
-                        preis = preis.replace('\xc2\xa0wT', '')
-                        preis = preis.replace('.', '')
-                        preis = preis.replace(',', '.')
-                        #produkt = table[i][1][0].text
-                        #verkaeufer = table[i][2][0].text
-        
-                        listOffers.append([int(anzahl), float(preis)])
+                    list_offers = self.__get_amounts_and_prices_from_table(table)
 
                     for element in table[len(table)-1][0]:
                         if 'weiter' in element.text:
                             nextPage = True
                             iPage = iPage + 1
 
-        return listOffers  
+        return list_offers 
+
+    def __get_amounts_and_prices_from_table(self, table):
+        list_offers = []
+        for i in range(1, len(table)-1):
+            anzahl = table[i][0].text
+            anzahl = anzahl.encode('utf-8')
+            anzahl = anzahl.replace('.', '')
+                        
+            preis = table[i][3].text
+            preis = preis.encode('utf-8')
+            preis = preis.replace('\xc2\xa0wT', '')
+            preis = preis.replace('.', '')
+            preis = preis.replace(',', '.')
+                        #produkt = table[i][1][0].text
+                        #verkaeufer = table[i][2][0].text
+        
+            list_offers.append([int(anzahl), float(preis)]) 
+        return list_offers
 
     def get_npc_prices(self):
         """
