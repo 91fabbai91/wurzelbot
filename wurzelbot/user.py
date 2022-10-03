@@ -208,8 +208,8 @@ class User(object):
     def is_honey_farm_available(self):
         if self.__user_data.level_number < 10:
             return False
-        jContent = self.__go_to_bees()
-        if jContent['init'] == 1:
+        jContent = self.__http_connection.execute_command('do=citymap_init')
+        if jContent['data']['location']['bees']['bought'] == 1:
             return True
         else:
             return False
@@ -217,8 +217,8 @@ class User(object):
     def is_town_park_available(self):
         if self.__user_data.level_number < 5:
             return False
-        jContent = self.__go_to_town_park()
-        if jContent['init'] == 1:
+        jContent = self.__http_connection.execute_command('do=citymap_init')
+        if jContent['data']['location']['park']['bought'] == 1:
             return True
         else:
             return False
@@ -238,12 +238,11 @@ class User(object):
     def is_deco_garden_available(self):
         if self.__user_data.level_number < 13:
             return False
-        jContent = self.__http_connection.execute_decogarden_command("do=getGarden")
-        if jContent["status"] == 'ok':
+        jContent = self.__http_connection.execute_command('do=citymap_init')
+        if jContent['data']['location']['decogarden']['bought'] == 1:
             return True
         else:
             return False
-
     def is_mail_address_confirmed(self):
         content = self.__http_connection.get_user_profile()
         result = re.search(r'Unbestätigte Email:', content)
