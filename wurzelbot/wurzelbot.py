@@ -137,7 +137,7 @@ class Wurzelbot(object):
         else:
             self.__logger.info('Was able to harvest all the gardens.')
 
-    def collectCashFromPark(self):
+    def collect_cash_from_park(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
         if self.__user.is_town_park_available():

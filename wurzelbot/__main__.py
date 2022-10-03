@@ -46,6 +46,6 @@ if __name__ == "__main__":
     if('startBeesTour' in args):
         wurzelbot.start_all_bees_tour()
     if('farmTownPark' in args):
-        wurzelbot.collectCashFromPark()
+        wurzelbot.collect_cash_from_park()
         wurzelbot.renew_all_items_in_park()
     wurzelbot.stop_wurzelbot()
