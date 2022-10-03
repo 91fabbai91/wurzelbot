@@ -13,7 +13,7 @@ ENV YOUR_ENV=${YOUR_ENV} \
 
 RUN pip install "poetry==$POETRY_VERSION"
 WORKDIR code
-COPY pyproject.toml poetry.lock /code/
+COPY pyproject.toml /code/
 RUN poetry config virtualenvs.create false \
   && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
 COPY wurzelbot /code/wurzelbot
