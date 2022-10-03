@@ -15,8 +15,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag bongomedia/wurzelbot:v0.1
+      run: docker build . --file Dockerfile --tag bongomedia/wurzelbot
     - name: Docker Hub Login
       run: echo ${{ secrets.DOCKERHUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Doker Push
-      run: docker push bongomedia/wurzelbot:v0.1
+      run: docker push bongomedia/wurzelbot
