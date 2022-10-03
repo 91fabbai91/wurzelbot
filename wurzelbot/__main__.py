@@ -2,6 +2,7 @@ from ast import arg
 import logging
 import yaml
 import io
+import sys
 from distutils.command.config import config
 import argparse
 from wurzelbot import Wurzelbot
@@ -24,7 +25,11 @@ if __name__ == "__main__":
         config_path = "config/" + args.configFile
     config_file = io.FileIO(config_path,'r')
     config = yaml.safe_load(config_file)
-    logging.basicConfig(filename=config['logging']['filename'], level=config['logging']['level'], format='%(asctime)s - %(message)s')
+    
+    logging.basicConfig(level=config['logging']['level'],handlers=[
+        logging.FileHandler(config['logging']['filename']),
+        logging.StreamHandler(sys.stdout)],
+        format='%(asctime)s - %(message)s')
     login_data = LoginData(config['logins']['server'], config['logins']['name'],config['logins']['password'])
     wurzelbot = Wurzelbot()
     wurzelbot.start_wurzelbot(login_data)

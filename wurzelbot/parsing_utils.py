@@ -5,7 +5,7 @@ import xml.etree.ElementTree as eTree
 
 def generate_json_content_and_check_for_ok(content : str):
     """
-    Aufbereitung und Prüfung der vom Server empfangenen JSON Daten.
+    Preparation and verification of JSON data received from the server.
     """
     jContent = json.loads(content)
     if (jContent['status'] == 'ok'): return jContent
@@ -13,7 +13,7 @@ def generate_json_content_and_check_for_ok(content : str):
 
 def generate_json_content_and_check_for_success(content):
     """
-    Aufbereitung und Prüfung der vom Server empfangenen JSON Daten.
+    Parsing all NPC prices from the HTML script of the game help.
     """
     jContent = json.loads(content)
     if (jContent['success'] == 1): return jContent
@@ -21,10 +21,10 @@ def generate_json_content_and_check_for_success(content):
 
 def parse_npc_prices_from_html(html: str):
     """
-    Parsen aller NPC Preise aus dem HTML Skript der Spielehilfe.
+    Parsing all NPC prices from the HTML script of the game help.
     """
-    #ElementTree benötigt eine Datei zum Parsen.
-    #Mit BytesIO wird eine Datei im Speicher angelegt, nicht auf der Festplatte.
+    # ElementTree needs a file to parse.
+    # With BytesIO a file is created in memory, not on disk.
     html_file = io.BytesIO(html)
     
     html_tree = eTree.parse(html_file)
@@ -57,7 +57,7 @@ def parse_npc_prices_from_html(html: str):
 
 def generate_yaml_content_and_check_status_for_ok(content: str):
     """
-    Aufbereitung und Prüfung der vom Server empfangenen YAML Daten auf iO Status.
+    Preparation and checking of YAML data received from the server for iO status.
     """
     content = content.replace('\n', ' ')
     content = content.replace('\t', ' ')
@@ -79,7 +79,7 @@ def generate_yaml_content_and_check_for_success(content : str):
 
 def get_username_from_json_content(jContent):
     """
-    Sucht im übergebenen JSON Objekt nach dem Usernamen und gibt diesen zurück.
+    Searches for the username in the passed JSON object and returns it.
     """
     result = False
     for i in range(0, len(jContent['table'])):

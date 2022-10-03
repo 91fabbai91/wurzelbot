@@ -47,12 +47,12 @@ class Garden(object):
 
     def __get_all_field_ids_from_field_id_and_size_as_string(self, field_id, sx, sy):
         """
-        Rechnet anhand der field_id und Größe der Pflanze (sx, sy) alle IDs aus und gibt diese als String zurück.
+        Calculates all IDs based on the field_id and size of the plant (sx, sy) and returns them as a string.
         """
         
-        # Zurückgegebene Felderindizes (x) für Pflanzen der Größe 1-, 2- und 4-Felder.
-        # Wichtig beim Gießen; dort müssen alle Indizes angegeben werden.
-        # (Sowohl die mit x als auch die mit o gekennzeichneten).
+        # Returned field indices (x) for plants of size 1, 2 and 4 fields.
+        # Important when watering; all indices must be specified there.
+        # (Both those marked with x and those marked with o).
         # x: field_id
         # o: ergänzte Felder anhand der size
         # +---+   +---+---+   +---+---+
@@ -69,7 +69,7 @@ class Garden(object):
 
     def __get_all_field_ids_from_field_id_and_size_as_int_list(self, field_id, sx, sy):
         """
-        Rechnet anhand der field_id und Größe der Pflanze (sx, sy) alle IDs aus und gibt diese als Integer-Liste zurück.
+        Calculates all IDs based on the field_id and size of the plant (sx, sy) and returns them as an integer list.
         """
         sFields =self.__get_all_field_ids_from_field_id_and_size_as_string(field_id, sx, sy)
         listFields = sFields.split(',') #Stringarray
@@ -81,17 +81,18 @@ class Garden(object):
     
     def __is_plant_growable_on_field(self, field_id, empty_fields, fields_to_plant, sx):
         """
-        Prüft anhand mehrerer Kriterien, ob ein Anpflanzen möglich ist.
+        Checks against several criteria to see if planting is possible.
         """
         # Betrachtetes Feld darf nicht besetzt sein
         if not (field_id in empty_fields): return False
         
-        # Anpflanzen darf nicht außerhalb des Gartens erfolgen
-        # Dabei reicht die Betrachtung in x-Richtung, da hier ein
-        # "Zeilenumbruch" stattfindet. Die y-Richtung ist durch die
-        # Abfrage abgedeckt, ob alle benötigten Felder frei sind.
-        # Felder außerhalb (in y-Richtung) des Gartens sind nicht leer,
-        # da sie nicht existieren.
+        # Planting must not be done outside the garden
+        # The consideration in x-direction is sufficient, because here a
+        # "line break" takes place. The y-direction is covered by the
+        # query whether all required fields are empty.
+        # Fields outside (in y-direction) of the garden are not empty,
+        # since they do not exist.
+
         if not ((self.__number_of_fields - field_id)%self.__len_x >= sx - 1): return False
         fields_to_plantSet = set(fields_to_plant)
         empty_fieldsSet = set(empty_fields)
@@ -127,7 +128,7 @@ class Garden(object):
 
     def __find_empty_fields_from_json_content(self, jcontent):
         """
-        Sucht im JSON Content nach Felder die leer sind und gibt diese zurück.
+        Searches the JSON content for fields that are empty and returns them.
         """
         empty_fields = []
         
@@ -135,7 +136,7 @@ class Garden(object):
             if jcontent['garden'][field][0] == 0:
                 empty_fields.append(int(field))
 
-        #Sortierung über ein leeres Array ändert Objekttyp zu None
+        #Sorting over an empty array changes object type to None
         if len(empty_fields) > 0:
             empty_fields.sort(reverse=False)
 
@@ -143,16 +144,16 @@ class Garden(object):
 
     def __find_weed_fields_from_json_content(self, jcontent):
         """
-        Sucht im JSON Content nach Felder die mit Unkraut befallen sind und gibt diese zurück.
+        Searches the JSON content for fields that are infested with weeds and returns them.
         """
         weed_fields = []
         
-        # 41 Unkraut, 42 Baumstumpf, 43 Stein, 45 Maulwurf
+        # 41 weed, 42 tree stump, 43 stone, 45 mole
         for field in jcontent['garden']:
             if jcontent['garden'][field][0] in [41, 42, 43, 45]:
                 weed_fields.append(int(field))
 
-        #Sortierung über ein leeres Array ändert Objekttyp zu None
+        #Sorting over an empty array changes object type to None
         if len(weed_fields) > 0:
             weed_fields.sort(reverse=False)
 
@@ -177,7 +178,7 @@ class Garden(object):
                         self.__http_connection.grow_plant(field, plant_id, self.__id, fields)
                         planted += 1
 
-                        #Nach dem Anbau belegte Felder aus der Liste der leeren Felder loeschen
+                        #Delete occupied fields from the list of empty fields after cultivation
                         fields_to_plantSet = set(fields_to_plant)
                         empty_fieldsSet = set(empty_fields)
                         tmpSet = empty_fieldsSet - fields_to_plantSet
@@ -185,17 +186,16 @@ class Garden(object):
 
         except Exception as e:
             self.__logger.error(e)
-            self.__logger.error('Im Garten ' + str(self.__id) + ' konnte nicht gepflanzt werden.')
+            self.__logger.error('In garden ' + str(self.__id) + ' could not get planted.')
             return 0    
         else:
-            msg = 'Im Garten ' + str(self.__id) + ' wurden ' + str(planted) + ' Pflanzen gepflanzt.'
+            msg = 'In garden ' + str(self.__id) + ' were ' + str(planted) + ' plants planted.'
             self.__logger.info(msg)
-            print(msg)
             return planted
 
     def __find_plants_to_be_watered_from_json_content(self, jContent):
         """
-        Sucht im JSON Content nach Pflanzen die bewässert werden können und gibt diese inkl. der Pflanzengröße zurück.
+        Searches the JSON content for plants that can be watered and returns them including the plant size.
         """
         plants_to_be_watered = {'fieldID':[], 'sx':[], 'sy':[]}
         for field in range(0, len(jContent['grow'])):
@@ -231,7 +231,7 @@ class Garden(object):
         else: return True
 
     def water_plants(self):
-        self.__logger.info('Gieße alle Pflanzen im Garten ' + str(self.__id) + '.')
+        self.__logger.info('Water all plants in garden ' + str(self.__id) + '.')
         try:
             jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
                   str(self.__id))
@@ -242,10 +242,9 @@ class Garden(object):
                 self.__http_connection.water_plant(self.__id, plants['fieldID'][i], sFields)
         except Exception as e:
             self.__logger.error(e)
-            self.__logger.error('Garten ' + str(self.__id) + ' konnte nicht bewässert werden.')
+            self.__logger.error('Garden ' + str(self.__id) + ' could not get watered.')
         else:
-            self.__logger.info('Im Garten ' + str(self.__id) + ' wurden ' + str(nPlants) + ' Pflanzen gegossen.')
-            print('Im Garten ' + str(self.__id) + ' wurden ' + str(nPlants) + ' Pflanzen gegossen.')
+            self.__logger.info('In garden ' + str(self.__id) + ' were ' + str(nPlants) + ' plants watered.')
 
 class AquaGarden(Garden):
     def __init__(self, http_connection):
@@ -264,9 +263,9 @@ class AquaGarden(Garden):
                 sFields = self.__get_all_field_ids_from_field_id_and_size_as_string(plants['fieldID'][i], plants['sx'][i], plants['sy'][i])
                 self.__http_connection.waterPlantInAquaGarden(plants['fieldID'][i], sFields)
         except:
-            self.__logger.error('Wassergarten konnte nicht bewässert werden.')
+            self.__logger.error('Watergarden could not get watered.')
         else:
-            self.__logger.info('Im Wassergarten wurden ' + str(nPlants) + ' Pflanzen gegossen.')
+            self.__logger.info('In water garden were ' + str(nPlants) + ' plants watered.')
 
     def harvest(self):
         self.__http_connection.execute_command('do=watergardenHarvestAll')

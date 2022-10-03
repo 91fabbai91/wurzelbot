@@ -3,19 +3,19 @@ import time, logging
 
 class Session(object):
     """
-    Die Session Klasse ist das Python-Pendant einer PHP-Session und dieser daher nachempfunden.
+    The session class is the Python counterpart of a PHP session and is therefore modeled after it.
     """
 
-    #Gültigkeitsdauer der Session (2 h -> 7200 s)
+    #Session validity period (2 h -> 7200 s)
     __lifetime         = 7200
     __lifetime_reserve =  300
 
-    #Eine Reservezeit dient dazu, kurz vor Ende der Session rechtzeitig alle Aktionen
-    #abschließen zu können
+    # A reserve time is used to be able to complete all actions in time shortly before the end of the session.
+    # to be able to complete
     
     def __init__(self):
         """
-        Initialisierung aller Attribute mit einem Standardwert.
+        Initialization of all attributes with a default value.
         """
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__session_id = None
@@ -26,7 +26,7 @@ class Session(object):
 
     def is_session_time_elapsed(self):
         """
-        Prüft, ob die offene Session abgelaufen ist.
+        Checks if the open session has expired.
         """
         current_time = time.time()
         if (current_time > self.__end_time):
@@ -35,9 +35,9 @@ class Session(object):
             return False
 
 
-    def is_session_valid(self): #TODO: Prüfen wie die Methode sinnvoll eingesetzt werden kann
+    def is_session_valid(self): 
         """
-        Prüft anhand verschiedener Kriterien, ob die aktuelle Session gültig ist.
+        Checks whether the current session is valid based on various criteria.
         """
         bReturn = True
         if (self.__session_id == None): bReturn = False
@@ -47,7 +47,7 @@ class Session(object):
 
     def open_session(self, sessionID, server):
         """
-        Anlegen einer neuen Session mit allen notwendigen Daten.
+        Create a new session with all necessary data.
         """
         self.__session_id = sessionID
         self.__server = server
@@ -61,19 +61,19 @@ class Session(object):
 
     def closeSession(self, wunr, server):
         """
-        Zurücksetzen aller Informationen. Gleichbedeutend mit einem Schließen der Session.
+        Resetting all information. Equivalent to closing the session.
         """
         sID = str(self.__session_id)
         self.__session_id = None
         self.__server = None
         self.__start_time = None
         self.__end_time = None
-        self.__logger.info("Session (ID: " + sID + ") geschlossen")
+        self.__logger.info("Session (ID: " + sID + ") closed")
 
     
     def get_remaining_time(self):
         """
-        Gibt die verbleibende Zeit zurück, bis die Session abläuft.
+        Returns the remaining time until the session expires.
         """
         current_time = time.time()
         return self.__end_time - current_time
@@ -82,7 +82,7 @@ class Session(object):
     @property
     def session_id(self):
         """
-        Gibt die Session-ID zurück.
+        Returns the session ID.
         """
         return self.__session_id
 
@@ -90,7 +90,7 @@ class Session(object):
     @property
     def server(self):
         """
-        Gibt die Servernummer zurück.
+        Returns the server number.
         """
         return self.__server
 

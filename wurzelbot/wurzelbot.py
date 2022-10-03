@@ -69,7 +69,7 @@ class Wurzelbot(object):
 
     def water_plants_in_all_gardens(self):
         """
-        Alle Gärten des Spielers werden komplett bewässert.
+        All the gardens of the player are completely irrigated.
         """
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
@@ -86,7 +86,7 @@ class Wurzelbot(object):
             for garden in self.__user.gardens:
                 empty_fields.append(garden.get_empty_fields())
         except:
-            self.__logger.error('Konnte leere Felder von Garten ' + str(garden.id) + ' nicht ermitteln.')
+            self.__logger.error('Could not determine empty field from garden ' + str(garden.id))
         else:
             pass
         return empty_fields
@@ -104,7 +104,7 @@ class Wurzelbot(object):
 
     def get_weed_fields_of_gardens(self):
         """
-        Gibt alle Unkrau-Felder aller normalen Gärten zurück.
+        Returns all weed fields of all normal gardens.
         """
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
@@ -113,7 +113,7 @@ class Wurzelbot(object):
             for garden in self.__user.gardens:
                 weed_fields.append(garden.get_weed_fields())
         except:
-            self.__logBot.error('Konnte Unkraut-Felder von Garten ' + str(garden.id) + ' nicht ermitteln.')
+            self.__logBot.error('Could not determine weed fields of garden ' + str(garden.id))
         else:
             pass
 
@@ -126,16 +126,15 @@ class Wurzelbot(object):
     def harvest_all_garden(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        #TODO: Wassergarten ergänzen
         try:
             for garden in self.__user.gardens:
                 garden.harvest()
 
             self.__stock.update_number_in_stock()
         except:
-            self.__logger.error('Konnte nicht alle Gärten ernten.')
+            self.__logger.error('Could not harvest all the gardens.')
         else:
-            self.__logger.info('Konnte alle Gärten ernten.')
+            self.__logger.info('Was able to harvest all the gardens.')
 
     def collectCashFromPark(self):
         if not self.__wurzelbot_started:
@@ -204,7 +203,7 @@ class Wurzelbot(object):
 
     def grow_plants_in_gardens_by_name(self, productName, amount=-1):
         """
-        Pflanzt so viele Pflanzen von einer Sorte wie möglich über alle Gärten hinweg an.
+        Plant as many plants of one variety as possible across all gardens.
         """
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
@@ -213,13 +212,13 @@ class Wurzelbot(object):
         product = self.__product_information.get_product_by_name(productName)
 
         if product is None:
-            logMsg = 'Pflanze "' + productName + '" nicht gefunden'
+            logMsg = 'plant "' + productName + '" not found'
             self.__logger.error(logMsg)
             print(logMsg)
             return -1
 
         if not product.is_plant or not product.is_plantable:
-            logMsg = '"' + productName + '" kann nicht angepflanzt werden'
+            logMsg = '"' + productName + '" could not get planted'
             self.__logger.error(logMsg)
             print(logMsg)
             return -1

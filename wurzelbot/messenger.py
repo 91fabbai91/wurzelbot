@@ -24,7 +24,7 @@ class Messenger(object):
 
     def __get_message_id_from_new_message_result(self, result):
         """
-        Extrahiert aus content die ID der neu angelegten Nachricht
+        Extracts from content the ID of the newly created message
         """
 
         res = re.search(r'name="hpc" value="(.*)" id="hpc"', result)
@@ -35,7 +35,7 @@ class Messenger(object):
 
     def __was_delivery_successful(self, result):
         """
-        Prüft, ob der Versand der Nachricht erfolgreich war.
+        Checks if the message was sent successfully.
         """
         res = re.search(r'Deine Nachricht wurde an.*verschickt.', result)
         if (res is not None):
@@ -45,7 +45,7 @@ class Messenger(object):
 
     def __did_the_message_recipient_exist(self, result):
         """
-        Prüft, ob der Empfänger der Nachricht vorhanden war.
+        Checks if the recipient of the message was present.
         """
         res = re.search(r'Der Empfänger existiert nicht.', result)
         if (res is not None):
@@ -55,7 +55,7 @@ class Messenger(object):
 
     def __did_the_message_had_a_subject(self, result):
         """
-        Prüft, ob die Nachricht einen Betreff hatte.
+        Checks if the message had a subject.
         """
         res = re.search(r'Es wurde kein Betreff angegeben.', result)
         if (res is not None):
@@ -65,7 +65,7 @@ class Messenger(object):
 
     def __did_the_message_had_a_text(self, result):
         """
-        Prüft, ob die Nachricht einen Text hatte.
+        Checks if the message had a text.
         """
         res = re.search(r'Es wurde keine Nachricht eingegeben.', result)
         if (res is not None):
@@ -75,7 +75,7 @@ class Messenger(object):
 
     def __did_the_message_had_a_recipient(self, result):
         """
-        Prüft, ob die Nachricht einen Empfänger hatte.
+        Checks if the message had a recipient.
         """
         res = re.search(r'Es wurde kein Empfänger angegeben.', result)
         if (res is not None):
@@ -85,7 +85,7 @@ class Messenger(object):
 
     def __blocked_from_message_recipient(self, result):
         """
-        Prüft, ob der Empfänger den Empfang von Nachrichten des Senders blockiert hat.
+        Checks if the receiver has blocked the reception of messages from the sender.
         """
         res = re.search(r'Der Empfänger hat dich auf die Blockliste gesetzt.', result)
         if (res is not None):
@@ -95,7 +95,7 @@ class Messenger(object):
 
     def __get_message_delivery_state(self, result):
         """
-        Gibt den Status der gesendeten Nachricht zurück.
+        Returns the status of the sent message.
         """
         state = 0
         if (self.__was_delivery_successful(result) is True):
@@ -123,7 +123,7 @@ class Messenger(object):
     
     def __get_new_message_id(self):
         """"
-        Fordert mit der HTTP Connection eine neue Nachricht an und ermittelt die ID zum späteren Senden.
+        Requests a new message with the HTTP Connection and determines the ID for sending later.
         """
 
         try:
@@ -136,14 +136,14 @@ class Messenger(object):
 
     def clear_sent_list(self):
         """
-        Löscht die Liste der gesendeten Nachrichten.
+        Deletes the list of sent messages.
         """
         self.__sent = []
 
 
     def get_summary_of_message_delivery_states(self):
         """
-        Gibt eine Zusammenfassung über die Stati aller gesendeten Nachrichten zurück.
+        Returns a summary of the status of all sent messages.
         """
         number_of_all_sent_messages = len(self.__sent)
         number_of_successful_messages = 0
@@ -175,7 +175,7 @@ class Messenger(object):
 
     def write_message(self, sender, recipients, subject, body):
         """
-        Verschickt eine Nachricht und fügt diese der Liste der gesendeten Nachrichten hinzu.
+        Sends a message and adds it to the list of sent messages.
         """
         if not type(recipients) is ListType:
             raise MessengerError("")

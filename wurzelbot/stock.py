@@ -34,7 +34,7 @@ class Stock(object):
 
     def update_number_in_stock(self):
         """
-        Führt ein Update des Lagerbestands für alle Produkte durch.
+        Performs an update of the stock for all products.
         """
         
         self.__reset_numbers_in_stock()

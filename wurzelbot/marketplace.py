@@ -11,7 +11,7 @@ class Marketplace(object):
 
     def get_all_tradeable_products(self):
         """
-        Gibt die IDs aller handelbaren Produkte zurück.
+        Returns the IDs of all tradable products.
         """
         self.update_all_tradeable_products()
         return self.__tradeable_product_ids
@@ -27,7 +27,7 @@ class Marketplace(object):
 
     def get_all_offers_of_product(self, id):
         """
-        Ermittelt alle Angebote eines Produkts.
+        Determines all offers of a product.
         """
         self.update_all_tradeable_products()
         
@@ -44,7 +44,7 @@ class Marketplace(object):
 
     def get_cheapest_offer(self, id):
         """
-        Ermittelt das günstigste Angebot eines Produkts.
+        Determines the most favorable offer of a product.
         """
 
         list_offers = self.get_all_offers_of_product(id)
@@ -63,7 +63,7 @@ class Marketplace(object):
 
     def find_big_gap_in_product_offers(self, id, npcPrice):
         """
-        Ermittelt eine große Lücke (> 10 %) zwischen den Angeboten und gibt diese zurück.
+        Identifies a large gap (> 10%) between offers and returns it.
         """
         
         list_offers = self.get_all_offers_of_product(id)
@@ -71,18 +71,18 @@ class Marketplace(object):
 
         if (list_offers != None):
             
-            #Alle Preise in einer Liste sammeln
+            #Collect all prices in one list
             for element in list_offers:
                 list_prices.append(element[1])
             
-            if (npcPrice != None and id != 0): #id != 0: Coins nicht sortieren
+            if (npcPrice != None and id != 0): #id != 0: Do not sort coins
                 iList = reversed(range(0, len(list_prices)))
                 for i in iList:
                     if list_prices[i] > npcPrice:
                         del list_prices[i]
             
             gaps = []
-            #Zum Vergleich werden mindestens zwei Einträge benötigt.
+            #At least two entries are required for comparison.
             if (len(list_prices) >= 2):
                 for i in range(0, len(list_prices)-1):
                     if (((list_prices[i+1] / 1.1) - list_prices[i]) > 0.0):
