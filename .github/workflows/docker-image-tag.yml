@@ -21,6 +21,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v3
       with:
+        images: bongomedia/wurzelbot
         tags: |
             type=ref,event=tag
     - name: Build and push
