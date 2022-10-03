@@ -238,7 +238,7 @@ class User(object):
     def is_deco_garden_available(self):
         if self.__user_data.level_number < 13:
             return False
-        jContent = self.__http_connection.execute_decogarden_command("")
+        jContent = self.__http_connection.execute_decogarden_command("do=getGarden")
         if jContent["status"] == 'ok':
             return True
         else:

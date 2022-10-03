@@ -1,5 +1,6 @@
 import io
 import json
+from sre_constants import SUCCESS
 import yaml
 import xml.etree.ElementTree as eTree
 
@@ -16,8 +17,23 @@ def generate_json_content_and_check_for_success(content):
     Parsing all NPC prices from the HTML script of the game help.
     """
     jContent = json.loads(content)
-    if (jContent['success'] == 1): return jContent
+    try:
+        if (jContent['success'] == 1): return jContent
+    except:
+        pass
     else: raise JSONError('JSON not successful')
+
+def generate_json_content_and_check_for_status_success(content):
+    """
+    Parsing all NPC prices from the HTML script of the game help.
+    """
+    jContent = json.loads(content)
+    try:
+        if (jContent['status'] == 'SUCCESS'): return jContent
+    except:
+        pass
+    else: raise JSONError('JSON not successful')
+
 
 def parse_npc_prices_from_html(html: str):
     """

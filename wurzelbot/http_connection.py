@@ -24,9 +24,10 @@ AJAX_PHP                       = '/ajax/ajax.php?'
 MESSAGE_API                    = '/nachrichten/new.php'
 WATER_API                      = '/save/wasser.php'
 PLANT_API                      = '/save/pflanz.php'
-DECO_GARDEN_API                = '/ajax/decogardenajax.php?'
+DECO_GARDEN_API                = '/ajax/decogardenajax.php'
 DESTROY_API                    = '/abriss.php?'
 MARKET_API                     = '/stadt/marktstand.php'
+TREE_QUEST_API                 = '/treequestquery.php?'
 
 class HTTPConnection(object):
 
@@ -200,11 +201,31 @@ class HTTPConnection(object):
         else:
             return jcontent
 
+    def execute_tree_gardencommand(self, command: str):
+        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
+                        'wunr=' + self.__user_id,
+            'Connection': 'Keep-Alive'}
+        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + TREE_QUEST_API +command
+        
+        try:
+            response, content = self.__webclient.request(adresse, 'GET', headers = headers)
+            self.__check_if_http_status_is_ok(response)
+            jcontent = parsing_utils.generate_json_content_and_check_for_status_success(content.decode('UTF-8'))
+        except:
+            raise
+        else:
+            return jcontent
+
+
     def execute_decogarden_command(self, command: str):
         headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
                         'wunr=' + self.__user_id,
             'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + DECO_GARDEN_API +command
+        if(command != ""):
+            deco_garden_api = DECO_GARDEN_API + '?'
+        else:
+            deco_garden_api = DECO_GARDEN_API
+        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + deco_garden_api +command
         
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)

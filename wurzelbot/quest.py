@@ -72,3 +72,28 @@ class BeesGardenQuest(Quest):
             self._amount.update({product['name']: product['missing']})
         self._logger.debug("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
         return self._amount, self._reward
+
+class TreeQuest(Quest):
+    def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
+        super().__init__(http_connection)
+
+    def get_quest(self):
+        try:
+            quest_data = list(self._http_connection.execute_tree_gardencommand("op=listavailablequests")['quests'].values())[0]
+            self._reward = re.sub('<[^<]+?>', '',quest_data['rewardtext']).replace('Belohnung:','')
+            short_text = quest_data['short_text'].replace('.','')
+            amount = re.split("Liefere |, | und | ",short_text)
+            for i in range(1,len(amount),2):
+                    self._amount.update({amount[i+1]: int(amount[i])})
+            self._logger.debug("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
+            print("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
+            return self._amount, self._reward
+        except:
+            raise QuestError("No TreeQuest available")
+        
+
+class QuestError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)

@@ -46,6 +46,7 @@ class Wurzelbot(object):
         self.__deco_garden_quest = quest.DecoGardenQuest(self.__http_connection)
         self.__park_quest = quest.ParkQuest(self.__http_connection)
         self.__bee_farm_quest = quest.BeesGardenQuest(self.__http_connection)
+        self.__tree_quest= quest.TreeQuest(self.__http_connection)
         self.__product_information = product_information.ProductInformation(self.__http_connection)
         self.__marketplace = marketplace.Marketplace(self.__http_connection)
         if self.__user.is_honey_farm_available():
