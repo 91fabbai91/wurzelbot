@@ -18,11 +18,11 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
     - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          tags: |
-              type=ref,event=tag
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        tags: |
+            type=ref,event=tag
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
