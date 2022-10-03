@@ -2,7 +2,7 @@ name: Docker Image CI Release
 on:
   push:
     tags:
-      - 'v*.*'
+      - '*'
 
 jobs:
 
@@ -13,8 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag bongomedia/wurzelbot:${{  github.ref_name }}}
+      run: docker build . --file Dockerfile --tag bongomedia/wurzelbot:${{env.GITHUB_REF_NAME}}
     - name: Docker Hub Login
       run: echo ${{ secrets.DOCKERHUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Doker Push
-      run: docker push bongomedia/wurzelbot:${{  github.ref_name }}
+      run: docker push bongomedia/wurzelbot:${{env.GITHUB_REF_NAME}}
