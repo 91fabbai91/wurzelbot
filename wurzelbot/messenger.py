@@ -17,9 +17,6 @@ class Messenger(object):
     def __init__(self, http_connection: http_connection.HTTPConnection):
         self.__http_connection = http_connection
         self.__logger = logging.getLogger()
-        self. __inbox = []
-        self.__outbox = []
-        self.__system = []
         self.__sent = []
 
     def __get_message_id_from_new_message_result(self, result):
@@ -173,13 +170,12 @@ class Messenger(object):
 
         return summary
 
-    def write_message(self, sender, recipients, subject, body):
+    def write_message(self, recipients, subject, body):
         """
         Sends a message and adds it to the list of sent messages.
         """
         if not type(recipients) is ListType:
             raise MessengerError("")
-            return
 
         n = len(recipients)
         i = 0
