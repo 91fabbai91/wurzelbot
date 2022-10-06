@@ -48,4 +48,5 @@ if __name__ == "__main__":
     if('farmTownPark' in args):
         wurzelbot.collect_cash_from_park()
         wurzelbot.renew_all_items_in_park()
+    
     wurzelbot.stop_wurzelbot()

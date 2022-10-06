@@ -65,8 +65,8 @@ class Wurzelbot(object):
             self.__bees_farm.start_all_bees_tour(bees_farm.BeesTour.TWO_HOURS_TOUR)
 
 
-    def sell_on_market(self, item_id: int , price: float, number: int):
-        self.__marketplace.sell_on_market(item_id, price, number)
+    def sell_on_market(self, name: str , price: float, number: int):
+        self.__marketplace.sell_on_market(self.__product_information.get_product_by_name(name).id, price, number)
 
     def water_plants_in_all_gardens(self):
         """
