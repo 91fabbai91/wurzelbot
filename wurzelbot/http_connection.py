@@ -2,6 +2,7 @@
 from urllib.parse import urlencode
 import re
 import io
+import time
 import httplib2
 from math import floor
 from http.cookies import SimpleCookie
@@ -29,6 +30,7 @@ DESTROY_API                    = '/abriss.php?'
 MARKET_BOOTH_API               = '/stadt/marktstand.php'
 MARKET_API                     = '/stadt/markt.php'
 TREE_QUEST_API                 = '/treequestquery.php?'
+WIMPS_API                      = '/ajax/verkaufajax.php?'
 
 class HTTPConnection(object):
 
@@ -101,9 +103,9 @@ class HTTPConnection(object):
             self.__del__()
 
     def sell_on_market(self, item_id: int , price: float, number: int):
+        self.execute_command("do=citymap_init")
         self.__go_to_city()
         self.__get_to_market()
-        
         parameter = urlencode({'p_anzahl': str(number), 'p_preis1': str(floor(price)), 'p_preis2': '{:02d}'.format(int(100*(price-floor(price)))),'p_id':'p'+str(item_id), 'prepare_markt':'true'}) 
         headers = {'User-Agent': USER_AGENT,\
             'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
@@ -116,7 +118,6 @@ class HTTPConnection(object):
         self.update_storage()
         self.__check_if_http_status_is_ok(response)
         parameter = urlencode({'p_anzahl': str(number), 'p_preis1': str(floor(price)), 'p_preis2': '{:02d}'.format(int(100*(price-floor(price)))),'p_id':str(item_id), 'verkaufe_markt':'OK'}) 
-
         response, content = self.__webclient.request('http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_BOOTH_API, \
                                                     'POST', \
                                                     parameter, \
@@ -237,6 +238,21 @@ class HTTPConnection(object):
             raise
         else:
             return jcontent
+
+    def execute_wimp_command(self, command: str):
+        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
+                'wunr=' + self.__user_id,
+            'Connection': 'Keep-Alive'}
+        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + WIMPS_API +command
+        try:
+            response, content = self.__webclient.request(adresse, 'GET', headers = headers)
+            self.__check_if_http_status_is_ok(response)
+            jcontent = parsing_utils.generate_json_content_and_check_for_ok(content.decode('UTF-8'))
+        except:
+            raise
+        else:
+            return jcontent
+
 
     def destroy_weed_field(self, field_id: int):
         headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
@@ -537,6 +553,8 @@ class HTTPConnection(object):
     def __check_if_http_status_is_ok(self, response):
         if not (response['status'] == str(HTTP_STATE_OK)):
             raise HTTPStateError('HTTP Status is not ok')
+
+
 
 
 

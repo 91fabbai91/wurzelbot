@@ -3,6 +3,7 @@ import http_connection
 import garden
 import logging
 import re
+import time
 
 class User(object):
     def __init__(self, http_connection: http_connection.HTTPConnection):
@@ -203,7 +204,7 @@ class User(object):
         if result:
             return iGartenAnz
         else:
-            self.__logHTTPConn.debug(jContent['table'])
+            self.__logger.debug(jContent['table'])
 
     def is_honey_farm_available(self):
         if self.__user_data.level_number < 10:
@@ -252,6 +253,14 @@ class User(object):
     @property
     def gardens(self):
         return self.__gardens
+
+
+    def get_daily_login_bonus(self):
+        jcontent = self.__http_connection.read_user_data_from_server()
+        bonus_data = jcontent['dailyloginbonus']
+        for day, bonus in bonus_data['data']['rewards'].items():
+            if any(_ in bonus for _ in ('money', 'products')):
+                    self.__http_connection.execute_command("do=dailyloginbonus_getreward&day={day}".format(day=day))
     
 class UserDataBuilder(object):
     def __init__(self):
@@ -340,10 +349,6 @@ class UserDataBuilder(object):
     @contracts.setter
     def contracts(self, c):
         self.__contracts = c
-
-
-
-    
 
     def build(self):
         return UserData(self)

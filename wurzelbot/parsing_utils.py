@@ -3,6 +3,7 @@ import json
 from sre_constants import SUCCESS
 import yaml
 import xml.etree.ElementTree as eTree
+from wimp import Wimp
 
 def generate_json_content_and_check_for_ok(content : str):
     """
@@ -114,6 +115,18 @@ def get_username_from_json_content(jContent):
         return sUserName
     else:
         raise JSONError('username not found')
+
+def get_wimps_list_from_json_content(jcontent):
+    """
+    Returns list of growing plants from JSON content
+    """
+    wimps_list = []
+    for wimp in jcontent['wimps']:
+        product_data = {}
+        for product in wimp['sheet']['products']:
+            product_data[str(product['pid'])] = int(product['amount'])
+        wimps_list.append(Wimp(id=wimp['sheet']['id'], product_amount=product_data, reward=wimp['sheet']['sum']))    
+    return wimps_list
 
 class JSONError(Exception):
     def __init__(self, value):

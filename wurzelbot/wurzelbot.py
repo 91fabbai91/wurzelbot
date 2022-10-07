@@ -68,6 +68,9 @@ class Wurzelbot(object):
     def sell_on_market(self, name: str , price: float, number: int):
         self.__marketplace.sell_on_market(self.__product_information.get_product_by_name(name).id, price, number)
 
+    def get_daily_login_bonus(self):
+        self.__user.get_daily_login_bonus()
+
     def water_plants_in_all_gardens(self):
         """
         All the gardens of the player are completely irrigated.

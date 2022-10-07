@@ -2,6 +2,7 @@ import logging
 import time
 from datetime import datetime
 import http_connection
+import parsing_utils
 
 class Garden(object):
     def __init__(self, http_connection1: http_connection.HTTPConnection, garden_id: int):
@@ -246,6 +247,17 @@ class Garden(object):
         else:
             self.__logger.info('In garden ' + str(self.__id) + ' were ' + str(nPlants) + ' plants watered.')
 
+    def get_wimps_data(self):
+        self.__http_connection.execute_command("do=changeGarden&garden={id}".format(id=self.__id))
+        jcontent = self.__http_connection.execute_wimp_command("do=getAreaData")
+        parsing_utils.find_wimps_data_from_json_content(jcontent)
+
+    def sell_products_to_wimp(self, wimp_id):
+        return self.__http_connection.execute_wimp_command("do=accept&id={wimp_id}".format(wimp_id=wimp_id))['newProductCounts']
+
+    def decline_wimp(self, wimp_id):
+        return self.__http_connection.execute_wimp_command("do=decline&id={wimp_id}".format(wimp_id=wimp_id))['action']
+
 class AquaGarden(Garden):
     def __init__(self, http_connection):
         super(http_connection, 101)
@@ -269,3 +281,4 @@ class AquaGarden(Garden):
 
     def harvest(self):
         self.__http_connection.execute_command('do=watergardenHarvestAll')
+
