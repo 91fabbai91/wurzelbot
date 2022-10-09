@@ -8,7 +8,7 @@ from math import floor
 from http.cookies import SimpleCookie
 import session
 import logging
-from lxml import html
+from lxml import html, etree
 import login_data
 import message
 import parsing_utils
@@ -31,6 +31,7 @@ MARKET_BOOTH_API               = '/stadt/marktstand.php'
 MARKET_API                     = '/stadt/markt.php'
 TREE_QUEST_API                 = '/treequestquery.php?'
 WIMPS_API                      = '/ajax/verkaufajax.php?'
+NOTES_API                      = 'notiz.php'
 
 class HTTPConnection(object):
 
@@ -553,6 +554,28 @@ class HTTPConnection(object):
     def __check_if_http_status_is_ok(self, response):
         if not (response['status'] == str(HTTP_STATE_OK)):
             raise HTTPStateError('HTTP Status is not ok')
+
+    def get_notes(self):
+        """
+        get the users note
+        """
+
+        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
+                             'wunr=' + self.__user_id,
+                    'Content-Length':'0'}
+
+        adresse = 'http://s' + str(self.__session.server) +STATIC_DOMAIN + NOTES_API
+        try:
+            response, content = self.__webclient.request(adresse, 'POST', headers = headers)
+            self.__check_if_http_status_is_ok(response)
+            content = content.decode('UTF-8')
+            my_parser = etree.HTMLParser(recover=True)
+            html_tree = etree.fromstring(content, parser=my_parser)
+
+            note = html_tree.find('./body/form/div/textarea[@id="notiztext"]')
+            return note.text.strip()
+        except:
+            raise
 
 
 

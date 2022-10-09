@@ -12,6 +12,8 @@ import quest
 import product_information
 import marketplace
 import bees_farm
+import notes
+import wimp
 
 class Wurzelbot(object):
 
@@ -29,6 +31,7 @@ class Wurzelbot(object):
         self.__product_information = None
         self.__marketplace = None
         self.__bees_farm = None
+        self.__notes = None
         self.__wurzelbot_started = False
 
         
@@ -51,6 +54,7 @@ class Wurzelbot(object):
         self.__marketplace = marketplace.Marketplace(self.__http_connection)
         if self.__user.is_honey_farm_available():
             self.__bees_farm = bees_farm.BeesFarm(self.__http_connection)
+        self.__notes = notes.Notes(self.__http_connection)
         self.__wurzelbot_started = True
         self.__logger.debug("Wurzelbot started!")
 
@@ -290,6 +294,53 @@ class Wurzelbot(object):
         missing_amount = self.get_missing_quest_amount(quest=quest_level)
         for product_name, amount in missing_amount.items():
             self.grow_plants_in_gardens_by_name(product_name, amount)
+    
+    
+    def get_all_wimps_products(self):
+        all_wimps_products = Counter()
+        for garden in self.__user.gardens:
+            wimp_data = garden.get_wimps_data()
+            for products in wimp_data.values():
+                all_wimps_products.update(products[1])
+
+        return dict(all_wimps_products)
+
+    def sell_wimps_products(self, minimal_balance, percentage):
+        stock_list = self.__stock.get_ordered_stock_list()
+        wimps_data = []
+        for garden in self.__user.gardens:
+            for wimp_data in garden.get_wimps_data():
+                wimps_data.append(wimp_data)
+
+        for wimp in wimps_data:
+                if not self.check_wimps_profitable(wimp, percentage):
+                    self.__user.decline_wimp(wimp.id)
+                else:
+                    if self.check_wimps_required_amount(minimal_balance, wimp.id, stock_list):
+                        print("Selling products to wimp: " + wimp.id)
+                        new_products_counts = self.__user.sell_products_to_wimp(wimp.id)
+                        for id, amount in wimp.product_amount.items():
+                            stock_list[id] -= amount
+
+    def check_wimps_profitable(self, wimp: wimp.Wimp, percentage: int):
+        npc_sum = 0
+        for id, amount in wimp.product_amount.items():
+            npc_sum += self.__product_information.get_product_by_id(id).price_npc * amount
+        if wimp.reward / npc_sum >= percentage:
+            to_sell = True
+        else:
+            to_sell = False
+        return to_sell
+
+    def check_wimps_required_amount(self, minimal_balance, products, stock_list):
+        to_sell = True
+        for id, amount in products.items():
+            product = self.__product_information.get_product_by_id(id)
+            minimal_balance = max(self.__notes.get_min_stock(), self.__notes.get_min_stock(product.getName()), minimal_balance)
+            if stock_list.get(id, 0) - (amount + minimal_balance) <= 0:
+                to_sell = False
+                break
+        return to_sell
     
 
 

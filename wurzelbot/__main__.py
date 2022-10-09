@@ -11,9 +11,9 @@ from quest import CityQuest, ParkQuest, DecoGardenQuest
 
 
 if __name__ == "__main__":
-    config_path = 'config/config.yaml'
+    default_config_path = 'config/config.yaml'
     parser = argparse.ArgumentParser(description='Wurzelimperium Bot - the pythonic way')
-    parser.add_argument('--configFile',default=argparse.SUPPRESS)
+    parser.add_argument('--configFile',default=argparse.SUPPRESS, help="absolute config file path")
     parser.add_argument('--growPlants', default=argparse.SUPPRESS,nargs='*')
     parser.add_argument('--growForQuests', default=argparse.SUPPRESS,nargs='*')
     parser.add_argument('--farmTownPark', default=argparse.SUPPRESS, action='store_true')
@@ -22,9 +22,16 @@ if __name__ == "__main__":
 
     args, left_overs = parser.parse_known_args()
     if('configFile' in args):
-        config_path = "config/" + args.configFile
-    config_file = io.FileIO(config_path,'r')
-    config = yaml.safe_load(config_file)
+        config_path = args.configFile
+    else:
+        config_path = default_config_path#
+    try:
+        config_file = io.FileIO(config_path,'r')
+        config = yaml.safe_load(config_file)
+    except:
+        raise NoConfigFoundError("No Config in path {given_config} available . Default config file is {config}".format(config=default_config_path, give_config=config_path))
+    
+
     
     logging.basicConfig(level=config['logging']['level'],handlers=[
         logging.FileHandler(config['logging']['filename']),
@@ -33,6 +40,7 @@ if __name__ == "__main__":
     login_data = LoginData(config['logins']['server'], config['logins']['name'],config['logins']['password'])
     wurzelbot = Wurzelbot()
     wurzelbot.start_wurzelbot(login_data)
+    wurzelbot.sell_on_market("Zwiebel",1.76,100)
     wurzelbot.harvest_all_garden()
     if('growForQuests' in args):
         for quest_name in args.growForQuests:
@@ -48,5 +56,12 @@ if __name__ == "__main__":
     if('farmTownPark' in args):
         wurzelbot.collect_cash_from_park()
         wurzelbot.renew_all_items_in_park()
-    
+    wurzelbot.get_daily_login_bonus()
+    wurzelbot.sell_wimps_products(0,100)
     wurzelbot.stop_wurzelbot()
+
+class NoConfigFoundError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)

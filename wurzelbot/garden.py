@@ -250,13 +250,9 @@ class Garden(object):
     def get_wimps_data(self):
         self.__http_connection.execute_command("do=changeGarden&garden={id}".format(id=self.__id))
         jcontent = self.__http_connection.execute_wimp_command("do=getAreaData")
-        parsing_utils.find_wimps_data_from_json_content(jcontent)
+        return parsing_utils.get_wimps_list_from_json_content(jcontent)
 
-    def sell_products_to_wimp(self, wimp_id):
-        return self.__http_connection.execute_wimp_command("do=accept&id={wimp_id}".format(wimp_id=wimp_id))['newProductCounts']
 
-    def decline_wimp(self, wimp_id):
-        return self.__http_connection.execute_wimp_command("do=decline&id={wimp_id}".format(wimp_id=wimp_id))['action']
 
 class AquaGarden(Garden):
     def __init__(self, http_connection):

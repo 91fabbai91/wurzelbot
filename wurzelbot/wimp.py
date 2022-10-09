@@ -1,5 +1,8 @@
+import http_connection
+
 class Wimp(object):
     def __init__(self, id: int, product_amount: list, reward: float) -> None:
+        self.__http_connection = http_connection
         self.__product_amount = product_amount
         self.__id = id
         self.__reward = reward
@@ -15,5 +18,7 @@ class Wimp(object):
     @property
     def reward(self):
         return self.__reward
+
+
     
 

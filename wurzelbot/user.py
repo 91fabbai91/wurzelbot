@@ -219,7 +219,7 @@ class User(object):
         if self.__user_data.level_number < 5:
             return False
         jContent = self.__http_connection.execute_command('do=citymap_init')
-        if jContent['data']['location']['park']['bought'] == 1:
+        if jContent['data']['location']['park']['bought'] == True:
             return True
         else:
             return False
@@ -261,6 +261,12 @@ class User(object):
         for day, bonus in bonus_data['data']['rewards'].items():
             if any(_ in bonus for _ in ('money', 'products')):
                     self.__http_connection.execute_command("do=dailyloginbonus_getreward&day={day}".format(day=day))
+    
+    def sell_products_to_wimp(self, wimp_id):
+        return self.__http_connection.execute_wimp_command("do=accept&id={wimp_id}".format(wimp_id=wimp_id))['newProductCounts']
+
+    def decline_wimp(self, wimp_id):
+        return self.__http_connection.execute_wimp_command("do=decline&id={wimp_id}".format(wimp_id=wimp_id))['action']
     
 class UserDataBuilder(object):
     def __init__(self):
