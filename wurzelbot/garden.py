@@ -1,8 +1,10 @@
 import logging
 import time
-from datetime import datetime
 import http_connection
 import parsing_utils
+from datetime import datetime
+from enum import Enum
+
 
 class Garden(object):
     def __init__(self, http_connection1: http_connection.HTTPConnection, garden_id: int):
@@ -108,10 +110,10 @@ class Garden(object):
                   str(self.__id))
         return self.__find_empty_fields_from_json_content(jcontent)
 
-    def get_weed_fields(self):
+    def get_blocked_fields(self):
         jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
                   str(self.__id))
-        return self.__find_weed_fields_from_json_content(jcontent)
+        return self.__find_blocked_fields_from_json_content(jcontent)
 
     def update_planted_fields(self):
         jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
@@ -143,20 +145,18 @@ class Garden(object):
 
         return empty_fields
 
-    def __find_weed_fields_from_json_content(self, jcontent):
+    def __find_blocked_fields_from_json_content(self, jcontent):
         """
         Searches the JSON content for fields that are infested with weeds and returns them.
         """
-        weed_fields = []
+        weed_fields = {}
         
         # 41 weed, 42 tree stump, 43 stone, 45 mole
         for field in jcontent['garden']:
-            if jcontent['garden'][field][0] in [41, 42, 43, 45]:
-                weed_fields.append(int(field))
+            blocked_field_type = jcontent['garden'][field][0]
+            if blocked_field_type in [BlockedFieldType.WEED.value, BlockedFieldType.STONE.value, BlockedFieldType.TREE_STUMP.value, BlockedFieldType.MOLE.value]:
+                weed_fields.update({int(field), blocked_field_type})
 
-        #Sorting over an empty array changes object type to None
-        if len(weed_fields) > 0:
-            weed_fields.sort(reverse=False)
 
         return weed_fields
 
@@ -278,3 +278,8 @@ class AquaGarden(Garden):
     def harvest(self):
         self.__http_connection.execute_command('do=watergardenHarvestAll')
 
+class BlockedFieldType(Enum):
+    WEED = 41
+    TREE_STUMP = 42
+    STONE = 43
+    MOLE = 45
