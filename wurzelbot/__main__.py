@@ -43,6 +43,7 @@ if __name__ == "__main__":
     wurzelbot.start_wurzelbot(login_data)
     wurzelbot.sell_on_market("Zwiebel",1.76,100)
     wurzelbot.harvest_all_garden()
+    wurzelbot.destroy_weed_fields_in_garden()
     if('growForQuests' in args):
         for quest_name in args.growForQuests:
             wurzelbot.plant_according_to_quest(quest_name)

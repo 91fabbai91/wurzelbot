@@ -22,7 +22,7 @@ def generate_json_content_and_check_for_success(content):
         if (jContent['success'] == 1): return jContent
     except:
         pass
-    else: raise JSONError('JSON not successful')
+    else: raise JSONError('JSON not successful. {error_msg}'.format(error_msg=jContent["errorMsg"]))
 
 def generate_json_content_and_check_for_status_success(content):
     """

@@ -26,7 +26,7 @@ MESSAGE_API                    = '/nachrichten/new.php'
 WATER_API                      = '/save/wasser.php'
 PLANT_API                      = '/save/pflanz.php'
 DECO_GARDEN_API                = '/ajax/decogardenajax.php'
-DESTROY_API                    = '/abriss.php?'
+DESTROY_API                    = '/save/abriss.php?'
 MARKET_BOOTH_API               = '/stadt/marktstand.php'
 MARKET_API                     = '/stadt/markt.php'
 TREE_QUEST_API                 = '/treequestquery.php?'
@@ -263,7 +263,7 @@ class HTTPConnection(object):
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
-            jcontent = parsing_utils.generate_json_content_and_check_for_ok(content.decode('UTF-8'))
+            jcontent = parsing_utils.generate_json_content_and_check_for_success(content.decode('UTF-8'))
         except:
             raise
 

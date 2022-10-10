@@ -4,6 +4,7 @@ import http_connection
 import parsing_utils
 from datetime import datetime
 from enum import Enum
+from collections import Counter
 
 
 class Garden(object):
@@ -115,6 +116,41 @@ class Garden(object):
                   str(self.__id))
         return self.__find_blocked_fields_from_json_content(jcontent)
 
+    def destroy_weed_fields(self):
+        number_freed_fields = 0
+        blocked_fields = self.get_blocked_fields()
+        blocked_fields_type_count = Counter(list(blocked_fields.values()))
+        try:
+            if(blocked_fields_type_count[BlockedFieldType.WEED.value] >0): 
+                blocked_field_type = BlockedFieldType.WEED
+                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type)
+            elif(blocked_fields_type_count[BlockedFieldType.STONE.value] >0):
+                blocked_field_type = BlockedFieldType.STONE
+                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type)
+            elif(blocked_fields_type_count[BlockedFieldType.TREE_STUMP.value] >0):
+                blocked_field_type = BlockedFieldType.TREE_STUMP
+                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type)
+            elif(blocked_fields_type_count[BlockedFieldType.MOLE.value] > 0):
+                blocked_field_type = BlockedFieldType.MOLE
+                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type)
+            else:
+                self.__logger.info("No blocked fields available!")
+                return 0
+        except parsing_utils.JSONError as exception:
+            self.__logger.error(exception)
+        else:
+            self.__logger.info("Number of freed fields: {fields}".format(fields=number_freed_fields))
+            return number_freed_fields
+
+    def __destroy_fields_of_type(self, blocked_fields, blocked_field_type) -> int:
+        number_freed_fields = 0
+        for field_id, field_type in blocked_fields.items():  
+            if field_type == blocked_field_type.value:
+                parsing_utils.generate_json_content_and_check_for_success(self.__http_connection.destroy_weed_field(field_id))
+                self.__logger.debug("Field Nr. {field_id} of type {field_type} freed".format(field_id= field_id, field_type=field_type))
+                number_freed_fields = number_freed_fields + 1
+        return number_freed_fields
+
     def update_planted_fields(self):
         jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
                   str(self.__id))
@@ -155,7 +191,7 @@ class Garden(object):
         for field in jcontent['garden']:
             blocked_field_type = jcontent['garden'][field][0]
             if blocked_field_type in [BlockedFieldType.WEED.value, BlockedFieldType.STONE.value, BlockedFieldType.TREE_STUMP.value, BlockedFieldType.MOLE.value]:
-                weed_fields.update({int(field), blocked_field_type})
+                weed_fields.update({int(field): blocked_field_type})
 
 
         return weed_fields

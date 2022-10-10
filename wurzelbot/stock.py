@@ -1,7 +1,6 @@
 import json
 import logging
 import re
-from bidict import bidict
 import http_connection
 
 class Stock(object):

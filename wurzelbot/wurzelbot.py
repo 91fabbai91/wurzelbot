@@ -261,6 +261,10 @@ class Wurzelbot(object):
         for garden in self.get_plants_in_garden():
             plant_count =  plant_count + Counter(r[1] for r in garden)
         return dict(plant_count)
+
+    def destroy_weed_fields_in_garden(self):
+        for garden in self.__user.gardens:
+            garden.destroy_weed_fields()
     
     def get_missing_quest_amount(self, quest: quest.Quest) -> dict:
         missing_quest_amount = {}
