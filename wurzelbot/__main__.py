@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument('--growForQuests', default=argparse.SUPPRESS,nargs='*')
     parser.add_argument('--farmTownPark', default=argparse.SUPPRESS, action='store_true')
     parser.add_argument('--startBeesTour', default=argparse.SUPPRESS, action='store_true')
+    parser.add_argument('--sellToWimpsPercentage',default=argparse.SUPPRESS, help="percentage of wimp price to npc price")
 
 
     args, left_overs = parser.parse_known_args()
@@ -56,8 +57,10 @@ if __name__ == "__main__":
     if('farmTownPark' in args):
         wurzelbot.collect_cash_from_park()
         wurzelbot.renew_all_items_in_park()
+    if('sellToWimpsPercentage' in args):
+        wurzelbot.sell_wimps_products(0,args.sellToWimpsPercentage)
     wurzelbot.get_daily_login_bonus()
-    wurzelbot.sell_wimps_products(0,100)
+    
     wurzelbot.stop_wurzelbot()
 
 class NoConfigFoundError(Exception):
