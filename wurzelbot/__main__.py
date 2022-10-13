@@ -50,8 +50,7 @@ if __name__ == "__main__":
     elif('growPlants' in args):
         for plant in args.growPlants:
             wurzelbot.grow_plants_in_gardens_by_name(plant)
-    else:
-        wurzelbot.grow_anything()
+    wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()
     if('startBeesTour' in args):
         wurzelbot.start_all_bees_tour()
