@@ -285,16 +285,19 @@ class Wurzelbot(object):
         return missing_quest_amount
 
     def plant_according_to_quest(self, quest_type_name: str):
-        if quest_type_name == quest.CityQuest.__name__:
-            quest_level = self.__city_quest
-        elif quest_type_name == quest.ParkQuest.__name__ and self.__user.town_park_available:
-            quest_level = self.__park_quest
-        elif quest_type_name == quest.DecoGardenQuest.__name_:
-            quest_level = self.__deco_garden_quest
-        elif quest_type_name == quest.BeesGardenQuest.__name__ and self.__user.honey_farm_available:
-            quest_level = self.__bee_farm_quest
-        else:
-            raise NameError("No Element named {}".format(quest_type_name))
+        try:
+            if quest_type_name == quest.CityQuest.__name__:
+                quest_level = self.__city_quest
+            elif quest_type_name == quest.ParkQuest.__name__ and self.__user.town_park_available:
+                quest_level = self.__park_quest
+            elif quest_type_name == quest.DecoGardenQuest.__name_:
+                quest_level = self.__deco_garden_quest
+            elif quest_type_name == quest.BeesGardenQuest.__name__ and self.__user.honey_farm_available:
+                quest_level = self.__bee_farm_quest
+            else:
+                raise NameError("No Element named {}".format(quest_type_name))
+        except quest.QuestError as e:
+            self.__logger.error(e)
         missing_amount = self.get_missing_quest_amount(quest=quest_level)
         for product_name, amount in missing_amount.items():
             self.grow_plants_in_gardens_by_name(product_name, amount)

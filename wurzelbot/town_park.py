@@ -54,6 +54,12 @@ class TownPark(object):
         for item in self.__get_renewable_deko_from_park():
             self.__renew_items_in_park(item)
 
+    def remove_blocked_field(self, tile: int):
+        self.__http_connection.execute_command('park_removetrash&parkid=' + str(self.__id) +'&tile='+str(tile))
+
+    def buy_new_item(self, item: str, amount: int):
+        self.__http_connection.execute_command('park_buyitem&item=' + item + '&amount=' + str(amount))
+
 class BlockedFieldType(Enum):
     WEED = 1
     TREE_STUMP = 2
