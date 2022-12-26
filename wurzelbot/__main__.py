@@ -41,16 +41,17 @@ if __name__ == "__main__":
     login_data = LoginData(config['logins']['server'], config['logins']['name'],config['logins']['password'])
     wurzelbot = Wurzelbot()
     wurzelbot.start_wurzelbot(login_data)
-    wurzelbot.sell_on_market("Zwiebel",1.76,100)
     wurzelbot.harvest_all_garden()
     wurzelbot.destroy_weed_fields_in_garden()
-    if('growForQuests' in args):
+    wurzelbot.sell_on_market("Zwiebel", 1.76,10)
+    if'growForQuests' in args and wurzelbot.has_empty_fields():
         for quest_name in args.growForQuests:
             wurzelbot.plant_according_to_quest(quest_name)
-    elif('growPlants' in args):
+    elif 'growPlants' in args and wurzelbot.has_empty_fields():
         for plant in args.growPlants:
             wurzelbot.grow_plants_in_gardens_by_name(plant)
-    wurzelbot.grow_anything()
+    if wurzelbot.has_empty_fields():
+        wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()
     if('startBeesTour' in args):
         wurzelbot.start_all_bees_tour()
@@ -58,7 +59,8 @@ if __name__ == "__main__":
         wurzelbot.collect_cash_from_park()
         wurzelbot.renew_all_items_in_park()
     if('sellToWimpsPercentage' in args):
-        wurzelbot.sell_wimps_products(0,args.sellToWimpsPercentage)
+        percentage = float(args.sellToWimpsPercentage)/100.0
+        wurzelbot.sell_wimps_products(0,percentage)
     wurzelbot.get_daily_login_bonus()
     
     wurzelbot.stop_wurzelbot()

@@ -131,6 +131,7 @@ class HTTPConnection(object):
             'Connection': 'Keep-Alive'}
         adresse= f'http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_API}?page=1&order=&v='
         response, _ = self.__webclient.request(adresse, 'GET', headers = headers)
+        self.__check_if_http_status_is_ok(response)
         adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_BOOTH_API}'  
         response, _ = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)

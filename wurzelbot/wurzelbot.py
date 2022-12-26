@@ -14,6 +14,7 @@ import marketplace
 import bees_farm
 import notes
 import wimp
+import garden
 
 class Wurzelbot(object):
 
@@ -85,7 +86,7 @@ class Wurzelbot(object):
             garden.water_plants()
 
 
-    def get_empty_fields_of_gardens(self):
+    def get_empty_fields_of_gardens(self) -> list:
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
         
@@ -99,7 +100,7 @@ class Wurzelbot(object):
             pass
         return empty_fields
 
-    def has_empty_fields(self):
+    def has_empty_fields(self) -> bool:
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
 
@@ -110,7 +111,7 @@ class Wurzelbot(object):
 
         return amount > 0
 
-    def get_weed_fields_of_gardens(self):
+    def get_weed_fields_of_gardens(self) -> list:
         """
         Returns all weed fields of all normal gardens.
         """
@@ -166,15 +167,7 @@ class Wurzelbot(object):
         if not isSmthPrinted:
             self.__logger.info('Your stock is empty')
 
-
-    def getLowestStockEntry(self):
-        if not self.__wurzelbot_started:
-            raise NotStartedException("Wurzelbot not started yet")
-        entryID = self.__stock.get_lowest_stock_entry()
-        if entryID == -1: return 'Your stock is empty'
-        return self.__product_information.get_product_by_id(entryID).getName()
-
-    def get_ordered_stock_list(self):
+    def get_ordered_stock_list(self) -> list:
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
         orderedList = ''
@@ -184,7 +177,7 @@ class Wurzelbot(object):
             orderedList += str('\n')
         return orderedList.strip()
 
-    def get_lowest_plant_stock_entry(self):
+    def get_lowest_plant_stock_entry(self) -> str:
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
         lowest_stock = -1
@@ -209,59 +202,61 @@ class Wurzelbot(object):
         if self.__user.town_park_available:
             self.__town_park.renew_all_items_in_park()
 
-    def grow_plants_in_gardens_by_name(self, productName, amount=-1):
+    def grow_plants_in_gardens_by_name(self, productName, amount=-1) -> int:
         """
         Plant as many plants of one variety as possible across all gardens.
         """
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        planted = 0
+        planted_totally = 0
 
         product = self.__product_information.get_product_by_name(productName)
 
         if product is None:
             logMsg = f'plant {productName} not found'
             self.__logger.error(logMsg)
-            return -1
+            return 0
 
-        if not product.is_plant or not product.is_plantable:
+        if not product.is_plantable or not product.is_plant():
             logMsg = f'{productName} could not get planted'
             self.__logger.error(logMsg)
-            return -1
+            return 0
 
         for garden in self.__user.gardens:
             if amount == -1 or amount > self.__stock.get_stock_by_product_id(product.id):
                 amount = self.__stock.get_stock_by_product_id(product.id)
-            planted += garden.grow_plants(product.id, product.sx, product.sy, amount)
-            self.__logger.info(f"Planted {amount} of type {product.name} in garden {garden.id}")
+            planted = garden.grow_plants(product.id, product.sx, product.sy, amount)
+            planted_totally += planted
+            self.__logger.info(f"Planted {planted} of type {product.name} in garden {garden.id}")
         
         self.__stock.update_number_in_stock()
 
-        return planted
+        return planted_totally
 
     
     
     def grow_anything(self):
         for product_id, amount in self.__stock.get_ordered_stock_list().items():
             product = self.__product_information.get_product_by_id(product_id)
-            if self.grow_plants_in_gardens_by_name(product.name, amount) == 0 and product.sx == 1 and product.sy == 1:
-                return
+            if product.is_plantable and product.is_plant(): 
+                if self.grow_plants_in_gardens_by_name(product.name, amount) == 0 and product.sx == 1 and product.sy == 1:
+                    return
             
 
-    def get_plants_in_garden(self):
+    def get_plants_in_garden(self) -> garden.Garden:
         gardens = []
         for garden in self.__user.gardens:
             garden.update_planted_fields()
             gardens.append(garden.fields)
         return gardens
 
-    def number_of_plants_in_garden(self):
+    def number_of_plants_in_garden(self) -> dict:
         plant_count = Counter()
         for garden in self.get_plants_in_garden():
             plant_count =  plant_count + Counter(r[1] for r in garden)
         return dict(plant_count)
 
-    def destroy_weed_fields_in_garden(self):
+    def destroy_weed_fields_in_garden(self) -> None:
         for garden in self.__user.gardens:
             garden.destroy_weed_fields()
     
@@ -284,12 +279,14 @@ class Wurzelbot(object):
         return missing_quest_amount
 
     def plant_according_to_quest(self, quest_type_name: str):
+        quest_level =""
         try:
             if quest_type_name == quest.CityQuest.__name__:
                 quest_level = self.__city_quest
-            elif quest_type_name == quest.ParkQuest.__name__ and self.__user.town_park_available:
-                quest_level = self.__park_quest
-            elif quest_type_name == quest.DecoGardenQuest.__name_:
+            elif quest_type_name == quest.ParkQuest.__name__:
+                if self.__user.town_park_available:
+                    quest_level = self.__park_quest
+            elif quest_type_name == quest.DecoGardenQuest.__name__:
                 quest_level = self.__deco_garden_quest
             elif quest_type_name == quest.BeesGardenQuest.__name__ and self.__user.honey_farm_available:
                 quest_level = self.__bee_farm_quest
@@ -297,12 +294,15 @@ class Wurzelbot(object):
                 raise NameError(f"No Element named {quest_type_name}")
         except quest.QuestError as e:
             self.__logger.error(e)
-        missing_amount = self.get_missing_quest_amount(quest=quest_level)
-        for product_name, amount in missing_amount.items():
-            self.grow_plants_in_gardens_by_name(product_name, amount)
+        try:
+            missing_amount = self.get_missing_quest_amount(quest=quest_level)
+            for product_name, amount in missing_amount.items():
+                self.grow_plants_in_gardens_by_name(product_name, amount)
+        except:
+            pass
     
     
-    def get_all_wimps_products(self):
+    def get_all_wimps_products(self) -> dict:
         all_wimps_products = Counter()
         for garden in self.__user.gardens:
             wimp_data = garden.get_wimps_data()
@@ -322,13 +322,16 @@ class Wurzelbot(object):
                 if not self.check_wimps_profitable(wimp, percentage):
                     self.__user.decline_wimp(wimp.id)
                 else:
-                    if self.check_wimps_required_amount(minimal_balance, wimp.id, stock_list):
+                    if self.check_wimps_required_amount(minimal_balance, wimp.product_amount, stock_list):
                         self.__logger.info("Selling products to wimp: {wimp.id}")
                         new_products_counts = self.__user.sell_products_to_wimp(wimp.id)
                         for id, amount in wimp.product_amount.items():
                             stock_list[id] -= amount
+                    else:
+                        pass
 
-    def check_wimps_profitable(self, wimp: wimp.Wimp, percentage: int):
+
+    def check_wimps_profitable(self, wimp: wimp.Wimp, percentage: int) -> bool:
         npc_sum = 0
         for id, amount in wimp.product_amount.items():
             npc_sum += self.__product_information.get_product_by_id(id).price_npc * amount
