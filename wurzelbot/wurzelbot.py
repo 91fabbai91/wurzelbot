@@ -222,19 +222,18 @@ class Wurzelbot(object):
         if product is None:
             logMsg = f'plant {productName} not found'
             self.__logger.error(logMsg)
-            print(logMsg)
             return -1
 
         if not product.is_plant or not product.is_plantable:
             logMsg = f'{productName} could not get planted'
             self.__logger.error(logMsg)
-            print(logMsg)
             return -1
 
         for garden in self.__user.gardens:
             if amount == -1 or amount > self.__stock.get_stock_by_product_id(product.id):
                 amount = self.__stock.get_stock_by_product_id(product.id)
             planted += garden.grow_plants(product.id, product.sx, product.sy, amount)
+            self.__logger.info(f"Planted {amount} of type {product.name} in garden {garden.id}")
         
         self.__stock.update_number_in_stock()
 

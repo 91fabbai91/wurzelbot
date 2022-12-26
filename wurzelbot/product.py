@@ -1,6 +1,9 @@
+import logging
+
 class Product():
     
     def __init__(self, id, cat, sx, sy, name, lvl, crop, plantable, time):
+        self.__logger = logging.getLogger(self.__class__.__name__)
         self.__id = id
         self.__category = cat
         self.__sx = sx
@@ -67,7 +70,7 @@ class Product():
         # Show nothing instead of None
         xstr = lambda s: s or ""
 
-        print('ID:', str(self.__id).rjust(3), ' ', \
+        self.__logger.info('ID:', str(self.__id).rjust(3), ' ', \
               'CAT:', str(self.__category).ljust(5), ' ', \
               'Name:', str(self.__name).ljust(35), ' ', \
               'Plantable:', str(self.__is_plantable).ljust(5), ' ', \

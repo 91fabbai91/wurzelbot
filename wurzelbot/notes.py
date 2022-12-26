@@ -1,8 +1,10 @@
 import http_connection
+import logging
 
 class Notes(object):
     def __init__(self, httpConnection: http_connection.HTTPConnection):
         self.__httpConnection = httpConnection
+        self.__logger = logging.getLogger(self.__class__.__name__)
 
     def get_notes(self):
       return self.__httpConnection.get_notes()
@@ -32,5 +34,5 @@ class Notes(object):
       try:
         min_stock_int = int(min_stock_str)
       except:
-        print(f'Error: "{prefix}" must be an int')
+        self.__logger.error(f'Error: "{prefix}" must be an int')
       return min_stock_int

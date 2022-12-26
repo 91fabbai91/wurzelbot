@@ -226,7 +226,7 @@ class Garden(object):
             return 0    
         else:
             msg = f'In garden {self.__id} were {planted} plants of type {plant_id} planted.'
-            self.__logger.info(msg)
+            self.__logger.debug(msg)
             return planted
 
     def __find_plants_to_be_watered_from_json_content(self, jContent):
