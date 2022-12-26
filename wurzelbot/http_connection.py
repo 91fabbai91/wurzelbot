@@ -89,9 +89,9 @@ class HTTPConnection(object):
             self.__user_id = cookie['wunr'].value
 
     def logout(self):
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + 'wunr=' + self.__user_id}
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}'}
         
-        adresse = 'http://s'+str(self.__session.server) +  STATIC_DOMAIN +'/main.php?page=logout'
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}/main.php?page=logout'
 
         try: #content ist beim Logout leer
             response, content = self.__webclient.request(adresse, 'GET', headers=headers)
@@ -109,17 +109,16 @@ class HTTPConnection(object):
         self.__get_to_market()
         parameter = urlencode({'p_anzahl': str(number), 'p_preis1': str(floor(price)), 'p_preis2': '{:02d}'.format(int(100*(price-floor(price)))),'p_id':'p'+str(item_id), 'prepare_markt':'true'}) 
         headers = {'User-Agent': USER_AGENT,\
-            'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                        'wunr=' + self.__user_id,
+            'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',\
                         'Connection': 'keep-alive'}
-        response, content = self.__webclient.request('http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_BOOTH_API, \
+        response, content = self.__webclient.request(f'http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_BOOTH_API}', \
                                                     'POST', \
                                                     parameter, \
                                                     headers)
         self.update_storage()
         self.__check_if_http_status_is_ok(response)
         parameter = urlencode({'p_anzahl': str(number), 'p_preis1': str(floor(price)), 'p_preis2': '{:02d}'.format(int(100*(price-floor(price)))),'p_id':str(item_id), 'verkaufe_markt':'OK'}) 
-        response, content = self.__webclient.request('http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_BOOTH_API, \
+        response, _ = self.__webclient.request(f'http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_BOOTH_API}', \
                                                     'POST', \
                                                     parameter, \
                                                     headers)
@@ -128,23 +127,20 @@ class HTTPConnection(object):
 
     def __get_to_market(self):
         headers = {'User-Agent': USER_AGENT,\
-            'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                        'wunr=' + self.__user_id,
+            'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
             'Connection': 'Keep-Alive'}
-        adresse= 'http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_API +'?page=1&order=&v='
-        response, content = self.__webclient.request(adresse, 'GET', headers = headers)
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + MARKET_BOOTH_API
-        
-        response, content = self.__webclient.request(adresse, 'GET', headers = headers)
+        adresse= f'http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_API}?page=1&order=&v='
+        response, _ = self.__webclient.request(adresse, 'GET', headers = headers)
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_BOOTH_API}'  
+        response, _ = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
 
     def __go_to_city(self):
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                        'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
             'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + '/stadt/index.php?karte=1'
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}/stadt/index.php?karte=1'
         
-        response, content = self.__webclient.request(adresse, 'GET', headers = headers)
+        response, _ = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
 
     def __get_token_from_url(self, url):
@@ -161,7 +157,7 @@ class HTTPConnection(object):
             
         if (i_err == 1):
             self.__logger.debug(tmp_token)
-            raise JSONError('Fehler bei der Ermittlung des tokens')
+            raise JSONError('Fehler bei der Ermittlung des Tokens')
         else:
             self.__token = tmp_token
 
@@ -170,7 +166,7 @@ class HTTPConnection(object):
         Prüft, ob der Status der HTTP Anfrage OK ist.
         """
         if not (response['status'] == str(HTTP_STATE_OK)):
-            self.__logger.debug('HTTP State: ' + str(response['status']))
+            self.__logger.debug(f"HTTP State: {response['status']}")
             raise HTTPStateError('HTTP Status ist nicht OK')
 
 
@@ -179,7 +175,7 @@ class HTTPConnection(object):
         Prüft, ob der Status der HTTP Anfrage FOUND ist.
         """
         if not (response['status'] == str(HTTP_STATE_FOUND)):
-            self.__logger.debug('HTTP State: ' + str(response['status']))
+            self.__logger.debug(f"HTTP State: {response['status']}")
             raise HTTPStateError('HTTP Status ist nicht FOUND')
 
     def __check_if_session_is_deleted(self, cookie):
@@ -187,14 +183,14 @@ class HTTPConnection(object):
         Prüft, ob die Session gelöscht wurde.
         """
         if not (cookie['PHPSESSID'].value == 'deleted'):
-            self.__logger.debug('SessionID: ' + cookie['PHPSESSID'].value)
+            self.__logger.debug(f"SessionID: {cookie['PHPSESSID'].value}")
             raise HTTPRequestError('Session was not deleted')
 
     def execute_command(self, command: str):
         headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
                         'wunr=' + self.__user_id,
             'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + AJAX_PHP +command+ '&token=' + self.__token
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{AJAX_PHP}{command}&token={self.__token}'
         
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -206,10 +202,9 @@ class HTTPConnection(object):
             return jcontent
 
     def execute_tree_gardencommand(self, command: str):
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                        'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
             'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + TREE_QUEST_API +command
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{TREE_QUEST_API}{command}'
         
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -222,14 +217,13 @@ class HTTPConnection(object):
 
 
     def execute_decogarden_command(self, command: str):
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                        'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
             'Connection': 'Keep-Alive'}
         if(command != ""):
             deco_garden_api = DECO_GARDEN_API + '?'
         else:
             deco_garden_api = DECO_GARDEN_API
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + deco_garden_api +command
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{deco_garden_api}{command}'
         
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -241,10 +235,9 @@ class HTTPConnection(object):
             return jcontent
 
     def execute_wimp_command(self, command: str):
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
             'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + WIMPS_API +command
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{WIMPS_API}{command}'
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
@@ -256,10 +249,9 @@ class HTTPConnection(object):
 
 
     def destroy_weed_field(self, field_id: int):
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                        'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
             'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + DESTROY_API + "tile=" + str(field_id)
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{DESTROY_API}tile={field_id}'
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
@@ -269,8 +261,7 @@ class HTTPConnection(object):
 
     def execute_message_command(self, message: message.Message):
         parameter = None
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                        'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
             'Connection': 'Keep-Alive'}
         if(message is not None):
             parameter = urlencode({'hpc': message.id,
@@ -278,7 +269,7 @@ class HTTPConnection(object):
                     'msg_subject': message.subject,
                     'msg_body': message.body,
                     'msg_send': 'senden'}) 
-        adresse = 'http://s' + str(self.__session.server()) + STATIC_DOMAIN + MESSAGE_API
+        adresse = f'http://s{self.__session.server()}{STATIC_DOMAIN}{MESSAGE_API}'
         try:
             if parameter is not None:
                 response, content = self.__webclient.request(adresse, 'POST', parameter, headers)
@@ -294,10 +285,9 @@ class HTTPConnection(object):
         """
         Ruft eine Updatefunktion im Spiel auf und verarbeitet die empfangenen userdaten.
         """
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
                    'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + '.wurzelimperium.de/ajax/menu-update.php'
+        adresse = f'http://s{self.__session.server}.wurzelimperium.de/ajax/menu-update.php'
 
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
@@ -306,33 +296,24 @@ class HTTPConnection(object):
         
 
     def grow_plant(self, field, plant, garden_id, fields):
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
                    'Connection': 'Keep-Alive'}
     
-        adresse = 'http://s' + str(self.__session.server) + \
-                  STATIC_DOMAIN + PLANT_API + '?pflanze[]=' + str(plant) + \
-                  '&feld[]=' + str(field) + \
-                  '&felder[]=' + fields + \
-                  '&cid=' + self.__token + \
-                  '&garden=' + str(garden_id)
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{PLANT_API}?pflanze[]={plant}&feld[]={field}&felder[]={fields}&cid={self.__token}&garden={garden_id}'
 
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         except:
-            print('except')
             raise
         else:
             pass
 
     def water_plant(self, garden_id, field_id, fields_to_water):
         headers = {'User-Agent': USER_AGENT,\
-                   'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id,\
+                   'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',\
                    'X-Requested-With': 'XMLHttpRequest',\
                    'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + WATER_API + '?feld[]=' + \
-                  str(field_id) + '&felder[]=' + fields_to_water + '&cid=' + self.__token + '&garden=' + str(garden_id)
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{WATER_API}?feld[]={field_id}&felder[]={fields_to_water}&cid={self.__token}&garden={garden_id}'
 
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -345,10 +326,9 @@ class HTTPConnection(object):
         headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
                              'wunr=' + self.__user_id, \
                    'Connection': 'Keep-Alive', \
-                   'Referer':'http://s' + str(self.__session.server)+ STATIC_DOMAIN + '/main.php?page=garden', \
+                   'Referer':f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}', \
                    'X-Requested-With':'X-Requested-With: XMLHttpRequest'}
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + AJAX_PHP + 'do=statsGetStats&which=0&start=0&additional='+\
-                  self.__user_id + '&token=' + self.__token
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{AJAX_PHP}do=statsGetStats&which=0&start=0&additional={self.__user_id}&token={self.__token}'
         
         try:
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -361,8 +341,6 @@ class HTTPConnection(object):
             return userName
 
 
-
-
     def get_trophies(self):
         """
         Funktion ermittelt, ob die Imkerei verfügbar ist und gibt True/False zurück.
@@ -370,11 +348,9 @@ class HTTPConnection(object):
         Die Freischaltung wird anhand eines Geschenks im Spiel geprüft.
         """
 
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
                    'Connection': 'Keep-Alive'}
-        adresse = 'http://s' + str(self.__session.server) \
-                  + STATIC_DOMAIN + '/ajax/gettrophies.php?category=giver'
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}/ajax/gettrophies.php?category=giver'
         
 
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -386,10 +362,9 @@ class HTTPConnection(object):
         Prüft, ob die E-Mail Adresse im Profil bestätigt ist.
         """
         headers = {'User-Agent': USER_AGENT,\
-                   'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id}
+                   'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}'}
 
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + '/nutzer/profil.php'
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}/nutzer/profil.php'
 
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
@@ -398,11 +373,9 @@ class HTTPConnection(object):
     def read_storage_from_server(self):
 
         headers = {'User-Agent': USER_AGENT,\
-                   'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id}
+                   'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}'}
 
-        adress = 'http://s' + str(self.__session.server) + STATIC_DOMAIN +'/ajax/updatelager.' + \
-                 'php?all=1'
+        adress = f'http://s{self.__session.server}{STATIC_DOMAIN}/ajax/updatelager.php?all=1'
 
         try:
             response, content = self.__webclient.request(adress, 'GET', headers = headers)
@@ -415,10 +388,9 @@ class HTTPConnection(object):
 
     def update_storage(self):
         headers = {'User-Agent': USER_AGENT,\
-                   'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id}
+                   'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}'}
 
-        adress = 'http://s' + str(self.__session.server) + STATIC_DOMAIN +'/ajax/updatelager.php'
+        adress = f'http://s{self.__session.server}{STATIC_DOMAIN}/ajax/updatelager.php'
         parameter = urlencode({'all': '1',
                     'sort': '1',
                     'type': 'normal',
@@ -440,10 +412,9 @@ class HTTPConnection(object):
         Sammelt alle Produktinformationen und gibt diese zur Weiterverarbeitung zurück.
         """
 
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id}
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}'}
 
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + '/main.php?page=garden'
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}/main.php?page=garden'
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         content = content.decode('UTF-8')
         self.__check_if_http_status_is_ok(response)
@@ -456,11 +427,10 @@ class HTTPConnection(object):
         Gibt eine Liste zurück, welche Produkte handelbar sind.
         """
         
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
                     'Content-Length':'0'}
 
-        adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + '/stadt/markt.php?show=overview'
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}/stadt/markt.php?show=overview'
         
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
@@ -473,8 +443,7 @@ class HTTPConnection(object):
         Gibt eine Liste mit allen Angeboten eines Produkts zurück.
         """
         
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
                     'Content-Length':'0'}
 
         nextPage = True
@@ -482,7 +451,7 @@ class HTTPConnection(object):
         while (nextPage):
             
             nextPage = False
-            adresse = 'http://s' + str(self.__session.server) + STATIC_DOMAIN + '/stadt/markt.php?order=p&v='+ str(id) +'&filter=1&page='+str(iPage)
+            adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}/stadt/markt.php?order=p&v={id}&filter=1&page={iPage}'
             
             try:
                 response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -532,11 +501,10 @@ class HTTPConnection(object):
         Ermittelt aus der Wurzelimperium-Hilfe die NPC Preise aller Produkte.
         """
 
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
                     'Content-Length':'0'}
 
-        adresse = 'http://s' + str(self.__session.server) +STATIC_DOMAIN +'/hilfe.php?item=2'
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}/hilfe.php?item=2'
 
         #try:
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
@@ -560,11 +528,10 @@ class HTTPConnection(object):
         get the users note
         """
 
-        headers = {'Cookie': 'PHPSESSID=' + self.__session.session_id + '; ' + \
-                             'wunr=' + self.__user_id,
+        headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
                     'Content-Length':'0'}
 
-        adresse = 'http://s' + str(self.__session.server) +STATIC_DOMAIN + NOTES_API
+        adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{NOTES_API}'
         try:
             response, content = self.__webclient.request(adresse, 'POST', headers = headers)
             self.__check_if_http_status_is_ok(response)

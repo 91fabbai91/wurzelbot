@@ -69,7 +69,7 @@ class Garden(object):
         if (sx == 2 and sy == 1): return str(field_id) + ',' + str(field_id + 1)
         if (sx == 1 and sy == 2): return str(field_id) + ',' + str(field_id + 17)
         if (sx == 2 and sy == 2): return str(field_id) + ',' + str(field_id + 1) + ',' + str(field_id + 17) + ',' + str(field_id + 18)
-        self.__logger.debug('Error der plant_size --> sx: ' + str(sx) + ' sy: ' + str(sy))
+        self.__logger.debug(f'Error der plant_size --> sx: {sx} sy: {sy}')
 
     def __get_all_field_ids_from_field_id_and_size_as_int_list(self, field_id, sx, sy):
         """
@@ -139,7 +139,7 @@ class Garden(object):
         except parsing_utils.JSONError as exception:
             self.__logger.error(exception)
         else:
-            self.__logger.info("Number of freed fields: {fields}".format(fields=number_freed_fields))
+            self.__logger.info(f"Number of freed fields: {number_freed_fields}")
             return number_freed_fields
 
     def __destroy_fields_of_type(self, blocked_fields, blocked_field_type) -> int:
@@ -147,13 +147,12 @@ class Garden(object):
         for field_id, field_type in blocked_fields.items():  
             if field_type == blocked_field_type.value:
                 parsing_utils.generate_json_content_and_check_for_success(self.__http_connection.destroy_weed_field(field_id))
-                self.__logger.debug("Field Nr. {field_id} of type {field_type} freed".format(field_id= field_id, field_type=field_type))
+                self.__logger.debug(f"Field Nr. {field_id} of type {field_type} freed")
                 number_freed_fields = number_freed_fields + 1
         return number_freed_fields
 
     def update_planted_fields(self):
-        jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
-                  str(self.__id))
+        jcontent = self.__http_connection.execute_command(f'do=changeGarden&garden= {self.__id}')
         plants =  self.__get_plants_on_fields(jcontent)
         return plants
 
@@ -197,7 +196,7 @@ class Garden(object):
         return weed_fields
 
     def harvest(self):
-        self.__http_connection.execute_command('do=changeGarden&garden={id}'.format(id=self.__id))
+        self.__http_connection.execute_command(f'do=changeGarden&garden={self.__id}')
         self.__http_connection.execute_command('do=gardenHarvestAll')
 
     def grow_plants(self, plant_id, sx, sy, amount):
@@ -223,10 +222,10 @@ class Garden(object):
 
         except Exception as e:
             self.__logger.error(e)
-            self.__logger.error('In garden ' + str(self.__id) + ' could not get planted.')
+            self.__logger.error(f'In garden {self.__id} could not get planted.')
             return 0    
         else:
-            msg = 'In garden ' + str(self.__id) + ' were ' + str(planted) + ' plants planted.'
+            msg = f'In garden {self.__id} were {planted} plants of type {plant_id} planted.'
             self.__logger.info(msg)
             return planted
 
@@ -268,10 +267,9 @@ class Garden(object):
         else: return True
 
     def water_plants(self):
-        self.__logger.info('Water all plants in garden ' + str(self.__id) + '.')
+        self.__logger.info(f'Water all plants in garden {self.__id}.')
         try:
-            jcontent = self.__http_connection.execute_command('do=changeGarden&garden=' + \
-                  str(self.__id))
+            jcontent = self.__http_connection.execute_command(f'do=changeGarden&garden= {self.__id}')
             plants = self.__find_plants_to_be_watered_from_json_content(jcontent)
             nPlants = len(plants['fieldID'])
             for i in range(0, nPlants):
@@ -279,12 +277,12 @@ class Garden(object):
                 self.__http_connection.water_plant(self.__id, plants['fieldID'][i], sFields)
         except Exception as e:
             self.__logger.error(e)
-            self.__logger.error('Garden ' + str(self.__id) + ' could not get watered.')
+            self.__logger.error(f'Garden {self.__id} could not get watered.')
         else:
-            self.__logger.info('In garden ' + str(self.__id) + ' were ' + str(nPlants) + ' plants watered.')
+            self.__logger.info(f'In garden {self.__id} were {nPlants} plants watered.')
 
     def get_wimps_data(self):
-        self.__http_connection.execute_command("do=changeGarden&garden={id}".format(id=self.__id))
+        self.__http_connection.execute_command(f"do=changeGarden&garden={self.__id}")
         jcontent = self.__http_connection.execute_wimp_command("do=getAreaData")
         return parsing_utils.get_wimps_list_from_json_content(jcontent)
 
@@ -309,7 +307,7 @@ class AquaGarden(Garden):
         except:
             self.__logger.error('Watergarden could not get watered.')
         else:
-            self.__logger.info('In water garden were ' + str(nPlants) + ' plants watered.')
+            self.__logger.info(f'In water garden were {nPlants} plants watered.')
 
     def harvest(self):
         self.__http_connection.execute_command('do=watergardenHarvestAll')

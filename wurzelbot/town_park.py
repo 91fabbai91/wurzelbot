@@ -47,18 +47,17 @@ class TownPark(object):
         return blocked_fields
 
     def __renew_items_in_park(self, item_tile):
-        self.__http_connection.execute_command('park_renewitem&parkid=' + str(self.__id) \
-                + '&tile=' + str(item_tile))
+        self.__http_connection.execute_command(f'park_renewitem&parkid={self.__id}&tile={item_tile}')
 
     def renew_all_items_in_park(self):
         for item in self.__get_renewable_deko_from_park():
             self.__renew_items_in_park(item)
 
     def remove_blocked_field(self, tile: int):
-        self.__http_connection.execute_command('park_removetrash&parkid=' + str(self.__id) +'&tile='+str(tile))
+        self.__http_connection.execute_command(f'park_removetrash&parkid={self.__id}&tile={tile}')
 
     def buy_new_item(self, item: str, amount: int):
-        self.__http_connection.execute_command('park_buyitem&item=' + item + '&amount=' + str(amount))
+        self.__http_connection.execute_command(f'park_buyitem&item={item}&amount={amount}')
 
 class BlockedFieldType(Enum):
     WEED = 1

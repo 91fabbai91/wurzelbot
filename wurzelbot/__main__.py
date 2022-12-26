@@ -30,7 +30,7 @@ if __name__ == "__main__":
         config_file = io.FileIO(config_path,'r')
         config = yaml.safe_load(config_file)
     except:
-        raise NoConfigFoundError("No Config in path {given_config} available . Default config file is {config}".format(config=default_config_path, give_config=config_path))
+        raise NoConfigFoundError(f"No Config in path {config_path} available . Default config file is {config}")
     
 
     

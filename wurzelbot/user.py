@@ -147,8 +147,7 @@ class User(object):
         """
         Ermittelt die Anzahl der Gärten und initialisiert alle.
         """
-        jContent = self.__http_connection.execute_command("do=statsGetStats&which=0&start=0&additional="+
-                self.__user_id)
+        jContent = self.__http_connection.execute_command(f'do=statsGetStats&which=0&start=0&additional={self.__user_id}')
 
         result = False
         for i in range(0, len(jContent['table'])):
@@ -169,8 +168,7 @@ class User(object):
 
 
     def __get_number_of_gardens(self):
-        jcontent = self.__http_connection.execute_command('do=statsGetStats&which=0&start=0&additional='+\
-                  self.__user_id)
+        jcontent = self.__http_connection.execute_command(f'do=statsGetStats&which=0&start=0&additional={self.__user_id}')
         iNumber = self.__get_number_of_gardens_from_json_content(jcontent)
         return iNumber
 
@@ -260,13 +258,13 @@ class User(object):
         bonus_data = jcontent['dailyloginbonus']
         for day, bonus in bonus_data['data']['rewards'].items():
             if any(_ in bonus for _ in ('money', 'products')):
-                    self.__http_connection.execute_command("do=dailyloginbonus_getreward&day={day}".format(day=day))
+                    self.__http_connection.execute_command(f"do=dailyloginbonus_getreward&day={day}")
     
     def sell_products_to_wimp(self, wimp_id):
-        return self.__http_connection.execute_wimp_command("do=accept&id={wimp_id}".format(wimp_id=wimp_id))['newProductCounts']
+        return self.__http_connection.execute_wimp_command(f"do=accept&id={wimp_id}")['newProductCounts']
 
     def decline_wimp(self, wimp_id):
-        return self.__http_connection.execute_wimp_command("do=decline&id={wimp_id}".format(wimp_id=wimp_id))['action']
+        return self.__http_connection.execute_wimp_command(f"do=decline&id={wimp_id}")['action']
     
 class UserDataBuilder(object):
     def __init__(self):

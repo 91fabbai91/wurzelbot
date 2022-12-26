@@ -94,7 +94,7 @@ class Wurzelbot(object):
             for garden in self.__user.gardens:
                 empty_fields.append(garden.get_empty_fields())
         except:
-            self.__logger.error('Could not determine empty field from garden ' + str(garden.id))
+            self.__logger.error(f'Could not determine empty field from garden {garden.id}')
         else:
             pass
         return empty_fields
@@ -121,7 +121,7 @@ class Wurzelbot(object):
             for garden in self.__user.gardens:
                 weed_fields.append(garden.get_weed_fields())
         except:
-            self.__logBot.error('Could not determine weed fields of garden ' + str(garden.id))
+            self.__logBot.error(f'Could not determine weed fields of garden {garden.id}')
         else:
             pass
 
@@ -160,11 +160,11 @@ class Wurzelbot(object):
             amount = self.__stock.get_stock_by_product_id(product_id)
             if amount == 0: continue
             
-            print(str(product.getName()).ljust(30) + 'Amount: ' + str(amount).rjust(5))
+            self.__logger.info(f'{product.getName().ljust(30)} Amount: {amount.rjust(5)}')
             isSmthPrinted = True
     
         if not isSmthPrinted:
-            print('Your stock is empty')
+            self.__logger.info('Your stock is empty')
 
 
     def getLowestStockEntry(self):
@@ -220,13 +220,13 @@ class Wurzelbot(object):
         product = self.__product_information.get_product_by_name(productName)
 
         if product is None:
-            logMsg = 'plant "' + productName + '" not found'
+            logMsg = f'plant {productName} not found'
             self.__logger.error(logMsg)
             print(logMsg)
             return -1
 
         if not product.is_plant or not product.is_plantable:
-            logMsg = '"' + productName + '" could not get planted'
+            logMsg = f'{productName} could not get planted'
             self.__logger.error(logMsg)
             print(logMsg)
             return -1
@@ -278,8 +278,8 @@ class Wurzelbot(object):
             try:
                 stock = stock + product.crop * number_of_plants[product.id]
             except KeyError:
-                self.__logger.debug("No product of id {id} planted".format(id=product.id))
-            self.__logger.debug(" missing amount: {amount} {product}".format(amount=value-stock, product=product.name))
+                self.__logger.debug(f"No product of id {product.id} planted")
+            self.__logger.debug(f" missing amount: {value-stock} {product.name}")
             if value-stock > 0:
                 missing_quest_amount.update({product.name: value-stock})
         return missing_quest_amount
@@ -295,7 +295,7 @@ class Wurzelbot(object):
             elif quest_type_name == quest.BeesGardenQuest.__name__ and self.__user.honey_farm_available:
                 quest_level = self.__bee_farm_quest
             else:
-                raise NameError("No Element named {}".format(quest_type_name))
+                raise NameError(f"No Element named {quest_type_name}")
         except quest.QuestError as e:
             self.__logger.error(e)
         missing_amount = self.get_missing_quest_amount(quest=quest_level)
@@ -324,7 +324,7 @@ class Wurzelbot(object):
                     self.__user.decline_wimp(wimp.id)
                 else:
                     if self.check_wimps_required_amount(minimal_balance, wimp.id, stock_list):
-                        print("Selling products to wimp: " + wimp.id)
+                        self.__logger.info("Selling products to wimp: {wimp.id}")
                         new_products_counts = self.__user.sell_products_to_wimp(wimp.id)
                         for id, amount in wimp.product_amount.items():
                             stock_list[id] -= amount

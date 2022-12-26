@@ -26,7 +26,7 @@ class BeesFarm(object):
             try:
                 if hive['time']:
                     self.__hives.append(hive)
-                    self.__logger.debug("Added Hive with id {index}".format(index=index))
+                    self.__logger.debug(f"Added Hive with id {index}")
             except:
                 pass
     
@@ -37,7 +37,7 @@ class BeesFarm(object):
 
     def start_bees_tour(self, beehive_id: int, tour: BeesTour):
         self.__go_to_bees()
-        self.__http_connection.execute_command('do=bees_startflight&id={beehive_id}&tour={tour}'.format(beehive_id=beehive_id, tour=tour.value))
+        self.__http_connection.execute_command(f'do=bees_startflight&id={beehive_id}&tour={tour.value}')
 
     def start_all_bees_tour(self, tour: BeesTour):
         for index, hive in enumerate(self.__hives):

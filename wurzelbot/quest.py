@@ -53,7 +53,7 @@ class ParkQuest(Quest):
             self._reward = quest_data['reward']
             for product in quest_data['products']:
                 self._amount.update({product['name']: product['missing']})
-            self._logger.debug("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
+            self._logger.debug(f"Needed amount: {self._amount} and reward: {self._reward}")
         except:
             raise QuestError("No ParkQuest available")
         return self._amount, self._reward
@@ -73,7 +73,7 @@ class DecoGardenQuest(Quest):
             self._reward = quest_data['reward']
             for product in quest_data['products']:
                 self._amount.update({product['name']: product['missing']})
-            self._logger.debug("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
+            self._logger.debug(f"Needed amount: {self._amount} and reward: {self._reward}")
         except:
             raise QuestError("No DecoGardenQuest available")
         return self._amount, self._reward
@@ -91,7 +91,7 @@ class BeesGardenQuest(Quest):
             self._reward = quest_data['reward']
             for product in quest_data['products']:
                 self._amount.update({product['name']: product['missing']})
-            self._logger.debug("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
+            self._logger.debug(f"Needed amount: {self._amount} and reward: {self._reward}")
             return self._amount, self._reward
         except:
             raise QuestError("No BeesGardenQuest available")
@@ -111,8 +111,7 @@ class TreeQuest(Quest):
             amount = re.split("Liefere |, | und | ",short_text)
             for i in range(1,len(amount),2):
                     self._amount.update({amount[i+1]: int(amount[i])})
-            self._logger.debug("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
-            print("Needed amount: {amount} and reward: {reward}".format(amount=self._amount, reward=self._reward))
+            self._logger.debug(f"Needed amount: {self._amount} and reward: {self._reward}")
             return self._amount, self._reward
         except:
             raise QuestError("No TreeQuest available")
