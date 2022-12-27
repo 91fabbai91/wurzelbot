@@ -5,3 +5,16 @@ logins:
 logging:
   level: DEBUG
   filename: wurzelbot.log
+tasks:
+  - grow_for_quests:
+    - CityQuest
+    - ParkQuest
+    - DecoGardenQuest
+    - BeesGardenQuest
+    - TreeQuest
+  - grow_plants:
+    - Karotte
+    - Salat
+  - farm_town_park
+  - start_bees_tour
+  - sell_to_wimps_percentage: 80

@@ -7,18 +7,12 @@ from distutils.command.config import config
 import argparse
 from wurzelbot import Wurzelbot
 from login_data import LoginData
-from quest import CityQuest, ParkQuest, DecoGardenQuest
 
 
 if __name__ == "__main__":
     default_config_path = 'config/config.yaml'
     parser = argparse.ArgumentParser(description='Wurzelimperium Bot - the pythonic way')
     parser.add_argument('--configFile',default=argparse.SUPPRESS, help="absolute config file path")
-    parser.add_argument('--growPlants', default=argparse.SUPPRESS,nargs='*')
-    parser.add_argument('--growForQuests', default=argparse.SUPPRESS,nargs='*')
-    parser.add_argument('--farmTownPark', default=argparse.SUPPRESS, action='store_true')
-    parser.add_argument('--startBeesTour', default=argparse.SUPPRESS, action='store_true')
-    parser.add_argument('--sellToWimpsPercentage',default=argparse.SUPPRESS, help="percentage of wimp price to npc price")
 
 
     args, left_overs = parser.parse_known_args()
@@ -43,24 +37,26 @@ if __name__ == "__main__":
     wurzelbot.start_wurzelbot(login_data)
     wurzelbot.harvest_all_garden()
     wurzelbot.destroy_weed_fields_in_garden()
-    wurzelbot.sell_on_market("Zwiebel", 1.76,10)
-    if'growForQuests' in args and wurzelbot.has_empty_fields():
-        for quest_name in args.growForQuests:
-            wurzelbot.plant_according_to_quest(quest_name)
-    elif 'growPlants' in args and wurzelbot.has_empty_fields():
-        for plant in args.growPlants:
-            wurzelbot.grow_plants_in_gardens_by_name(plant)
+    for task in config['tasks']:
+        if  'grow_for_quests' in task and wurzelbot.has_empty_fields():
+            for quest_name in task['grow_for_quests']:
+                wurzelbot.plant_according_to_quest(quest_name)
+        elif 'grow_plants' in task and wurzelbot.has_empty_fields():
+            for plant in task['grow_plants']:
+                wurzelbot.grow_plants_in_gardens_by_name(plant)
+        elif 'start_bees_tour' in task:
+            wurzelbot.start_all_bees_tour()
+        elif 'farm_town_park' in task:
+            wurzelbot.collect_cash_from_park()
+            wurzelbot.renew_all_items_in_park()
+        elif('sell_to_wimps_percentage' in task):
+            percentage = float(task['sell_to_wimps_percentage'])/100.0
+            wurzelbot.sell_wimps_products(0,percentage)
+        else:
+            logging.error(f"No Task found with name {task}")
     if wurzelbot.has_empty_fields():
         wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()
-    if('startBeesTour' in args):
-        wurzelbot.start_all_bees_tour()
-    if('farmTownPark' in args):
-        wurzelbot.collect_cash_from_park()
-        wurzelbot.renew_all_items_in_park()
-    if('sellToWimpsPercentage' in args):
-        percentage = float(args.sellToWimpsPercentage)/100.0
-        wurzelbot.sell_wimps_products(0,percentage)
     wurzelbot.get_daily_login_bonus()
     
     wurzelbot.stop_wurzelbot()
