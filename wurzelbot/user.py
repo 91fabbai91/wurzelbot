@@ -217,7 +217,7 @@ class User(object):
         if self.__user_data.level_number < 5:
             return False
         jContent = self.__http_connection.execute_command('do=citymap_init')
-        if jContent['data']['location']['park']['bought'] == True:
+        if jContent['data']['location']['park']['bought']['parkid'] == '1':
             return True
         else:
             return False

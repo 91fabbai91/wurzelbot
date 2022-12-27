@@ -47,14 +47,14 @@ class TownPark(object):
         return blocked_fields
 
     def __renew_items_in_park(self, item_tile):
-        self.__http_connection.execute_command(f'park_renewitem&parkid={self.__id}&tile={item_tile}')
+        self.__http_connection.execute_command(f'do=park_renewitem&parkid={self.__id}&tile={item_tile}')
 
     def renew_all_items_in_park(self):
         for item in self.__get_renewable_deko_from_park():
             self.__renew_items_in_park(item)
 
     def remove_blocked_field(self, tile: int):
-        self.__http_connection.execute_command(f'park_removetrash&parkid={self.__id}&tile={tile}')
+        self.__http_connection.execute_command(f'do=park_removetrash&parkid={self.__id}&tile={tile}')
 
     def buy_new_item(self, item: str, amount: int):
         self.__http_connection.execute_command(f'park_buyitem&item={item}&amount={amount}')
