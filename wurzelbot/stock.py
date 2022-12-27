@@ -51,16 +51,22 @@ class Stock(object):
 
     
 
-    def get_ordered_stock_list(self):
-        sorted_stock = dict(sorted(self.__products.items(), key=lambda item: item[1]))
-        filtered_stock = dict()
-        for productID in sorted_stock:
-            if sorted_stock[str(productID)] == 0: continue
-            filtered_stock[str(productID)] = sorted_stock[str(productID)]
+    def get_ordered_stock_list(self,attribute):
+        extended_product_list = merge_dictionaries(self.__product_information,self.__products)
+        sorted_stock = dict(sorted(extended_product_list.items(), key=lambda item: item[1][attribute]))
+        sorted_stock = dict(filter(lambda x: x[1]['amount'] != 0, sorted_stock.items()))
         
-        return filtered_stock
+        return sorted_stock
 
     def get_lowest_stock_entry(self):
-        for productID in self.get_ordered_stock_list().keys():
+        for productID in self.get_ordered_stock_list('amount').keys():
             return productID
         return -1
+
+
+def merge_dictionaries(dictionary1: dict,dictionary2:dict) -> dict:
+    dictionary3 = {**dictionary1, **dictionary2}
+    for key, value in dictionary3.items():
+        if key in dictionary1 and key in dictionary2:
+               dictionary3[key] = {'amount':value , **dictionary1[key]}
+    return dictionary3    

@@ -29,6 +29,7 @@ class Wurzelbot(object):
         self.__park_quest = None
         self.__deco_garden_quest = None
         self.__bee_farm_quest = None
+        self.__tree_quest = None
         self.__product_information = None
         self.__marketplace = None
         self.__bees_farm = None
@@ -171,9 +172,9 @@ class Wurzelbot(object):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
         orderedList = ''
-        for product_id in self.__stock.get_ordered_stock_list():
+        for product_id in self.__stock.get_ordered_stock_list('amount')[0]:
             orderedList += str(self.__product_information.get_product_by_id(product_id).getName()).ljust(20)
-            orderedList += str(self.__stock.get_ordered_stock_list()[product_id]).rjust(5)
+            orderedList += str(self.__stock.get_ordered_stock_list('amount')[1][product_id]).rjust(5)
             orderedList += str('\n')
         return orderedList.strip()
 
@@ -182,7 +183,7 @@ class Wurzelbot(object):
             raise NotStartedException("Wurzelbot not started yet")
         lowest_stock = -1
         lowest_product_id = -1
-        for product_id in self.__stock.get_ordered_stock_list():
+        for product_id in self.__stock.get_ordered_stock_list('amount')[0]:
             if not self.__product_information.get_product_by_id(product_id).is_plant or \
                 not self.__product_information.get_product_by_id(product_id).is_plantable:
                 continue
@@ -236,10 +237,10 @@ class Wurzelbot(object):
     
     
     def grow_anything(self):
-        for product_id, amount in self.__stock.get_ordered_stock_list().items():
+        for product_id, product_data in self.__stock.get_ordered_stock_list('amount').items():
             product = self.__product_information.get_product_by_id(product_id)
             if product.is_plantable and product.is_plant(): 
-                if self.grow_plants_in_gardens_by_name(product.name, amount) == 0 and product.sx == 1 and product.sy == 1:
+                if self.grow_plants_in_gardens_by_name(product.name, product_data['amount']) == 0 and product.sx == 1 and product.sy == 1:
                     return
             
 
@@ -286,10 +287,18 @@ class Wurzelbot(object):
             elif quest_type_name == quest.ParkQuest.__name__:
                 if self.__user.town_park_available:
                     quest_level = self.__park_quest
+                else:
+                    self.__logger.error("Town Park is not available")
             elif quest_type_name == quest.DecoGardenQuest.__name__:
-                quest_level = self.__deco_garden_quest
-            elif quest_type_name == quest.BeesGardenQuest.__name__ and self.__user.honey_farm_available:
-                quest_level = self.__bee_farm_quest
+                if self.__user.deco_garden_available:
+                    quest_level = self.__deco_garden_quest
+            elif quest_type_name == quest.BeesGardenQuest.__name__:
+                if self.__user.honey_farm_available:
+                    quest_level = self.__bee_farm_quest
+                else:
+                    self.__logger.error("Honey Farm is not available")
+            elif quest_type_name == quest.TreeQuest.__name__:
+                quest_level = self.__tree_quest
             else:
                 raise NameError(f"No Element named {quest_type_name}")
         except quest.QuestError as e:
@@ -312,7 +321,7 @@ class Wurzelbot(object):
         return dict(all_wimps_products)
 
     def sell_wimps_products(self, minimal_balance, percentage):
-        stock_list = self.__stock.get_ordered_stock_list()
+        stock_list = self.__stock.get_ordered_stock_list('amount')
         wimps_data = []
         for garden in self.__user.gardens:
             for wimp_data in garden.get_wimps_data():
@@ -326,7 +335,7 @@ class Wurzelbot(object):
                         self.__logger.info("Selling products to wimp: {wimp.id}")
                         new_products_counts = self.__user.sell_products_to_wimp(wimp.id)
                         for id, amount in wimp.product_amount.items():
-                            stock_list[id] -= amount
+                            stock_list[1][id] -= amount
                     else:
                         pass
 
@@ -346,7 +355,7 @@ class Wurzelbot(object):
         for id, amount in products.items():
             product = self.__product_information.get_product_by_id(id)
             minimal_balance = max(self.__notes.get_min_stock(), self.__notes.get_min_stock(product.getName()), minimal_balance)
-            if stock_list.get(id, 0) - (amount + minimal_balance) <= 0:
+            if stock_list[1][id] - (amount + minimal_balance) <= 0:
                 to_sell = False
                 break
         return to_sell
