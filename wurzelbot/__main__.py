@@ -38,12 +38,14 @@ if __name__ == "__main__":
     wurzelbot.harvest_all_garden()
     wurzelbot.destroy_weed_fields_in_garden()
     for task in config['tasks']:
-        if  'grow_for_quests' in task and wurzelbot.has_empty_fields():
-            for quest_name in task['grow_for_quests']:
-                wurzelbot.plant_according_to_quest(quest_name)
-        elif 'grow_plants' in task and wurzelbot.has_empty_fields():
-            for plant in task['grow_plants']:
-                wurzelbot.grow_plants_in_gardens_by_name(plant)
+        if  'grow_for_quests' in str(task):
+            if wurzelbot.has_empty_fields():
+                for quest_name in task['grow_for_quests']:
+                    wurzelbot.plant_according_to_quest(quest_name)
+        elif 'grow_plants' in task:
+            if wurzelbot.has_empty_fields():
+                for plant in task['grow_plants']:
+                    wurzelbot.grow_plants_in_gardens_by_name(plant)
         elif 'start_bees_tour' in task:
             wurzelbot.start_all_bees_tour()
         elif 'farm_town_park' in task:
