@@ -29,7 +29,7 @@ This repo is mainly inspired by MrFlamez WurzelimperiumBot on github
 * Clone repo into the folder of your choice
 * Put a config yaml file into the config folder (default filename: config.yaml)
 * Install the dependencies with poetry ```poetry install```
-* Run main.py with ```poetry run python main.py```
+* Run main.py with ```poetry run python wurzelbot```
 
 ### Executing program (with container)
 

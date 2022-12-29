@@ -34,6 +34,24 @@ TREE_QUEST_API                 = '/treequestquery.php?'
 WIMPS_API                      = '/ajax/verkaufajax.php?'
 NOTES_API                      = '/notiz.php'
 
+class HTTPStateError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class JSONError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+    
+class HTTPRequestError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
 class HTTPConnection(object):
 
     # singleton for just one login, due to the backend
@@ -552,22 +570,6 @@ class HTTPConnection(object):
 
 
 
-class HTTPStateError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
 
-class JSONError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-    
-class HTTPRequestError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
 
 
