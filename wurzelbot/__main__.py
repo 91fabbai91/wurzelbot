@@ -54,13 +54,14 @@ if __name__ == "__main__":
         elif('sell_to_wimps_percentage' in task):
             percentage = float(task['sell_to_wimps_percentage'])/100.0
             wurzelbot.sell_wimps_products(0,percentage)
+        elif(('sell_on_marketplace' in task)):
+            wurzelbot.sell_on_marketplace_with_min_stock(int(task['sell_on_marketplace']))
         else:
             logging.error(f"No Task found with name {task}")
     if wurzelbot.has_empty_fields():
         wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()
     wurzelbot.get_daily_login_bonus()
-    
     wurzelbot.stop_wurzelbot()
 
 class NoConfigFoundError(Exception):

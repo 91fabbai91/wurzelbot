@@ -9,6 +9,7 @@ from http.cookies import SimpleCookie
 import session
 import logging
 from lxml import html, etree
+import unicodedata
 import login_data
 import message
 import parsing_utils
@@ -487,13 +488,11 @@ class HTTPConnection(object):
         list_offers = []
         for i in range(1, len(table)-1):
             anzahl = table[i][0].text
-            anzahl = anzahl.encode('utf-8')
             anzahl = anzahl.replace('.', '')
                         
             preis = table[i][3].text
-            preis = preis.encode('utf-8')
-            preis = preis.replace('\xc2\xa0wT', '')
-            preis = preis.replace('.', '')
+            preis = unicodedata.normalize("NFKD", preis)
+            preis, _ = preis.split( )
             preis = preis.replace(',', '.')
                         #produkt = table[i][1][0].text
                         #verkaeufer = table[i][2][0].text

@@ -6,6 +6,12 @@ from datetime import datetime
 from enum import Enum
 from collections import Counter
 
+class BlockedFieldType(Enum):
+    WEED = {'id': 41, 'costs': 2.5}
+    TREE_STUMP = {'id': 42, 'costs': 50.0}
+    STONE = {'id': 43, 'costs': 250.0}
+    MOLE = {'id': 45, 'costs': 500.0}
+
 
 class Garden(object):
     def __init__(self, http_connection1: http_connection.HTTPConnection, garden_id: int):
@@ -116,23 +122,23 @@ class Garden(object):
                   str(self.__id))
         return self.__find_blocked_fields_from_json_content(jcontent)
 
-    def destroy_weed_fields(self):
+    def destroy_weed_fields(self, cash:float):
         number_freed_fields = 0
         blocked_fields = self.get_blocked_fields()
         blocked_fields_type_count = Counter(list(blocked_fields.values()))
         try:
-            if(blocked_fields_type_count[BlockedFieldType.WEED.value] >0): 
+            if(blocked_fields_type_count[BlockedFieldType.WEED.value['id']] >0): 
                 blocked_field_type = BlockedFieldType.WEED
-                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type)
-            elif(blocked_fields_type_count[BlockedFieldType.STONE.value] >0):
+                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type, cash)
+            elif(blocked_fields_type_count[BlockedFieldType.STONE.value['id']] >0):
                 blocked_field_type = BlockedFieldType.STONE
-                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type)
-            elif(blocked_fields_type_count[BlockedFieldType.TREE_STUMP.value] >0):
+                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type, cash)
+            elif(blocked_fields_type_count[BlockedFieldType.TREE_STUMP.value['id']] >0):
                 blocked_field_type = BlockedFieldType.TREE_STUMP
-                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type)
-            elif(blocked_fields_type_count[BlockedFieldType.MOLE.value] > 0):
+                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type, cash)
+            elif(blocked_fields_type_count[BlockedFieldType.MOLE.value['id']] > 0):
                 blocked_field_type = BlockedFieldType.MOLE
-                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type)
+                number_freed_fields = number_freed_fields + self.__destroy_fields_of_type(blocked_fields, blocked_field_type, cash)
             else:
                 self.__logger.info("No blocked fields available!")
                 return 0
@@ -142,13 +148,14 @@ class Garden(object):
             self.__logger.info(f"Number of freed fields: {number_freed_fields}")
             return number_freed_fields
 
-    def __destroy_fields_of_type(self, blocked_fields, blocked_field_type) -> int:
+    def __destroy_fields_of_type(self, blocked_fields:list, blocked_field_type:BlockedFieldType, cash:float) -> int:
         number_freed_fields = 0
         for field_id, field_type in blocked_fields.items():  
-            if field_type == blocked_field_type.value:
+            if field_type == blocked_field_type.value['id'] and cash >= blocked_field_type.value['costs']:
                 if self.__http_connection.destroy_weed_field(field_id) is not None:
-                    self.__logger.debug(f"Field Nr. {field_id} of type {field_type} freed")
                     number_freed_fields = number_freed_fields + 1
+                    cash-=blocked_field_type.value['costs']
+
         return number_freed_fields
 
     def update_planted_fields(self):
@@ -312,8 +319,3 @@ class AquaGarden(Garden):
     def harvest(self):
         self.__http_connection.execute_command('do=watergardenHarvestAll')
 
-class BlockedFieldType(Enum):
-    WEED = 41
-    TREE_STUMP = 42
-    STONE = 43
-    MOLE = 45

@@ -1,9 +1,12 @@
 import logging
 import re
 import http_connection
+import parsing_utils
 
 
 class Marketplace(object):
+    FEE_PERCENTAGE = 0.1
+    MINIMAL_DISCOUNT = 0.01
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__http_connection = http_connection
@@ -17,8 +20,7 @@ class Marketplace(object):
         return self.__tradeable_product_ids
     
     def update_all_tradeable_products(self):
-        content = self.__http_connection.get_all_tradeable_products
-
+        content = self.__http_connection.get_all_tradeable_products().decode()
         tradeableProducts = re.findall(r'markt\.php\?order=p&v=([0-9]{1,3})&filter=1', content)
         for i in range(0, len(tradeableProducts)):
             tradeableProducts[i] = int(tradeableProducts[i])

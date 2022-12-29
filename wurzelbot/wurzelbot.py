@@ -259,7 +259,7 @@ class Wurzelbot(object):
 
     def destroy_weed_fields_in_garden(self) -> None:
         for garden in self.__user.gardens:
-            garden.destroy_weed_fields()
+            garden.destroy_weed_fields(self.__user.user_data.bar)
     
     def get_missing_quest_amount(self, quest: quest.Quest) -> dict:
         missing_quest_amount = {}
@@ -335,7 +335,7 @@ class Wurzelbot(object):
                         self.__logger.info("Selling products to wimp: {wimp.id}")
                         new_products_counts = self.__user.sell_products_to_wimp(wimp.id)
                         for id, amount in wimp.product_amount.items():
-                            stock_list[1][id] -= amount
+                            stock_list[id] -= amount
                     else:
                         pass
 
@@ -355,11 +355,32 @@ class Wurzelbot(object):
         for id, amount in products.items():
             product = self.__product_information.get_product_by_id(id)
             minimal_balance = max(self.__notes.get_min_stock(), self.__notes.get_min_stock(product.name), minimal_balance)
-            if stock_list.get(id,0) - (amount + minimal_balance) <= 0:
+            if id not in stock_list:
+                to_sell = False
+                break
+            if stock_list.get(id)['amount'] - (amount + minimal_balance) <= 0:
                 to_sell = False
                 break
         return to_sell
     
+    def sell_on_marketplace_with_min_stock(self,minimal_balance:int =0):
+        cash = self.__user.user_data.bar
+        products = self.__stock.get_ordered_stock_list('amount', True)
+        for id, product_data in products.items():
+            minimal_balance = max(self.__notes.get_min_stock(), self.__notes.get_min_stock(product_data['name']), minimal_balance)
+            sellable_amount = product_data['amount'] - minimal_balance
+            if sellable_amount > 0:
+                price_per_unit = (self.__marketplace.get_cheapest_offer(int(id))-self.__marketplace.MINIMAL_DISCOUNT)
+                marketplace_fees = price_per_unit*sellable_amount*self.__marketplace.FEE_PERCENTAGE
+                if cash >= marketplace_fees:
+                    self.__marketplace.sell_on_market(id, price_per_unit,sellable_amount)
+                elif cash >= price_per_unit:
+                    self.__marketplace.sell_on_market(id, price_per_unit,cash//(price_per_unit*self.__marketplace.FEE_PERCENTAGE))
+                else:
+                    self.__logger.debug(f"Could not sell anything because {cash} is not enough for the fees to sale a single item")
+
+
+
 
 
 

@@ -130,7 +130,7 @@ class User(object):
         
         builder = UserDataBuilder()
         builder.level_number = int(content['levelnr'])
-        builder.bar = str(content['bar'])
+        builder.bar = float(content['bar_unformat'])
         builder.coins = int(content['coins'])
         builder.level = str(content['level'])
         builder.points = int(content['points'])

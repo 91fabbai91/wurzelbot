@@ -18,3 +18,4 @@ tasks:
   - farm_town_park
   - start_bees_tour
   - sell_to_wimps_percentage: 80
+  - sell_on_marketplace: 100
