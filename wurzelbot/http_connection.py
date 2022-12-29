@@ -562,7 +562,10 @@ class HTTPConnection(object):
             html_tree = etree.fromstring(content, parser=my_parser)
 
             note = html_tree.find('./body/form/div/textarea[@id="notiztext"]')
-            return note.text.strip()
+            if note.text is None:
+                return None
+            else:
+                return note.text.strip()
         except Exception as exc:
             self.__logger.error(exc)
 
