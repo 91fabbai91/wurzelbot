@@ -146,9 +146,9 @@ class Garden(object):
         number_freed_fields = 0
         for field_id, field_type in blocked_fields.items():  
             if field_type == blocked_field_type.value:
-                parsing_utils.generate_json_content_and_check_for_success(self.__http_connection.destroy_weed_field(field_id))
-                self.__logger.debug(f"Field Nr. {field_id} of type {field_type} freed")
-                number_freed_fields = number_freed_fields + 1
+                if self.__http_connection.destroy_weed_field(field_id) is not None:
+                    self.__logger.debug(f"Field Nr. {field_id} of type {field_type} freed")
+                    number_freed_fields = number_freed_fields + 1
         return number_freed_fields
 
     def update_planted_fields(self):
@@ -199,7 +199,7 @@ class Garden(object):
         self.__http_connection.execute_command(f'do=changeGarden&garden={self.__id}')
         self.__http_connection.execute_command('do=gardenHarvestAll')
 
-    def grow_plants(self, plant_id, sx, sy, amount):
+    def grow_plants(self, plant, sx, sy, amount):
         planted = 0
         empty_fields = self.get_empty_fields()
         
@@ -211,7 +211,7 @@ class Garden(object):
                 
                 if (self.__is_plant_growable_on_field(field, empty_fields, fields_to_plant, sx)):
                         fields =self.__get_all_field_ids_from_field_id_and_size_as_string(field, sx, sy)
-                        self.__http_connection.grow_plant(field, plant_id, self.__id, fields)
+                        self.__http_connection.grow_plant(field, plant.id, self.__id, fields)
                         planted += 1
 
                         #Delete occupied fields from the list of empty fields after cultivation
@@ -225,7 +225,7 @@ class Garden(object):
             self.__logger.error(f'In garden {self.__id} could not get planted.')
             return 0    
         else:
-            msg = f'In garden {self.__id} were {planted} plants of type {plant_id} planted.'
+            msg = f'In garden {self.__id} were {planted} plants of type {plant.name} planted.'
             self.__logger.debug(msg)
             return planted
 

@@ -257,6 +257,7 @@ class HTTPConnection(object):
             response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
             jcontent = parsing_utils.generate_json_content_and_check_for_success(content.decode('UTF-8'))
+            return jcontent
         except:
             raise
 
@@ -542,8 +543,8 @@ class HTTPConnection(object):
 
             note = html_tree.find('./body/form/div/textarea[@id="notiztext"]')
             return note.text.strip()
-        except:
-            raise
+        except Exception as exc:
+            self.__logger.error(exc)
 
 
 

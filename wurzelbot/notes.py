@@ -11,6 +11,8 @@ class Notes(object):
 
     def get_min_stock(self, plant_name = None):
       note = self.get_notes()
+      if note is None:
+        return 0
       note = note.replace('\r\n', '\n')
       lines = note.split('\n')
 

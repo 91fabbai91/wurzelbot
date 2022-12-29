@@ -226,7 +226,7 @@ class Wurzelbot(object):
         for garden in self.__user.gardens:
             if amount == -1 or amount > self.__stock.get_stock_by_product_id(product.id):
                 amount = self.__stock.get_stock_by_product_id(product.id)
-            planted = garden.grow_plants(product.id, product.sx, product.sy, amount)
+            planted = garden.grow_plants(product, product.sx, product.sy, amount)
             planted_totally += planted
             self.__logger.info(f"Planted {planted} of type {product.name} in garden {garden.id}")
         
@@ -354,8 +354,8 @@ class Wurzelbot(object):
         to_sell = True
         for id, amount in products.items():
             product = self.__product_information.get_product_by_id(id)
-            minimal_balance = max(self.__notes.get_min_stock(), self.__notes.get_min_stock(product.getName()), minimal_balance)
-            if stock_list[1][id] - (amount + minimal_balance) <= 0:
+            minimal_balance = max(self.__notes.get_min_stock(), self.__notes.get_min_stock(product.name), minimal_balance)
+            if stock_list.get(id,0) - (amount + minimal_balance) <= 0:
                 to_sell = False
                 break
         return to_sell

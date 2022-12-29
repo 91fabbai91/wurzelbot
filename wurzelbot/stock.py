@@ -51,9 +51,9 @@ class Stock(object):
 
     
 
-    def get_ordered_stock_list(self,attribute):
+    def get_ordered_stock_list(self,order_attribute:str):
         extended_product_list = merge_dictionaries(self.__product_information,self.__products)
-        sorted_stock = dict(sorted(extended_product_list.items(), key=lambda item: item[1][attribute]))
+        sorted_stock = dict(sorted(extended_product_list.items(), key=lambda item: item[1][order_attribute]))
         sorted_stock = dict(filter(lambda x: x[1]['amount'] != 0, sorted_stock.items()))
         
         return sorted_stock
