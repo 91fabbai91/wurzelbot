@@ -32,7 +32,7 @@ MARKET_BOOTH_API               = '/stadt/marktstand.php'
 MARKET_API                     = '/stadt/markt.php'
 TREE_QUEST_API                 = '/treequestquery.php?'
 WIMPS_API                      = '/ajax/verkaufajax.php?'
-NOTES_API                      = 'notiz.php'
+NOTES_API                      = '/notiz.php'
 
 class HTTPConnection(object):
 
@@ -537,7 +537,7 @@ class HTTPConnection(object):
 
         adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{NOTES_API}'
         try:
-            response, content = self.__webclient.request(adresse, 'POST', headers = headers)
+            response, content = self.__webclient.request(adresse, 'GET', headers = headers)
             self.__check_if_http_status_is_ok(response)
             content = content.decode('UTF-8')
             my_parser = etree.HTMLParser(recover=True)
