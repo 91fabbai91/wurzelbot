@@ -110,11 +110,12 @@ class HTTPConnection(object):
         parameter = urlencode({'p_anzahl': str(number), 'p_preis1': str(floor(price)), 'p_preis2': '{:02d}'.format(int(100*(price-floor(price)))),'p_id':'p'+str(item_id), 'prepare_markt':'true'}) 
         headers = {'User-Agent': USER_AGENT,\
             'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',\
-                        'Connection': 'keep-alive'}
+                        'Connection': 'keep-alive', 'Content-Type':'application/x-www-form-urlencoded', \
+                        'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'}
         response, content = self.__webclient.request(f'http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_BOOTH_API}', \
-                                                    'POST', \
-                                                    parameter, \
-                                                    headers)
+                                                    method='POST', \
+                                                    body=parameter, \
+                                                    headers=headers)
         self.update_storage()
         self.__check_if_http_status_is_ok(response)
         parameter = urlencode({'p_anzahl': str(number), 'p_preis1': str(floor(price)), 'p_preis2': '{:02d}'.format(int(100*(price-floor(price)))),'p_id':str(item_id), 'verkaufe_markt':'OK'}) 
@@ -390,7 +391,9 @@ class HTTPConnection(object):
 
     def update_storage(self):
         headers = {'User-Agent': USER_AGENT,\
-                   'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}'}
+                   'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',\
+                    'Content-type':	'application/x-www-form-urlencoded; charset=UTF-8',\
+                    'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'}
 
         adress = f'http://s{self.__session.server}{STATIC_DOMAIN}/ajax/updatelager.php'
         parameter = urlencode({'all': '1',
@@ -399,9 +402,9 @@ class HTTPConnection(object):
                     'token': self.__token})
         try:
             response, content = self.__webclient.request(adress, \
-                                        'POST', \
-                                        parameter, \
-                                        headers)
+                                        method='POST', \
+                                        body=parameter, \
+                                        headers=headers)
             content = parsing_utils.generate_json_content_and_check_for_ok(content)
         except:
             raise

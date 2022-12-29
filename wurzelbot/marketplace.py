@@ -58,7 +58,6 @@ class Marketplace(object):
         else: #No Offers
             return None
 
-    # TODO: Does not work properly
     def sell_on_market(self, item_id: int , price: float, number: int):
         self.__http_connection.sell_on_market(item_id, price, number)
 
