@@ -196,7 +196,7 @@ class Garden(object):
         # 41 weed, 42 tree stump, 43 stone, 45 mole
         for field in jcontent['garden']:
             blocked_field_type = jcontent['garden'][field][0]
-            if blocked_field_type in [BlockedFieldType.WEED.value, BlockedFieldType.STONE.value, BlockedFieldType.TREE_STUMP.value, BlockedFieldType.MOLE.value]:
+            if blocked_field_type in [BlockedFieldType.WEED.value['id'], BlockedFieldType.STONE.value['id'], BlockedFieldType.TREE_STUMP.value['id'], BlockedFieldType.MOLE.value['id']]:
                 weed_fields.update({int(field): blocked_field_type})
 
 
