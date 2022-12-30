@@ -1,7 +1,9 @@
 import logging
 import re
+import io
 import http_connection
 import message
+import xml.etree.ElementTree as eTree
 
 
 # Message States
@@ -124,7 +126,7 @@ class Messenger(object):
         """
 
         try:
-            result = self.__http_connection.execute_message_command(None)
+            result = self.__http_connection.execute_message_command('new.php')
             id = self.__get_message_id_from_new_message_result(result)
         except:
             raise
@@ -189,7 +191,7 @@ class Messenger(object):
                 builder.subject = subject
                 builder.body = body
                 new_message = message.Message(builder)
-                result_of_sent_message = self.__http_connection.execute_message_command(new_message)
+                result_of_sent_message = self.__http_connection.execute_message_command('new.php',new_message)
                 message_delivery_state = self.__get_message_delivery_state(result_of_sent_message)
                 new_message.delivery_state = message_delivery_state
                 self.__sent.append(new_message)
@@ -199,6 +201,25 @@ class Messenger(object):
             else:
                 i += 1
                 self.__logger.debug(str(i) + ' von ' + str(n))
+
+    # TODO: Write complete function    
+    def read_message(self):
+        # Parses messages from inbox to python objects and level up messages can so be read from wurzelbot 
+        content = self.__http_connection.execute_message_command('list.php?folder=inbox')
+        content = content.decode('UTF-8')
+        html = bytearray(content, encoding='UTF-8')
+        self.__parse_inbox_from_html(html)
+
+    def __parse_inbox_from_html(self, html: str):
+        # ElementTree needs a file to parse.
+        # With BytesIO a file is created in memory, not on disk.
+        html_file = io.BytesIO(html)
+        
+        html_tree = eTree.parse(html_file)
+        root = html_tree.getroot()
+        table = root.find('./body/table')
+        print(table)
+
 
 
 class MessengerError(Exception):

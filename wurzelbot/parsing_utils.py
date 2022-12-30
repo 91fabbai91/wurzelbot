@@ -1,10 +1,8 @@
-import io
 import json
 from sre_constants import SUCCESS
 import yaml
 import logging
-import xml.etree.ElementTree as eTree
-from wimp import Wimp
+
 
 
 
@@ -39,41 +37,7 @@ def generate_json_content_and_check_for_status_success(content):
     else: logging.error('JSON not successful')
 
 
-def parse_npc_prices_from_html(html: str):
-    """
-    Parsing all NPC prices from the HTML script of the game help.
-    """
-    # ElementTree needs a file to parse.
-    # With BytesIO a file is created in memory, not on disk.
-    html_file = io.BytesIO(html)
-    
-    html_tree = eTree.parse(html_file)
-    root = html_tree.getroot()
-    table = root.find('./body/div[@id="content"]/table')
-    
-    dictResult = {}
-    
-    for row in table.iter('tr'):
-        
-        produktname = row[0].text
-        npc_preis = row[1].text
-        
-        #Bei der Tabellenüberschrift ist der Text None
-        if produktname != None and npc_preis != None:
-            # NPC-Preis aufbereiten
-            npc_preis = str(npc_preis)
-            npc_preis = npc_preis.replace(' wT', '')
-            npc_preis = npc_preis.replace('.', '')
-            npc_preis = npc_preis.replace(',', '.')
-            npc_preis = npc_preis.strip()
-            if '-' in npc_preis:
-                npc_preis = None
-            else:
-                npc_preis = float(npc_preis)
-                
-            dictResult[produktname] = npc_preis
-            
-    return dictResult
+
 
 def generate_yaml_content_and_check_status_for_ok(content: str):
     """
@@ -97,39 +61,7 @@ def generate_yaml_content_and_check_for_success(content : str):
     if (yContent['success'] != 1):
         raise YAMLError("YAML Error")
 
-def get_username_from_json_content(jContent):
-    """
-    Searches for the username in the passed JSON object and returns it.
-    """
-    result = False
-    for i in range(0, len(jContent['table'])):
-        sUserName = str(jContent['table'][i])  
-        if 'Spielername' in sUserName:
-            sUserName = sUserName.replace('<tr>', '')
-            sUserName = sUserName.replace('<td>', '')
-            sUserName = sUserName.replace('</tr>', '')
-            sUserName = sUserName.replace('</td>', '')
-            sUserName = sUserName.replace('Spielername', '')
-            sUserName = sUserName.replace('&nbsp;', '')
-            sUserName = sUserName.strip()
-            result = True
-            break
-    if result:
-        return sUserName
-    else:
-        raise JSONError('username not found')
 
-def get_wimps_list_from_json_content(jcontent):
-    """
-    Returns list of growing plants from JSON content
-    """
-    wimps_list = []
-    for wimp in jcontent['wimps']:
-        product_data = {}
-        for product in wimp['sheet']['products']:
-            product_data[str(product['pid'])] = int(product['amount'])
-        wimps_list.append(Wimp(id=wimp['sheet']['id'], product_amount=product_data, reward=wimp['sheet']['sum']))    
-    return wimps_list
 
 class JSONError(Exception):
     def __init__(self, value):

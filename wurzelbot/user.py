@@ -114,7 +114,8 @@ class User(object):
         self.__mail_addresse_confirmed = confirmend
 
     def __get_username_from_server(self):
-        self.__username = self.__http_connection.get_username_from_server()
+        jContent = self.__http_connection.get_username_from_server()
+        self.__username = self.__get_username_from_json_content(jContent)
         self.__logger.info("Username: " + self.__username)
 
     def __get_user_data_from_server(self):
@@ -203,6 +204,28 @@ class User(object):
             return iGartenAnz
         else:
             self.__logger.debug(jContent['table'])
+
+    def __get_username_from_json_content(self, jContent):
+        """
+        Searches for the username in the passed JSON object and returns it.
+        """
+        result = False
+        for i in range(0, len(jContent['table'])):
+            sUserName = str(jContent['table'][i])  
+            if 'Spielername' in sUserName:
+                sUserName = sUserName.replace('<tr>', '')
+                sUserName = sUserName.replace('<td>', '')
+                sUserName = sUserName.replace('</tr>', '')
+                sUserName = sUserName.replace('</td>', '')
+                sUserName = sUserName.replace('Spielername', '')
+                sUserName = sUserName.replace('&nbsp;', '')
+                sUserName = sUserName.strip()
+                result = True
+                break
+        if result:
+            return sUserName
+        else:
+            raise self.__logger.error('Username not found')
 
     def is_honey_farm_available(self):
         if self.__user_data.level_number < 10:

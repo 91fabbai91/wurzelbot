@@ -5,6 +5,7 @@ import parsing_utils
 from datetime import datetime
 from enum import Enum
 from collections import Counter
+from wimp import Wimp
 
 class BlockedFieldType(Enum):
     WEED = {'id': 41, 'costs': 2.5}
@@ -291,7 +292,19 @@ class Garden(object):
     def get_wimps_data(self):
         self.__http_connection.execute_command(f"do=changeGarden&garden={self.__id}")
         jcontent = self.__http_connection.execute_wimp_command("do=getAreaData")
-        return parsing_utils.get_wimps_list_from_json_content(jcontent)
+        return self.__get_wimps_list_from_json_content(jcontent)
+
+    def __get_wimps_list_from_json_content(self, jcontent):
+        """
+        Returns list of growing plants from JSON content
+        """
+        wimps_list = []
+        for wimp in jcontent['wimps']:
+            product_data = {}
+            for product in wimp['sheet']['products']:
+                product_data[str(product['pid'])] = int(product['amount'])
+            wimps_list.append(Wimp(id=wimp['sheet']['id'], product_amount=product_data, reward=wimp['sheet']['sum']))    
+        return wimps_list
 
 
 

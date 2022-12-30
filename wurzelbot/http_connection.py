@@ -23,7 +23,7 @@ HTTP_STATE_FOUND               = 302 #moved temporarily
 USER_AGENT                     = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 Vivaldi/2.2.1388.37'
 STATIC_DOMAIN                  = ".wurzelimperium.de"
 AJAX_PHP                       = '/ajax/ajax.php?'
-MESSAGE_API                    = '/nachrichten/new.php'
+MESSAGE_API                    = '/nachrichten'
 WATER_API                      = '/save/wasser.php'
 PLANT_API                      = '/save/pflanz.php'
 DECO_GARDEN_API                = '/ajax/decogardenajax.php'
@@ -281,7 +281,7 @@ class HTTPConnection(object):
         except:
             raise
 
-    def execute_message_command(self, message: message.Message):
+    def execute_message_command(self, url_extension: str, message: message.Message=None) -> str:
         parameter = None
         headers = {'Cookie': f'PHPSESSID={self.__session.session_id};wunr={self.__user_id}',
             'Connection': 'Keep-Alive'}
@@ -291,7 +291,7 @@ class HTTPConnection(object):
                     'msg_subject': message.subject,
                     'msg_body': message.body,
                     'msg_send': 'senden'}) 
-        adresse = f'http://s{self.__session.server()}{STATIC_DOMAIN}{MESSAGE_API}'
+        adresse = f'http://s{self.__session.server()}{STATIC_DOMAIN}{MESSAGE_API}/{url_extension}'
         try:
             if parameter is not None:
                 response, content = self.__webclient.request(adresse, 'POST', parameter, headers)
@@ -302,6 +302,7 @@ class HTTPConnection(object):
             raise
         else:
             return content
+
 
     def read_user_data_from_server(self):
         """
@@ -352,15 +353,11 @@ class HTTPConnection(object):
                    'X-Requested-With':'X-Requested-With: XMLHttpRequest'}
         adresse = f'http://s{self.__session.server}{STATIC_DOMAIN}{AJAX_PHP}do=statsGetStats&which=0&start=0&additional={self.__user_id}&token={self.__token}'
         
-        try:
-            response, content = self.__webclient.request(adresse, 'GET', headers = headers)
-            self.__check_if_http_status_is_ok(response)
-            jContent = parsing_utils.generate_json_content_and_check_for_ok(content)
-            userName = parsing_utils.get_username_from_json_content(jContent)
-        except:
-            raise
-        else:
-            return userName
+        response, content = self.__webclient.request(adresse, 'GET', headers = headers)
+        self.__check_if_http_status_is_ok(response)
+        jContent = parsing_utils.generate_json_content_and_check_for_ok(content)
+        return jContent
+
 
 
     def get_trophies(self):
@@ -531,15 +528,9 @@ class HTTPConnection(object):
         #try:
         response, content = self.__webclient.request(adresse, 'GET', headers = headers)
         self.__check_if_http_status_is_ok(response)
+        return content
         
-        content = content.decode('UTF-8').replace('Gärten & Regale', 'Gärten und Regale')
-        content = bytearray(content, encoding='UTF-8')
 
-        dictNPCPrices = parsing_utils.parse_npc_prices_from_html(content)
-        #except:
-        #    pass #TODO Exception definieren
-        #else:
-        return dictNPCPrices
 
     def __check_if_http_status_is_ok(self, response):
         if not (response['status'] == str(HTTP_STATE_OK)):
