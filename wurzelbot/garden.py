@@ -9,8 +9,8 @@ from wimp import Wimp
 
 class BlockedFieldType(Enum):
     WEED = {'id': 41, 'costs': 2.5}
-    TREE_STUMP = {'id': 42, 'costs': 50.0}
-    STONE = {'id': 43, 'costs': 250.0}
+    TREE_STUMP = {'id': 42, 'costs': 250.0}
+    STONE = {'id': 43, 'costs': 50.0}
     MOLE = {'id': 45, 'costs': 500.0}
 
 
