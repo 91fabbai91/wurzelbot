@@ -42,7 +42,9 @@ class BeesFarm(object):
     def start_all_bees_tour(self, tour: BeesTour):
         for index, hive in enumerate(self.__hives):
             try:
-                if hive['tour_remain']<0:
+                if 'tour_remain' not in hive:
+                    self.start_bees_tour(index+1,tour)
+                elif hive['tour_remain']<0:
                     self.start_bees_tour(index+1,tour)
             except:
                 pass
