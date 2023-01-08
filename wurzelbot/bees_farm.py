@@ -36,7 +36,9 @@ class BeesFarm(object):
         return jcontent
 
     def start_bees_tour(self, beehive_id: int, tour: BeesTour):
-        self.__go_to_bees()
+        jcontent = self.__go_to_bees()
+        if(int(jcontent['data']['stock'].items()[0]) == 100000):
+            self.__http_connection.execute_command(f'do=bees_fill')
         self.__http_connection.execute_command(f'do=bees_startflight&id={beehive_id}&tour={tour.value}')
 
     def start_all_bees_tour(self, tour: BeesTour):
