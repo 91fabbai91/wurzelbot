@@ -332,10 +332,10 @@ class Wurzelbot(object):
                     self.__user.decline_wimp(wimp.id)
                 else:
                     if self.check_wimps_required_amount(minimal_balance, wimp.product_amount, stock_list):
-                        self.__logger.info("Selling products to wimp: {wimp.id}")
+                        self.__logger.info(f"Selling products to wimp: {wimp.id}")
                         new_products_counts = self.__user.sell_products_to_wimp(wimp.id)
                         for id, amount in wimp.product_amount.items():
-                            stock_list[id] -= amount
+                            stock_list[id]['amount'] -= amount
                     else:
                         pass
 
