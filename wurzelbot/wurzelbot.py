@@ -369,8 +369,11 @@ class Wurzelbot(object):
         for id, product_data in products.items():
             minimal_balance = max(self.__notes.get_min_stock(), self.__notes.get_min_stock(product_data['name']), minimal_balance)
             sellable_amount = product_data['amount'] - minimal_balance
-            if sellable_amount > 0:
-                price_per_unit = min((self.__marketplace.get_cheapest_offer(int(id))-self.__marketplace.MINIMAL_DISCOUNT),self.__product_information.get_product_by_id(int(id)).price_npc)
+            cheapest_offer = self.__marketplace.get_cheapest_offer(int(id))
+            if cheapest_offer == None:
+                self.__logger.info(f"No offers for {self.__product_information.get_product_by_id(id).name}")
+            if sellable_amount > 0 and cheapest_offer!=None:
+                price_per_unit = min((cheapest_offer-self.__marketplace.MINIMAL_DISCOUNT),self.__product_information.get_product_by_id(int(id)).price_npc)
                 marketplace_fees = price_per_unit*sellable_amount*self.__marketplace.FEE_PERCENTAGE
                 if cash >= marketplace_fees:
                     self.__marketplace.sell_on_market(id, price_per_unit,sellable_amount)

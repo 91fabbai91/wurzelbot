@@ -486,7 +486,7 @@ class HTTPConnection(object):
                 table = root.findall('./body/div/table/*')
                 
                 if (table[1][0].text == 'Keine Angebote'):
-                    pass
+                    list_offers = list()
                 else:
                     #range von 1 bis länge-1, da erste Zeile Überschriften sind und die letzte Weiter/Zurück.
                     #Falls es mehrere seiten gibt.
