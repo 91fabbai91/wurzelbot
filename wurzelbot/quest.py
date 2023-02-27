@@ -59,7 +59,12 @@ class ParkQuest(Quest):
         return self._amount, self._reward
     
     def fulfill_quest(self):
-        return super().fulfill_quest()
+        try:
+            quest_data = self._http_connection.execute_command("do=park_getquest")
+            for product in quest_data['products']:
+                self._http_connection.execute_command(f"do=park_quest_entry&pid={product['pid']}&amount={product['missing']}&questnr={quest_data['questnr']}")
+        except:
+            raise QuestError("Not possible to finish quest")
             
 
 
@@ -69,18 +74,31 @@ class DecoGardenQuest(Quest):
 
     def get_quest(self):
         try:
-            quest_data = self._http_connection.execute_decogarden_command("do=clickObj&which=pond")['questData']
-            self._reward = quest_data['reward']
-            for product in quest_data['products']:
-                self._amount.update({product['name']: product['missing']})
-            self._logger.debug(f"Needed amount: {self._amount} and reward: {self._reward}")
+            deco_garden_objects = self._http_connection.execute_decogarden_command("do=getGarden")['objects']
+            for object in deco_garden_objects:
+                quest_data = self._http_connection.execute_decogarden_command(f"do=clickObj&which={object['id']}")['questData']
+                self._reward.append(quest_data['reward'])
+                for product in quest_data['products']:
+                    if product['name'] in self._amount.keys:
+                        amount = self._amount.get(product['name']) + product['missing']
+                    else: 
+                        amount = product['missing']
+                    self._amount.update({product['name']: amount})
+                self._logger.debug(f"Needed amount: {self._amount} and reward: {self._reward}")
         except:
             raise QuestError("No DecoGardenQuest available")
         return self._amount, self._reward
 
     def fulfill_quest(self):
-        return super().fulfill_quest()
-
+        try:
+            deco_garden_objects = self._http_connection.execute_decogarden_command("do=getGarden")['objects']
+            for object in deco_garden_objects:
+                quest_data = self._http_connection.execute_decogarden_command(f"do=clickObj&which={object['id']}")['questData']
+                for product in quest_data['products']:
+                    self._http_connection.execute_decogarden_command(f"sendProducts&pid={product['pid']}&which={object['id']}&questNr={quest_data['questnr']}&amount={product['missing']}")
+        except:
+            raise QuestError("No DecoGardenQuest available")
+        
 class BeesGardenQuest(Quest):
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
         super().__init__(http_connection)
