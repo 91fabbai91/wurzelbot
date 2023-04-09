@@ -1,5 +1,7 @@
+from pydantic import SecretStr
+
 class LoginData(object):
-    def __init__(self, server: int, username: str, password: str):
+    def __init__(self, server: int, username: str, password: SecretStr):
         if(server<0 or server>46):
             raise ValueError("Server must be Integer, greater than 0 and smaller than 47")
         self.__server = server

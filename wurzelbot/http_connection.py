@@ -1,4 +1,4 @@
-
+from pydantic import SecretStr
 from urllib.parse import urlencode
 import re
 import io
@@ -82,7 +82,7 @@ class HTTPConnection(object):
         parameter = urlencode({'do': 'login',
                     'server': 'server' + str(login_data.server),
                     'user': login_data.username,
-                    'pass': login_data.password}) 
+                    'pass': login_data.password.get_secret_value()}) 
     
         headers = {'Content-type': 'application/x-www-form-urlencoded',
                    'Connection': 'keep-alive'}

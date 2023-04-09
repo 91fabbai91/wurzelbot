@@ -1,11 +1,13 @@
 import os
 from typing import Set
-from pydantic import BaseSettings, BaseModel
+from pydantic import BaseSettings, BaseModel, SecretStr
 
-class Login(BaseModel):
+class Login(BaseSettings):
     server: int
     name: str
-    password: str
+    password: SecretStr
+    class Config:
+        secrets_dir = '/run/secrets/login'
 
 class Logging(BaseModel):
     level: str
@@ -23,10 +25,6 @@ class Tasks(BaseModel):
     start_bees_tour: bool = True
     grow_plants: Set[str] = set()
 
-
-
-
-
 class Settings(BaseSettings):
     logins: Login
     logging: Logging
@@ -35,3 +33,4 @@ class Settings(BaseSettings):
         env_file = os.path.expanduser('config/.env')
         env_nested_delimiter = "__"
         env_file_encoding = 'utf-8'
+        secrets_dir = '/run/secrets'
