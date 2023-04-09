@@ -1,21 +1,12 @@
-from pydantic import SecretStr
+from pydantic import SecretStr, BaseModel,validator
 
-class LoginData(object):
-    def __init__(self, server: int, username: str, password: SecretStr):
-        if(server<0 or server>46):
+class LoginData(BaseModel):
+    server: int
+    username: str
+    password: SecretStr
+
+    @validator('server')
+    def server_match(cls, v):
+        if v < 0 or v > 46:
             raise ValueError("Server must be Integer, greater than 0 and smaller than 47")
-        self.__server = server
-        self.__username = username
-        self.__password = password
-
-    @property
-    def server(self):
-        return self.__server
-
-    @property
-    def username(self):
-        return self.__username
-
-    @property
-    def password(self):
-        return self.__password
+        return v

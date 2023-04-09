@@ -1,5 +1,5 @@
 import os
-from typing import Set
+from typing import Set, Optional
 from pydantic import BaseSettings, BaseModel, SecretStr
 
 class Login(BaseSettings):
@@ -10,20 +10,20 @@ class Login(BaseSettings):
         secrets_dir = '/run/secrets/login'
 
 class Logging(BaseModel):
-    level: str
-    filename: str
+    level: str = "INFO"
+    filename: Optional[str]
 
 class SellOnMarketPlace(BaseModel):
     enabled: bool = False
     min_stock: int
 
 class Tasks(BaseModel):
-    grow_for_quests: Set[str] = set()
+    grow_for_quests: Optional[Set[str]] = set()
     sell_to_wimps_percentage: int
     sell_on_marketplace: SellOnMarketPlace
     farm_town_park: bool = True
     start_bees_tour: bool = True
-    grow_plants: Set[str] = set()
+    grow_plants: Optional[Set[str]] = set()
 
 class Settings(BaseSettings):
     logins: Login

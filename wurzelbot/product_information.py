@@ -53,11 +53,11 @@ class ProductInformation(object):
                 continue
 
             name = dictProducts[key]['name'].replace('&nbsp;', ' ')
-            self.__products.append(product.Product(id        = int(key), \
+            self.__products.append(product.Product(id= int(key), \
                                             cat       = dictProducts[key]['category'], \
                                             sx        = dictProducts[key]['sx'], \
                                             sy        = dictProducts[key]['sy'], \
-                                            name      = name.encode('utf-8'), \
+                                            name      = name, \
                                             lvl       = dictProducts[key]['level'], \
                                             crop      = dictProducts[key]['crop'], \
                                             plantable = dictProducts[key]['plantable'], \

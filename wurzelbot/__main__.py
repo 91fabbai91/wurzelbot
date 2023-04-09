@@ -1,20 +1,16 @@
-from ast import arg
 import logging
-import yaml
-import io
 import sys
-from distutils.command.config import config
 from enum import Enum
-import argparse
+from pydantic import BaseModel
 from wurzelbot import Wurzelbot
 from config import Settings
 from login_data import LoginData
 
 #needs to get help texts and how parameters needs to be used
-class Task(object):
-    def __init__(self, name:str, description:str) -> None:
-        self.__name = name
-        self.__description = description
+class Task(BaseModel):
+    name: str
+    description: str
+
 
     def __repr__(self) -> str:
         return f'Name: {self.__name}, Description: {self.__description}'
@@ -31,12 +27,12 @@ class Task(object):
         return self.__description
 
 class Tasks(Enum):
-    GROW_FOR_QUESTS = Task("grow_for_quests","Grow plants for quests and set the quest you want to grow for in config.yaml")
-    GROW_PLANTS = Task("grow_plants", "Grow specific plants in your gardens")
-    START_BEES_TOUR = Task("start_bees_tour", "Start the bees to fly out of their hive")
-    FARM_TOWN_PARK = Task("farm_town_park","To go to the Town Park, empty the cashier and renew items if possibl")
-    SELL_WIMPS_PERCENTAGE = Task("sell_to_wimps_percentage","Sell stuff to Wimps if their offer is higher than the percentage from marketplace")
-    SELL_ON_MARKETPLACE = Task("sell_on_marketplace","Sell stuff to the marketplace until the minimal amount defined here is reached")
+    GROW_FOR_QUESTS = Task(name="grow_for_quests",description="Grow plants for quests and set the quest you want to grow for in config.yaml")
+    GROW_PLANTS = Task(name="grow_plants",description="Grow specific plants in your gardens")
+    START_BEES_TOUR = Task(name="start_bees_tour", description="Start the bees to fly out of their hive")
+    FARM_TOWN_PARK = Task(name="farm_town_park",description="To go to the Town Park, empty the cashier and renew items if possibl")
+    SELL_WIMPS_PERCENTAGE = Task(name="sell_to_wimps_percentage",description="Sell stuff to Wimps if their offer is higher than the percentage from marketplace")
+    SELL_ON_MARKETPLACE = Task(name="sell_on_marketplace",description="Sell stuff to the marketplace until the minimal amount defined here is reached")
 
 
 
@@ -47,7 +43,7 @@ if __name__ == "__main__":
         logging.FileHandler(settings.logging.filename),
         logging.StreamHandler(sys.stdout)],
         format='%(asctime)s - %(message)s')
-    login_data = LoginData(settings.logins.server, settings.logins.name,settings.logins.password)
+    login_data = LoginData(server=settings.logins.server, username=settings.logins.name,password=settings.logins.password)
     wurzelbot = Wurzelbot()
     wurzelbot.start_wurzelbot(login_data)
     wurzelbot.harvest_all_garden()
