@@ -23,6 +23,10 @@ This repo is mainly inspired by MrFlamez WurzelimperiumBot on github
 * Poetry
 * Docker/podman (if you want to run it inside a container)
 
+### Configuration
+
+You can do the configuration with environment variables or with .env files.
+The password is stored inside a secret file in the directory /run/secrets/login/password which contains the password. It is also compatible with docker secrets
 
 ### Executing program (without container)
 
@@ -64,4 +68,5 @@ Inspiration, code snippets, etc.
 * Improve unit tests
 * Add Command line interface
 * Tutorial to run this as a batch job in cloud environments
+* more configuration options
 
