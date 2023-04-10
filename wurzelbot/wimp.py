@@ -1,9 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, PositiveInt, PositiveFloat
 
 class Wimp(BaseModel):
-    id: int
+    id: PositiveInt
     product_amount: dict
-    reward: float
+    reward: PositiveFloat
+
+
+
+    class Config:
+        frozen = True
+        validate_assignment = True
 
 
 

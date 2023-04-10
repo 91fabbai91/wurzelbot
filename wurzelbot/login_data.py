@@ -1,9 +1,13 @@
-from pydantic import SecretStr, BaseModel,validator
+from pydantic import SecretStr, BaseModel,validator, Field, PositiveInt, StrictStr
 
 class LoginData(BaseModel):
-    server: int
-    username: str
-    password: SecretStr
+    server: PositiveInt = Field(..., allow_mutation=False)
+    username: StrictStr = Field(..., allow_mutation=False)
+    password: SecretStr = Field(..., allow_mutation=False)
+
+    class Config:
+        validate_assignment = True
+        frozen = True
 
     @validator('server')
     def server_match(cls, v):

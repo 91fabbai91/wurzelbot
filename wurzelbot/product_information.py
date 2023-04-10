@@ -60,7 +60,7 @@ class ProductInformation(object):
                                             name      = name, \
                                             lvl       = dictProducts[key]['level'], \
                                             crop      = dictProducts[key]['crop'], \
-                                            plantable = dictProducts[key]['plantable'], \
+                                            is_plantable = dictProducts[key]['plantable'], \
                                                time      = dictProducts[key]['time']))
                 
         self.__set_all_prices_of_npc()
