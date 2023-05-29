@@ -51,10 +51,7 @@ class Marketplace(object):
 
         list_offers = self.get_all_offers_of_product(id)
         
-        if len(list_offers) >= 1 \
-           and \
-           list_offers != None:
-            
+        if list_offers != None and len(list_offers) >= 1:
             return list_offers[0][1]
         
         else: #No Offers

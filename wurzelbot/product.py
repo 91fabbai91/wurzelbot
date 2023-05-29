@@ -20,8 +20,8 @@ class Product(BaseModel):
 
    
     def is_plant(self):
-        return self.category == "v"
+        return self.cat == "v"
     
     def is_decoration(self):
-        return self.category == "d"
+        return self.cat == "d"
 
