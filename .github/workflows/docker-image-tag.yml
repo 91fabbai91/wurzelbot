@@ -3,7 +3,7 @@ on:
   push:
     tags:
       - '*'
-    branches: [ "master" ]
+    branches: [ "master","dev" ]
   pull_request:
     branches: [ "master" ]
 
