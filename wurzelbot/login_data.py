@@ -1,15 +1,13 @@
-from pydantic import SecretStr, BaseModel,validator, Field, PositiveInt, StrictStr
+from pydantic import field_validator, ConfigDict, SecretStr, BaseModel,Field, PositiveInt, StrictStr
 
 class LoginData(BaseModel):
-    server: PositiveInt = Field(..., allow_mutation=False)
-    username: StrictStr = Field(..., allow_mutation=False)
-    password: SecretStr = Field(..., allow_mutation=False)
+    server: PositiveInt = Field(..., frozen=True)
+    username: StrictStr = Field(..., frozen=True)
+    password: SecretStr = Field(..., frozen=True)
+    model_config = ConfigDict(validate_assignment=True, frozen=True)
 
-    class Config:
-        validate_assignment = True
-        frozen = True
-
-    @validator('server')
+    @field_validator('server')
+    @classmethod
     def server_match(cls, v):
         if v < 0 or v > 46:
             raise ValueError("Server must be Integer, greater than 0 and smaller than 47")

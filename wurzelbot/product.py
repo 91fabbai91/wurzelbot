@@ -1,21 +1,19 @@
 import logging
 from typing import Optional
-from pydantic import BaseModel, Field, PositiveFloat, StrictStr, StrictBool, StrictInt
+from pydantic import ConfigDict, BaseModel, Field, PositiveFloat, StrictStr, StrictBool, StrictInt
 
 class Product(BaseModel):
-    id: StrictInt = Field(default=None, allow_mutation=False, strict=True)
-    cat: StrictStr  = Field(...,allow_mutation=False)
-    sx: Optional[StrictInt] = Field(...,allow_mutation=False)
-    sy: Optional[StrictInt]  = Field(...,allow_mutation=False)
-    name: StrictStr  = Field(...,allow_mutation=False)
-    lvl: StrictInt  = Field(...,allow_mutation=False)
-    crop: StrictInt  = Field(...,allow_mutation=False)
-    is_plantable: Optional[StrictBool]  = Field(...,allow_mutation=False)
-    time: StrictInt = Field(...,allow_mutation=False)
-    price_npc: Optional[PositiveFloat]
-
-    class Config:
-        validate_assignment = True
+    id: StrictInt = Field(default=None, frozen=True, strict=True)
+    cat: StrictStr  = Field(...,frozen=True)
+    sx: Optional[StrictInt] = Field(None,frozen=True)
+    sy: Optional[StrictInt]  = Field(None,frozen=True)
+    name: StrictStr  = Field(...,frozen=True)
+    lvl: StrictInt  = Field(...,frozen=True)
+    crop: StrictInt  = Field(...,frozen=True)
+    is_plantable: Optional[StrictBool]  = Field(None,frozen=True)
+    time: StrictInt = Field(...,frozen=True)
+    price_npc: Optional[PositiveFloat] = None
+    model_config = ConfigDict(validate_assignment=True)
     
 
    

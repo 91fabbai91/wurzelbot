@@ -1,28 +1,26 @@
 import os
 from typing import Optional, FrozenSet
-from pydantic import validator, BaseSettings, BaseModel, SecretStr, PositiveInt, StrictStr
+from pydantic import field_validator, BaseModel, SecretStr, PositiveInt, StrictStr
+from pydantic_settings import SettingsConfigDict, BaseSettings
 
 class Login(BaseSettings):
     server: PositiveInt
     name: StrictStr
     password: SecretStr
 
-    @validator('server')
+    @field_validator('server')
+    @classmethod
     def server_match(cls, v):
         if v < 0 or v > 46:
             raise ValueError("Server must be Integer, greater than 0 and smaller than 47")
         return v
-
-    class Config:
-        secrets_dir = '/run/secrets/login'
-        frozen = True
-        validate_assignment = True
+    model_config = SettingsConfigDict(secrets_dir='/run/secrets/login', frozen=True, validate_assignment=True)
 
 
 
 class Logging(BaseModel):
     level: StrictStr = "INFO"
-    filename: Optional[StrictStr]
+    filename: Optional[StrictStr] = None
 
 class SellOnMarketPlace(BaseModel):
     enabled: bool = False
@@ -36,7 +34,8 @@ class Tasks(BaseModel):
     start_bees_tour: bool = True
     grow_plants: Optional[FrozenSet[StrictStr]] = set()
 
-    @validator('sell_to_wimps_percentage')
+    @field_validator('sell_to_wimps_percentage')
+    @classmethod
     def percentage_validator(cls, v):
         if v<0 or v>100:
             raise ValueError(f"{v} is not a percentage value")
@@ -46,9 +45,4 @@ class Settings(BaseSettings):
     logins: Login
     logging: Logging
     tasks: Tasks
-    class Config:
-        env_file = os.path.expanduser('config/.env')
-        env_nested_delimiter = "__"
-        env_file_encoding = 'utf-8'
-        secrets_dir = '/run/secrets'
-        frozen = True
+    model_config = SettingsConfigDict(env_file=os.path.expanduser('config/.env'), env_nested_delimiter="__", env_file_encoding='utf-8', secrets_dir='/run/secrets', frozen=True)
