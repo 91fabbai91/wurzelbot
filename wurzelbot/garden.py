@@ -205,7 +205,10 @@ class Garden(object):
 
     def harvest(self):
         self.__http_connection.execute_command(f'do=changeGarden&garden={self.__id}')
-        self.__http_connection.execute_command('do=gardenHarvestAll')
+        status_harvest = self.__http_connection.execute_command('do=gardenHarvestAll')
+        if "nicht alle Produkte in dein Lager gepasst" in status_harvest['harvestMsg']:
+            raise ValueError("harvest didn't work properly")
+
 
     def grow_plants(self, plant, sx, sy, amount):
         planted = 0

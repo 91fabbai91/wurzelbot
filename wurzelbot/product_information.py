@@ -53,14 +53,14 @@ class ProductInformation(object):
                 continue
 
             name = dictProducts[key]['name'].replace('&nbsp;', ' ')
-            self.__products.append(product.Product(id        = int(key), \
+            self.__products.append(product.Product(id= int(key), \
                                             cat       = dictProducts[key]['category'], \
                                             sx        = dictProducts[key]['sx'], \
                                             sy        = dictProducts[key]['sy'], \
-                                            name      = name.encode('utf-8'), \
+                                            name      = name, \
                                             lvl       = dictProducts[key]['level'], \
                                             crop      = dictProducts[key]['crop'], \
-                                            plantable = dictProducts[key]['plantable'], \
+                                            is_plantable = dictProducts[key]['plantable'], \
                                                time      = dictProducts[key]['time']))
                 
         self.__set_all_prices_of_npc()

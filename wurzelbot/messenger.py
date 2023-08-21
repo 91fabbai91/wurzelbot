@@ -185,12 +185,7 @@ class Messenger(object):
 
             try:
                 newMessageID = self.__get_new_message_id()
-                builder = message.MessageBuilder()
-                builder.id = newMessageID
-                builder.recipient = recipient
-                builder.subject = subject
-                builder.body = body
-                new_message = message.Message(builder)
+                new_message = message.Message(id=newMessageID, recipient=recipient, subject=subject, body=body)
                 result_of_sent_message = self.__http_connection.execute_message_command('new.php',new_message)
                 message_delivery_state = self.__get_message_delivery_state(result_of_sent_message)
                 new_message.delivery_state = message_delivery_state
