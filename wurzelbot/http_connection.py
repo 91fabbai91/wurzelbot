@@ -508,6 +508,7 @@ class HTTPConnection(object):
             preis = table[i][3].text
             preis = unicodedata.normalize("NFKD", preis)
             preis, _ = preis.split( )
+            preis = preis.replace('.','')
             preis = preis.replace(',', '.')
                         #produkt = table[i][1][0].text
                         #verkaeufer = table[i][2][0].text

@@ -11,7 +11,9 @@ class BeesTour(Enum):
     TWENTYFOUR_HOURS_TOUR =3
 
 
-class BeesFarm(BaseModel, extra=Extra.forbid):
+class BeesFarm(object):
+    __http_connection: http_connection.HTTPConnection
+    __logger_: logging.Logger
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
         self.__http_connection = http_connection
         self.__logger = logging.getLogger(self.__class__.__name__)
