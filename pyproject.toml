@@ -6,7 +6,7 @@ authors = ["91fabbai91 <fabian.baier@gmx.de>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10.12"
 httplib2 = "^0.20.4"
 lxml = "^4.9.1"
 PyYAML = "^6.0"
