@@ -1,0 +1,5 @@
+# https://github.com/pylint-dev/pylint/blob/main/examples/pylintrc
+[MESSAGES CONTROL]
+disable=missing-docstring, missing-class-docstring, missing-function-docstring, import-error
+[DESIGN]
+max-attributes=16
