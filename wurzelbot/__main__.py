@@ -46,6 +46,7 @@ if __name__ == "__main__":
     login_data = LoginData(server=settings.logins.server, username=settings.logins.name,password=settings.logins.password)
     wurzelbot = Wurzelbot()
     wurzelbot.start_wurzelbot(login_data)
+    wurzelbot.get_daily_login_bonus()
     wurzelbot.harvest_all_garden()
     wurzelbot.destroy_weed_fields_in_garden()
     if wurzelbot.has_empty_fields():
@@ -61,12 +62,12 @@ if __name__ == "__main__":
         wurzelbot.renew_all_items_in_park()
     percentage = float(settings.tasks.sell_to_wimps_percentage)/100.0
     wurzelbot.sell_wimps_products(0,percentage)
-    if settings.tasks.sell_on_marketplace.enabled:
-        wurzelbot.sell_on_marketplace_with_min_stock(int(settings.tasks.sell_on_marketplace.min_stock))
+    if 'sell_on_marketplace' in settings.tasks: 
+        if  settings.tasks.sell_on_marketplace.enabled:
+            wurzelbot.sell_on_marketplace_with_min_stock(int(settings.tasks.sell_on_marketplace.min_stock))
     if wurzelbot.has_empty_fields():
         wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()
-    wurzelbot.get_daily_login_bonus()
     wurzelbot.stop_wurzelbot()
 
 class NoConfigFoundError(Exception):

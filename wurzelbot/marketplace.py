@@ -1,7 +1,6 @@
 import logging
 import re
 import http_connection
-import parsing_utils
 
 
 class Marketplace(object):

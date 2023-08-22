@@ -1,6 +1,5 @@
 import logging
 from enum import Enum, unique
-from pydantic import BaseModel, Extra
 import http_connection
 
 
