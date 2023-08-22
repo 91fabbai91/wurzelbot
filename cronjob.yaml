@@ -1,0 +1,50 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: wurzelbot
+spec:
+  schedule: "*/8 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: wurzelbot
+            image: bongomedia/wurzelbot:bugfix
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: LOGINS__SERVER
+              value: '20'
+            - name: LOGINS__NAME
+              valueFrom:
+                secretKeyRef:
+                  name: wurzelbot
+                  key: username
+            - name: LOGINS__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wurzelbot
+                  key: password
+            - name: LOGGING__LEVEL
+              value: 'INFO'
+            - name: LOGGING__FILENAME
+              value: 'wurzelbot.log'
+            - name: TASKS__SELL_TO_WIMPS_PERCENTAGE
+              value: '50'
+            - name: TASKS__SELL_ON_MARKETPLACE__ENABLED
+              value: 'True'
+            - name: TASKS__SELL_ON_MARKETPLACE__MIN_STOCK
+              value: '100'
+            - name: TASKS__FARM_TOWN_PARK
+              value: 'True'
+            - name: TASKS__START_BEES_TOUR
+              value: 'True'
+            - name: TASKS__GROW_PLANTS
+              value: '["Zwiebel","Spinat","Erdbeere"]'
+            - name: TASKS__GROW_FOR_QUESTS
+              value: '["CityQuest"]'
+          restartPolicy: OnFailure
+          imagePullSecrets:
+          - name: regcred
+
