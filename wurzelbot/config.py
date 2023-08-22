@@ -23,13 +23,12 @@ class Logging(BaseModel):
     filename: Optional[StrictStr] = None
 
 class SellOnMarketPlace(BaseModel):
-    enabled: bool = False
     min_stock: PositiveInt
 
 class Tasks(BaseModel):
     grow_for_quests: Optional[FrozenSet[StrictStr]] = set()
-    sell_to_wimps_percentage: PositiveInt
-    sell_on_marketplace: SellOnMarketPlace
+    sell_to_wimps_percentage: Optional[PositiveInt] = None
+    sell_on_marketplace: Optional[SellOnMarketPlace] = None
     farm_town_park: bool = True
     start_bees_tour: bool = True
     grow_plants: Optional[FrozenSet[StrictStr]] = set()

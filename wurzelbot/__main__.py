@@ -62,9 +62,8 @@ if __name__ == "__main__":
         wurzelbot.renew_all_items_in_park()
     percentage = float(settings.tasks.sell_to_wimps_percentage)/100.0
     wurzelbot.sell_wimps_products(0,percentage)
-    if 'sell_on_marketplace' in settings.tasks: 
-        if  settings.tasks.sell_on_marketplace.enabled:
-            wurzelbot.sell_on_marketplace_with_min_stock(int(settings.tasks.sell_on_marketplace.min_stock))
+    if settings.tasks.sell_on_marketplace is not None:
+        wurzelbot.sell_on_marketplace_with_min_stock(int(settings.tasks.sell_on_marketplace.min_stock))
     if wurzelbot.has_empty_fields():
         wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()
