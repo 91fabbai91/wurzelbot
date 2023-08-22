@@ -1,19 +1,28 @@
 import logging
 import sys
 from enum import Enum
-from pydantic import BaseModel
-from wurzelbot import Wurzelbot
-from config import Settings
+
 from login_data import LoginData
+from pydantic import BaseModel
 
-if __name__ == "__main__":  
+from config import Settings
+from wurzelbot import Wurzelbot
 
+if __name__ == "__main__":
     settings = Settings()
-    logging.basicConfig(level=settings.logging.level,handlers=[
-        logging.FileHandler(settings.logging.filename),
-        logging.StreamHandler(sys.stdout)],
-        format='%(asctime)s - %(message)s')
-    login_data = LoginData(server=settings.logins.server, username=settings.logins.name,password=settings.logins.password)
+    logging.basicConfig(
+        level=settings.logging.level,
+        handlers=[
+            logging.FileHandler(settings.logging.filename),
+            logging.StreamHandler(sys.stdout),
+        ],
+        format="%(asctime)s - %(message)s",
+    )
+    login_data = LoginData(
+        server=settings.logins.server,
+        username=settings.logins.name,
+        password=settings.logins.password,
+    )
     wurzelbot = Wurzelbot()
     wurzelbot.start_wurzelbot(login_data)
     wurzelbot.get_daily_login_bonus()
@@ -30,10 +39,12 @@ if __name__ == "__main__":
     if settings.tasks.farm_town_park:
         wurzelbot.collect_cash_from_park()
         wurzelbot.renew_all_items_in_park()
-    percentage = float(settings.tasks.sell_to_wimps_percentage)/100.0
-    wurzelbot.sell_wimps_products(0,percentage)
+    percentage = float(settings.tasks.sell_to_wimps_percentage) / 100.0
+    wurzelbot.sell_wimps_products(0, percentage)
     if settings.tasks.sell_on_marketplace is not None:
-        wurzelbot.sell_on_marketplace_with_min_stock(int(settings.tasks.sell_on_marketplace.min_stock))
+        wurzelbot.sell_on_marketplace_with_min_stock(
+            int(settings.tasks.sell_on_marketplace.min_stock)
+        )
     if wurzelbot.has_empty_fields():
         wurzelbot.grow_anything()
     wurzelbot.water_plants_in_all_gardens()

@@ -1,5 +1,7 @@
 from typing import Optional
-from pydantic import ConfigDict, BaseModel, PositiveInt, StrictStr, Field
+
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, StrictStr
+
 
 class Message(BaseModel):
     id: PositiveInt
@@ -9,5 +11,3 @@ class Message(BaseModel):
     delivery_state: Optional[StrictStr] = Field(None, frozen=False)
     sender: Optional[StrictStr] = Field(None, frozen=False)
     model_config = ConfigDict(frozen=True, validate_assignment=True)
-
-    
