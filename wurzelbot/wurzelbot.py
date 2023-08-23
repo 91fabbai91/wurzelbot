@@ -314,6 +314,8 @@ class Wurzelbot:
             elif quest_type_name == quest.DecoGardenQuest.__name__:
                 if self.__user.deco_garden_available:
                     quest_level = self.__deco_garden_quest
+                else:
+                    self.__logger.error("Deco Garden is not available")
             elif quest_type_name == quest.BeesGardenQuest.__name__:
                 if self.__user.honey_farm_available:
                     quest_level = self.__bee_farm_quest
@@ -325,12 +327,10 @@ class Wurzelbot:
                 raise NameError(f"No Element named {quest_type_name}")
         except quest.QuestError as e:
             self.__logger.error(e)
-        try:
-            missing_amount = self.get_missing_quest_amount(quest=quest_level)
-            for product_name, amount in missing_amount.items():
-                self.grow_plants_in_gardens_by_name(product_name, amount)
-        except:
-            pass
+
+        missing_amount = self.get_missing_quest_amount(quest=quest_level)
+        for product_name, amount in missing_amount.items():
+            self.grow_plants_in_gardens_by_name(product_name, amount)
 
     def get_all_wimps_products(self) -> dict:
         all_wimps_products = Counter()
@@ -404,11 +404,11 @@ class Wurzelbot:
             cheapest_offer = self.__marketplace.get_cheapest_offer(
                 int(id), self.__user.username
             )
-            if cheapest_offer is None:
-                self.__logger.info(
+            if cheapest_offer == float("inf"):
+                self.__logger.debug(
                     f"No offers for {self.__product_information.get_product_by_id(id).name}"
                 )
-            if sellable_amount > 0 and cheapest_offer is not None:
+            if sellable_amount > 0:
                 price_per_unit = min(
                     (cheapest_offer - self.__marketplace.MINIMAL_DISCOUNT),
                     self.__product_information.get_product_by_id(int(id)).price_npc,

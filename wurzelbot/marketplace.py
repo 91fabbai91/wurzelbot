@@ -59,7 +59,7 @@ class Marketplace:
             )
             if len(list_offers) > 0:
                 return list_offers[0].price
-        return None
+        return float("inf")
 
     def sell_on_market(self, item_id: int, price: float, number: int):
         self.__http_connection.sell_on_market(item_id, price, number)

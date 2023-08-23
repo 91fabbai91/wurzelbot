@@ -17,14 +17,12 @@ class BlockedFieldType(Enum):
 
 
 class Garden:
-    def __init__(
-        self, http_connection1: http_connection.HTTPConnection, garden_id: int
-    ):
+    def __init__(self, http_connection: http_connection.HTTPConnection, garden_id: int):
         self.__id = garden_id
         self.__len_x = 17
         self.__len_y = 12
         self.__logger = logging.getLogger(f"Garden{self.__id}")
-        self.__http_connection = http_connection1
+        self.__http_connection = http_connection
         self.__number_of_fields = self.__len_x * self.__len_y
         self.__fields = []
         self.update_planted_fields()
@@ -56,7 +54,9 @@ class Garden:
                 number_plants = number_plants + 1
         return number_plants
 
-    def __get_all_field_ids_from_field_id_and_size_as_string(self, field_id, s_x, s_y):
+    def __get_all_field_ids_from_field_id_and_size_as_string(
+        self, field_id: int, s_x: int, s_y: int
+    ) -> str:
         """
         Calculates all IDs based on the field_id and size of the plant (sx, sy)
         and returns them as a string.
@@ -76,24 +76,16 @@ class Garden:
         if s_x == 1 and s_y == 1:
             return str(field_id)
         if s_x == 2 and s_y == 1:
-            return str(field_id) + "," + str(field_id + 1)
+            return f"{field_id},{field_id+1}"
         if s_x == 1 and s_y == 2:
-            return str(field_id) + "," + str(field_id + 17)
+            return f"{field_id},{field_id + 17}"
         if s_x == 2 and s_y == 2:
-            return (
-                str(field_id)
-                + ","
-                + str(field_id + 1)
-                + ","
-                + str(field_id + 17)
-                + ","
-                + str(field_id + 18)
-            )
+            return f"{field_id},{field_id + 1},{field_id + 17},{field_id + 18}"
         self.__logger.debug(f"Error der plant_size --> sx: {s_x} sy: {s_y}")
 
     def __get_all_field_ids_from_field_id_and_size_as_int_list(
-        self, field_id, s_x, s_y
-    ):
+        self, field_id: int, s_x: int, s_y: int
+    ) -> list:
         """
         Calculates all IDs based on the field_id and size of the plant (s_x, s_y)
         and returns them as an integer list.
@@ -109,8 +101,8 @@ class Garden:
         return list_fields
 
     def __is_plant_growable_on_field(
-        self, field_id, empty_fields, fields_to_plant, s_x
-    ):
+        self, field_id: int, empty_fields: list, fields_to_plant: list, s_x: int
+    ) -> bool:
         """
         Checks against several criteria to see if planting is possible.
         """
@@ -135,19 +127,19 @@ class Garden:
             return False
         return True
 
-    def get_empty_fields(self):
+    def get_empty_fields(self) -> dict:
         jcontent = self.__http_connection.execute_command(
             "do=changeGarden&garden=" + str(self.__id)
         )
         return self.__find_empty_fields_from_json_content(jcontent)
 
-    def get_blocked_fields(self):
+    def get_blocked_fields(self) -> dict:
         jcontent = self.__http_connection.execute_command(
             "do=changeGarden&garden=" + str(self.__id)
         )
         return self.__find_blocked_fields_from_json_content(jcontent)
 
-    def destroy_weed_fields(self, cash: float):
+    def destroy_weed_fields(self, cash: float) -> int:
         number_freed_fields = 0
         blocked_fields = self.get_blocked_fields()
         blocked_fields_type_count = Counter(list(blocked_fields.values()))
@@ -184,21 +176,21 @@ class Garden:
 
         return number_freed_fields
 
-    def update_planted_fields(self):
+    def update_planted_fields(self) -> list:
         jcontent = self.__http_connection.execute_command(
             f"do=changeGarden&garden= {self.__id}"
         )
         plants = self.__get_plants_on_fields(jcontent)
         return plants
 
-    def __get_plants_on_fields(self, jcontent):
+    def __get_plants_on_fields(self, jcontent: dict) -> list:
         self.__fields = []
         for field in jcontent["grow"]:
             field[3] = datetime.fromtimestamp(int(field[3]))
             self.__fields.append(field)
         return self.__fields
 
-    def __find_empty_fields_from_json_content(self, jcontent):
+    def __find_empty_fields_from_json_content(self, jcontent: dict) -> list:
         """
         Searches the JSON content for fields that are empty and returns them.
         """
@@ -214,7 +206,7 @@ class Garden:
 
         return empty_fields
 
-    def __find_blocked_fields_from_json_content(self, jcontent):
+    def __find_blocked_fields_from_json_content(self, jcontent: dict) -> dict:
         """
         Searches the JSON content for fields that are infested with weeds and returns them.
         """
@@ -239,7 +231,7 @@ class Garden:
         if "nicht alle Produkte in dein Lager gepasst" in status_harvest["harvestMsg"]:
             raise ValueError("harvest didn't work properly")
 
-    def grow_plants(self, plant, s_x, s_y, amount):
+    def grow_plants(self, plant, s_x: int, s_y: int, amount: int) -> int:
         planted = 0
         empty_fields = self.get_empty_fields()
 
@@ -282,7 +274,7 @@ class Garden:
         self.__logger.debug(msg)
         return planted
 
-    def __find_plants_to_be_watered_from_json_content(self, jcontent):
+    def __find_plants_to_be_watered_from_json_content(self, jcontent: dict) -> dict:
         """
         Searches the JSON content for plants that can be watered
         and returns them including the plant size.
@@ -303,7 +295,7 @@ class Garden:
 
         return plants_to_be_watered
 
-    def __is_field_watered(self, jcontent, field_id):
+    def __is_field_watered(self, jcontent: dict, field_id: int) -> bool:
         """
         Ermittelt, ob ein Feld fieldID gegossen ist und gibt True/False zurück.
         Ist das Datum der Bewässerung 0, wurde das Feld noch nie gegossen.
@@ -350,7 +342,7 @@ class Garden:
         jcontent = self.__http_connection.execute_wimp_command("do=getAreaData")
         return self.__get_wimps_list_from_json_content(jcontent)
 
-    def __get_wimps_list_from_json_content(self, jcontent):
+    def __get_wimps_list_from_json_content(self, jcontent: dict) -> list:
         """
         Returns list of growing plants from JSON content
         """
