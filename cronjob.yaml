@@ -46,5 +46,4 @@ spec:
               value: '["CityQuest"]'
           restartPolicy: OnFailure
           imagePullSecrets:
-          - name: regcred
-
+            - name: regcred
