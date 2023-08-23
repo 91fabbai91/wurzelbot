@@ -46,17 +46,12 @@ class BeesFarm:
 
     def start_all_bees_tour(self, tour: BeesTour):
         jcontent = self.__go_to_bees()
-        try:
-            if int(list(jcontent["data"]["stock"].values())[0]) == 100000:
-                self.__http_connection.execute_command(f"do=bees_fill")
-                self.__logger.debug("Got Honey")
-        except:
-            pass
+        if int(list(jcontent["data"]["stock"].values())[0]) == 100000:
+            self.__http_connection.execute_command(f"do=bees_fill")
+            self.__logger.debug("Got Honey")
+
         for index, hive in enumerate(self.__hives):
-            try:
-                if "tour_remain" not in hive:
-                    self.start_bees_tour(index + 1, tour)
-                elif hive["tour_remain"] < 0:
-                    self.start_bees_tour(index + 1, tour)
-            except:
-                pass
+            if "tour_remain" not in hive:
+                self.start_bees_tour(index + 1, tour)
+            elif hive["tour_remain"] < 0:
+                self.start_bees_tour(index + 1, tour)

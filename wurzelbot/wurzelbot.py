@@ -401,7 +401,9 @@ class Wurzelbot:
                 minimal_balance,
             )
             sellable_amount = product_data["amount"] - minimal_balance
-            cheapest_offer = self.__marketplace.get_cheapest_offer(int(id))
+            cheapest_offer = self.__marketplace.get_cheapest_offer(
+                int(id), self.__user.username
+            )
             if cheapest_offer is None:
                 self.__logger.info(
                     f"No offers for {self.__product_information.get_product_by_id(id).name}"
@@ -426,8 +428,8 @@ class Wurzelbot:
                     )
                 else:
                     self.__logger.debug(
-                        f"Could not sell anything because {cash} is not enough\
-                          for the fees to sale a single item"
+                        f"Could not sell anything because {cash} is not enough"
+                        + "for the fees to sale a single item"
                     )
 
 

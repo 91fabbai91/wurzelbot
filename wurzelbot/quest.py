@@ -73,8 +73,8 @@ class ParkQuest(Quest):
             quest_data = self._http_connection.execute_command("do=park_getquest")
             for product in quest_data["products"]:
                 self._http_connection.execute_command(
-                    f"do=park_quest_entry&pid={product['pid']}\
-                        &amount={product['missing']}&questnr={quest_data['questnr']}"
+                    f"do=park_quest_entry&pid={product['pid']}"
+                    + f"&amount={product['missing']}&questnr={quest_data['questnr']}"
                 )
         except:
             raise QuestError("Not possible to finish quest")

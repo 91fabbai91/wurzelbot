@@ -1,6 +1,7 @@
 __pycache__
 config.yaml
 .vscode
+.idea
 *.lock
 *.log
 log.txt
