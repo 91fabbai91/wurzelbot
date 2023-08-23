@@ -131,20 +131,16 @@ class Wurzelbot:
         return weed_fields
 
     def destroy_weed_field(self, field_id):
+        if not self.__wurzelbot_started:
+            raise NotStartedException("Wurzelbot not started yet")
         self.__http_connection.destroy_weed_field(field_id)
 
     def harvest_all_garden(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        try:
-            for garden in self.__user.gardens:
-                garden.harvest()
-
-            self.__stock.update_number_in_stock()
-        except:
-            self.__logger.error("Could not harvest all the gardens.")
-        else:
-            self.__logger.info("Was able to harvest all the gardens.")
+        for garden in self.__user.gardens:
+            garden.harvest()
+        self.__stock.update_number_in_stock()
 
     def collect_cash_from_park(self):
         if not self.__wurzelbot_started:
