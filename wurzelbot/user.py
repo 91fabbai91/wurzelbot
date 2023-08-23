@@ -120,28 +120,8 @@ class User:
 
     def __get_user_data_from_server(self):
         jcontent = self.__http_connection.read_user_data_from_server()
-        user_data = self.__get_user_data_from_json_content(jcontent)
+        user_data = get_user_data_from_json_content(jcontent)
         self.__user_data = user_data
-        return user_data
-
-    def __get_user_data_from_json_content(self, content):
-        """
-        Ermittelt userdaten aus JSON Content.
-        """
-
-        builder = UserDataBuilder()
-        builder.level_number = int(content["levelnr"])
-        builder.bar_money = float(content["bar_unformat"])
-        builder.coins = int(content["coins"])
-        builder.level = str(content["level"])
-        builder.points = int(content["points"])
-        builder.mail = int(content["mail"])
-        builder.contracts = int(content["contracts"])
-        builder.g_tag = str(content["g_tag"])
-        builder.time = int(content["time"])
-
-        user_data = UserData(builder)
-
         return user_data
 
     def __init_gardens(self):
@@ -173,8 +153,8 @@ class User:
         jcontent = self.__http_connection.execute_command(
             f"do=statsGetStats&which=0&start=0&additional={self.__user_id}"
         )
-        iNumber = self.__get_number_of_gardens_from_json_content(jcontent)
-        return iNumber
+        number_of_gardens = self.__get_number_of_gardens_from_json_content(jcontent)
+        return number_of_gardens
 
     def __go_to_bees(self):
         jcontent = self.__http_connection.execute_command("do=bees_init")
@@ -198,12 +178,12 @@ class User:
                 s_garten_anz = s_garten_anz.replace("</td>", "")
                 s_garten_anz = s_garten_anz.replace("Gärten", "")
                 s_garten_anz = s_garten_anz.strip()
-                iGartenAnz = int(s_garten_anz)
+                number_gardens = int(s_garten_anz)
                 result = True
                 break
 
         if result:
-            return iGartenAnz
+            return number_gardens
         self.__logger.debug(jcontent["table"])
 
     def __get_username_from_json_content(self, jcontent):
@@ -225,31 +205,30 @@ class User:
                 break
         if result:
             return s_username
-        else:
-            raise self.__logger.error("Username not found")
+        self.__logger.error("Username not found")
 
     def is_honey_farm_available(self):
         if self.__user_data.level_number < 10:
             return False
-        jContent = self.__http_connection.execute_command("do=citymap_init")
-        return bool(jContent["data"]["location"]["bees"]["bought"])
+        jcontent = self.__http_connection.execute_command("do=citymap_init")
+        return bool(jcontent["data"]["location"]["bees"]["bought"])
 
     def is_town_park_available(self):
         if self.__user_data.level_number < 5:
             return False
-        jContent = self.__http_connection.execute_command("do=citymap_init")
-        if jContent["data"]["location"]["park"]["bought"] == False:
+        jcontent = self.__http_connection.execute_command("do=citymap_init")
+        if not jcontent["data"]["location"]["park"]["bought"]:
             return False
-        return bool(jContent["data"]["location"]["park"]["bought"]["parkid"])
+        return bool(jcontent["data"]["location"]["park"]["bought"]["parkid"])
 
     def is_aqua_garden_available(self):
         if self.__user_data.level_number < 19:
             return False
-        jContent = self.__http_connection.get_trophies()
+        jcontent = self.__http_connection.get_trophies()
         result = re.search(
-            r"trophy_54.png\);[^;]*(gray)[^;^class$]*class", jContent["html"]
+            r"trophy_54.png\);[^;]*(gray)[^;^class$]*class", jcontent["html"]
         )
-        return result == None
+        return result is not None
 
     def is_deco_garden_available(self):
         if self.__user_data.level_number < 13:
@@ -260,7 +239,7 @@ class User:
     def is_mail_address_confirmed(self):
         content = self.__http_connection.get_user_profile()
         result = re.search(r"Unbestätigte Email:", content)
-        return result == None
+        return result is not None
 
     @property
     def gardens(self):
@@ -286,7 +265,7 @@ class User:
         ]
 
 
-class UserDataBuilder(object):
+class UserDataBuilder:
     def __init__(self):
         self.__level_number = None
         self.__level = None
@@ -303,8 +282,8 @@ class UserDataBuilder(object):
         return self.__time
 
     @time.setter
-    def time(self, t):
-        self.__time = t
+    def time(self, time):
+        self.__time = time
 
     @property
     def g_tag(self):
@@ -372,6 +351,27 @@ class UserDataBuilder(object):
 
     def build(self):
         return UserData(self)
+
+
+def get_user_data_from_json_content(content):
+    """
+    Ermittelt userdaten aus JSON Content.
+    """
+
+    builder = UserDataBuilder()
+    builder.level_number = int(content["levelnr"])
+    builder.bar_money = float(content["bar_unformat"])
+    builder.coins = int(content["coins"])
+    builder.level = str(content["level"])
+    builder.points = int(content["points"])
+    builder.mail = int(content["mail"])
+    builder.contracts = int(content["contracts"])
+    builder.g_tag = str(content["g_tag"])
+    builder.time = int(content["time"])
+
+    user_data = UserData(builder)
+
+    return user_data
 
 
 class UserData:

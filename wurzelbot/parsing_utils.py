@@ -24,8 +24,6 @@ def generate_json_content_and_check_for_success(content):
         if jcontent["success"] == 1:
             return jcontent
     except:
-        pass
-    else:
         logging.error(f"JSON not successful. {jcontent['errorMsg']}")
 
 
@@ -34,13 +32,11 @@ def generate_json_content_and_check_for_status_success(content):
     Parsing all NPC prices from the HTML script of the game help.
     """
     jcontent = json.loads(content)
-    try:
-        if jcontent["status"] == "SUCCESS":
-            return jcontent
-    except:
-        pass
-    else:
-        logging.error("JSON not successful")
+
+    if jcontent["status"] == "SUCCESS":
+        return jcontent
+    logging.error("JSON not successful")
+    return None
 
 
 def generate_yaml_content_and_check_status_for_ok(content: str):
@@ -69,6 +65,7 @@ def generate_yaml_content_and_check_for_success(content: str):
 
 class JSONError(Exception):
     def __init__(self, value):
+        super().__init__(value)
         self.value = value
 
     def __str__(self):
@@ -77,6 +74,7 @@ class JSONError(Exception):
 
 class HTTPStateError(Exception):
     def __init__(self, value):
+        super().__init__(value)
         self.value = value
 
     def __str__(self):
@@ -85,6 +83,7 @@ class HTTPStateError(Exception):
 
 class YAMLError(Exception):
     def __init__(self, value):
+        super().__init__(value)
         self.value = value
 
     def __str__(self):

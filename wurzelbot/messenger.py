@@ -22,108 +22,13 @@ class Messenger:
         self.__logger = logging.getLogger()
         self.__sent = []
 
-    def __get_message_id_from_new_message_result(self, result):
-        """
-        Extracts from content the ID of the newly created message
-        """
-
-        res = re.search(r'name="hpc" value="(.*)" id="hpc"', result)
-        if res is None:
-            raise MessengerError("")
-        return res.group(1)
-
-    def __was_delivery_successful(self, result):
-        """
-        Checks if the message was sent successfully.
-        """
-        res = re.search(r"Deine Nachricht wurde an.*verschickt.", result)
-        if res is not None:
-            return True
-        return False
-
-    def __did_the_message_recipient_exist(self, result):
-        """
-        Checks if the recipient of the message was present.
-        """
-        res = re.search(r"Der Empfänger existiert nicht.", result)
-        if res is not None:
-            return False
-        return True
-
-    def __did_the_message_had_a_subject(self, result):
-        """
-        Checks if the message had a subject.
-        """
-        res = re.search(r"Es wurde kein Betreff angegeben.", result)
-        if res is not None:
-            return False
-        return True
-
-    def __did_the_message_had_a_text(self, result):
-        """
-        Checks if the message had a text.
-        """
-        res = re.search(r"Es wurde keine Nachricht eingegeben.", result)
-        if res is not None:
-            return False
-        return True
-
-    def __did_the_message_had_a_recipient(self, result):
-        """
-        Checks if the message had a recipient.
-        """
-        res = re.search(r"Es wurde kein Empfänger angegeben.", result)
-        if res is not None:
-            return False
-        return True
-
-    def __blocked_from_message_recipient(self, result):
-        """
-        Checks if the receiver has blocked the reception of messages from the sender.
-        """
-        res = re.search(r"Der Empfänger hat dich auf die Blockliste gesetzt.", result)
-        if res is not None:
-            return True
-        return False
-
-    def __get_message_delivery_state(self, result):
-        """
-        Returns the status of the sent message.
-        """
-        state = 0
-        if self.__was_delivery_successful(result) is True:
-            state |= MSG_STATE_SENT_NO_ERR
-        else:
-            if self.__did_the_message_recipient_exist(result) is False:
-                state |= MSG_STATE_SENT_ERR_RECIPIENT_DOESNT_EXIST
-
-            if self.__did_the_message_had_a_subject(result) is False:
-                state |= MSG_STATE_SENT_ERR_NO_SUBJECT
-
-            if self.__did_the_message_had_a_text(result) is False:
-                state |= MSG_STATE_SENT_ERR_NO_TEXT
-
-            if self.__did_the_message_had_a_recipient(result) is False:
-                state |= MSG_STATE_SENT_ERR_NO_RECIPIENT
-
-            if self.__blocked_from_message_recipient(result) is True:
-                state |= MSG_STATE_SENT_ERR_BLOCKED
-
-        if state == 0:
-            state = state or MSG_STATE_UNKNOWN
-
-        return state
-
     def __get_new_message_id(self):
         """ "
         Requests a new message with the HTTP Connection and determines the ID for sending later.
         """
 
-        try:
-            result = self.__http_connection.execute_message_command("new.php")
-            identifier = self.__get_message_id_from_new_message_result(result)
-        except:
-            raise
+        result = self.__http_connection.execute_message_command("new.php")
+        identifier = self.__get_message_id_from_new_message_result(result)
         return identifier
 
     def clear_sent_list(self):
@@ -186,7 +91,7 @@ class Messenger:
                 result_of_sent_message = self.__http_connection.execute_message_command(
                     "new.php", new_message
                 )
-                message_delivery_state = self.__get_message_delivery_state(
+                message_delivery_state = get_message_delivery_state(
                     result_of_sent_message
                 )
                 new_message.delivery_state = message_delivery_state
@@ -205,21 +110,112 @@ class Messenger:
         )
         content = content.decode("UTF-8")
         html = bytearray(content, encoding="UTF-8")
-        self.__parse_inbox_from_html(html)
+        parse_inbox_from_html(html)
 
-    def __parse_inbox_from_html(self, html: str):
-        # ElementTree needs a file to parse.
-        # With BytesIO a file is created in memory, not on disk.
-        html_file = io.BytesIO(html)
 
-        html_tree = eTree.parse(html_file)
-        root = html_tree.getroot()
-        table = root.find("./body/table")
-        print(table)
+def parse_inbox_from_html(html: str):
+    # ElementTree needs a file to parse.
+    # With BytesIO a file is created in memory, not on disk.
+    html_file = io.BytesIO(html)
+
+    html_tree = eTree.parse(html_file)
+    root = html_tree.getroot()
+    table = root.find("./body/table")
+    print(table)
+
+
+def blocked_from_message_recipient(result):
+    """
+    Checks if the receiver has blocked the reception of messages from the sender.
+    """
+    res = re.search(r"Der Empfänger hat dich auf die Blockliste gesetzt.", result)
+    if res is not None:
+        return True
+    return False
+
+
+def was_delivery_successful(result):
+    """
+    Checks if the message was sent successfully.
+    """
+    res = re.search(r"Deine Nachricht wurde an.*verschickt.", result)
+    if res is not None:
+        return True
+    return False
+
+
+def did_the_message_had_a_text(result):
+    """
+    Checks if the message had a text.
+    """
+    res = re.search(r"Es wurde keine Nachricht eingegeben.", result)
+    if res is not None:
+        return False
+    return True
+
+
+def did_the_message_had_a_recipient(result):
+    """
+    Checks if the message had a recipient.
+    """
+    res = re.search(r"Es wurde kein Empfänger angegeben.", result)
+    if res is not None:
+        return False
+    return True
+
+
+def did_the_message_recipient_exist(result):
+    """
+    Checks if the recipient of the message was present.
+    """
+    res = re.search(r"Der Empfänger existiert nicht.", result)
+    if res is not None:
+        return False
+    return True
+
+
+def did_the_message_had_a_subject(result):
+    """
+    Checks if the message had a subject.
+    """
+    res = re.search(r"Es wurde kein Betreff angegeben.", result)
+    if res is not None:
+        return False
+    return True
+
+
+def get_message_delivery_state(result):
+    """
+    Returns the status of the sent message.
+    """
+    state = 0
+    if was_delivery_successful(result) is True:
+        state |= MSG_STATE_SENT_NO_ERR
+    else:
+        if did_the_message_recipient_exist(result) is False:
+            state |= MSG_STATE_SENT_ERR_RECIPIENT_DOESNT_EXIST
+
+        if did_the_message_had_a_subject(result) is False:
+            state |= MSG_STATE_SENT_ERR_NO_SUBJECT
+
+        if did_the_message_had_a_text(result) is False:
+            state |= MSG_STATE_SENT_ERR_NO_TEXT
+
+        if did_the_message_had_a_recipient(result) is False:
+            state |= MSG_STATE_SENT_ERR_NO_RECIPIENT
+
+        if blocked_from_message_recipient(result) is True:
+            state |= MSG_STATE_SENT_ERR_BLOCKED
+
+    if state == 0:
+        state = state or MSG_STATE_UNKNOWN
+
+    return state
 
 
 class MessengerError(Exception):
     def __init__(self, value):
+        super().__init__(value)
         self.value = value
 
     def __str__(self):

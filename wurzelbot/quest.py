@@ -37,16 +37,16 @@ class CityQuest(Quest):
             self._logger.debug(
                 f"Needed amount: {self._amount} and reward: {self._reward}"
             )
-        except:
-            raise QuestError("No City available")
+        except Exception as error:
+            raise QuestError("No City Quest available") from error
         return self._amount, self._reward
 
     def fulfill_quest(self):
         try:
             self._http_connection.execute_command("do=CityQuest&action=getQuest")
             self._http_connection.execute_command("do=CityQuest&action=send")
-        except:
-            raise QuestError("No ParkQuest available")
+        except Exception as error:
+            raise QuestError("No ParkQuest available") from error
 
 
 class ParkQuest(Quest):
@@ -64,8 +64,8 @@ class ParkQuest(Quest):
             self._logger.debug(
                 f"Needed amount: {self._amount} and reward: {self._reward}"
             )
-        except:
-            raise QuestError("No ParkQuest available")
+        except Exception as error:
+            raise QuestError("No ParkQuest available") from error
         return self._amount, self._reward
 
     def fulfill_quest(self):
@@ -76,8 +76,8 @@ class ParkQuest(Quest):
                     f"do=park_quest_entry&pid={product['pid']}"
                     + f"&amount={product['missing']}&questnr={quest_data['questnr']}"
                 )
-        except:
-            raise QuestError("Not possible to finish quest")
+        except Exception as error:
+            raise QuestError("Not possible to finish quest") from error
 
 
 class DecoGardenQuest(Quest):
@@ -103,8 +103,8 @@ class DecoGardenQuest(Quest):
                 self._logger.debug(
                     f"Needed amount: {self._amount} and reward: {self._reward}"
                 )
-        except:
-            raise QuestError("No DecoGardenQuest available")
+        except Exception as error:
+            raise QuestError("No DecoGardenQuest available") from error
         return self._amount, self._reward
 
     def fulfill_quest(self):
@@ -121,8 +121,8 @@ class DecoGardenQuest(Quest):
                         f"sendProducts&pid={product['pid']}&which={garden_object['id']}\
                             &questNr={quest_data['questnr']}&amount={product['missing']}"
                     )
-        except:
-            raise QuestError("No DecoGardenQuest available")
+        except Exception as error:
+            raise QuestError("No DecoGardenQuest available") from error
 
 
 class BeesGardenQuest(Quest):
@@ -141,8 +141,8 @@ class BeesGardenQuest(Quest):
                 f"Needed amount: {self._amount} and reward: {self._reward}"
             )
             return self._amount, self._reward
-        except:
-            raise QuestError("No BeesGardenQuest available")
+        except Exception as error:
+            raise QuestError("No BeesGardenQuest available") from error
 
     def fulfill_quest(self):
         return super().fulfill_quest()
@@ -170,8 +170,8 @@ class TreeQuest(Quest):
                 f"Needed amount: {self._amount} and reward: {self._reward}"
             )
             return self._amount, self._reward
-        except:
-            raise QuestError("No TreeQuest available")
+        except Exception as error:
+            raise QuestError("No TreeQuest available") from error
 
     def fulfill_quest(self):
         return super().fulfill_quest()
@@ -179,6 +179,7 @@ class TreeQuest(Quest):
 
 class QuestError(Exception):
     def __init__(self, value):
+        super().__init__(value)
         self.value = value
 
     def __str__(self):

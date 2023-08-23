@@ -13,6 +13,7 @@ import parsing_utils
 import session
 from lxml import etree, html
 from offer import Offer
+from parsing_utils import HTTPStateError, JSONError
 
 # Defines
 HTTP_STATE_CONTINUE = 100
@@ -36,22 +37,6 @@ MARKET_API = "/stadt/markt.php"
 TREE_QUEST_API = "/treequestquery.php?"
 WIMPS_API = "/ajax/verkaufajax.php?"
 NOTES_API = "/notiz.php"
-
-
-class HTTPStateError(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
-class JSONError(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
 
 
 class HTTPRequestError(Exception):
@@ -105,7 +90,7 @@ class HTTPConnection:
             "https://www.wurzelimperium.de/dispatch.php", "POST", parameter, headers
         )
 
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         jcontent = parsing_utils.generate_json_content_and_check_for_ok(content)
         self.__get_token_from_url(jcontent["url"])
         url = jcontent["url"]
@@ -157,7 +142,7 @@ class HTTPConnection:
             headers=headers,
         )
         self.update_storage()
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         parameter = urlencode(
             {
                 "p_anzahl": str(number),
@@ -184,10 +169,10 @@ class HTTPConnection:
         }
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_API}?page=1&order=&v="
         response, _ = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_BOOTH_API}"
         response, _ = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
 
     def __go_to_city(self):
         headers = {
@@ -199,7 +184,7 @@ class HTTPConnection:
         )
 
         response, _ = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
 
     def __get_token_from_url(self, url):
         # token extrahieren
@@ -257,7 +242,7 @@ class HTTPConnection:
         )
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         jcontent = parsing_utils.generate_json_content_and_check_for_ok(
             content.decode("UTF-8")
         )
@@ -273,7 +258,7 @@ class HTTPConnection:
         )
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         jcontent = parsing_utils.generate_json_content_and_check_for_status_success(
             content.decode("UTF-8")
         )
@@ -292,7 +277,7 @@ class HTTPConnection:
             f"http://s{self.__session.server}{STATIC_DOMAIN}{deco_garden_api}{command}"
         )
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         jcontent = parsing_utils.generate_json_content_and_check_for_ok(
             content.decode("UTF-8")
         )
@@ -305,7 +290,7 @@ class HTTPConnection:
         }
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{WIMPS_API}{command}"
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         jcontent = parsing_utils.generate_json_content_and_check_for_ok(
             content.decode("UTF-8")
         )
@@ -318,7 +303,7 @@ class HTTPConnection:
         }
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{DESTROY_API}tile={field_id}"
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         jcontent = parsing_utils.generate_json_content_and_check_for_success(
             content.decode("UTF-8")
         )
@@ -352,7 +337,7 @@ class HTTPConnection:
             response, content = self.__webclient.request(
                 adresse, "GET", headers=headers
             )
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
 
         return content
 
@@ -369,7 +354,7 @@ class HTTPConnection:
         )
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         # jcontent
         return parsing_utils.generate_json_content_and_check_for_success(content)
 
@@ -398,7 +383,7 @@ class HTTPConnection:
             + f"?feld[]={field_id}&felder[]={fields_to_water}&cid={self.__token}&garden={garden_id}"
         )
         response, content = self.__webclient.request(address, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         parsing_utils.generate_yaml_content_and_check_for_success(
             content.decode("UTF-8")
         )
@@ -420,7 +405,7 @@ class HTTPConnection:
         )
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         jcontent = parsing_utils.generate_json_content_and_check_for_ok(content)
         return jcontent
 
@@ -437,11 +422,11 @@ class HTTPConnection:
         }
         adresse = (
             f"http://s{self.__session.server}{STATIC_DOMAIN}"
-            + f"/ajax/gettrophies.php?category=giver"
+            + "/ajax/gettrophies.php?category=giver"
         )
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         return parsing_utils.generate_json_content_and_check_for_ok(content)
 
     def get_user_profile(self):
@@ -456,7 +441,7 @@ class HTTPConnection:
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/nutzer/profil.php"
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         return content.decode("utf-8")
 
     def read_storage_from_server(self):
@@ -469,9 +454,9 @@ class HTTPConnection:
             f"http://s{self.__session.server}{STATIC_DOMAIN}/ajax/updatelager.php?all=1"
         )
         response, content = self.__webclient.request(adress, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
-        jContent = parsing_utils.generate_json_content_and_check_for_ok(content)
-        return jContent["produkte"]
+        check_if_http_status_is_ok(response)
+        jcontent = parsing_utils.generate_json_content_and_check_for_ok(content)
+        return jcontent["produkte"]
 
     def update_storage(self):
         headers = {
@@ -502,7 +487,7 @@ class HTTPConnection:
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/main.php?page=garden"
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
         content = content.decode("UTF-8")
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         re_token = re.search(r"ajax\.setToken\(\"(.*)\"\);", content)
         self.__token = re_token.group(1)
         return content
@@ -520,7 +505,7 @@ class HTTPConnection:
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/stadt/markt.php?show=overview"
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         return content
 
     def get_offers_from_product(self, identifier: int) -> list:
@@ -546,7 +531,7 @@ class HTTPConnection:
             response, content = self.__webclient.request(
                 adresse, "GET", headers=headers
             )
-            self.__check_if_http_status_is_ok(response)
+            check_if_http_status_is_ok(response)
 
             html_file = io.BytesIO(content)
             html_tree = html.parse(html_file)
@@ -558,30 +543,13 @@ class HTTPConnection:
             else:
                 # range von 1 bis länge-1, da erste Zeile Überschriften sind
                 # und die letzte Weiter/Zurück. Falls es mehrere seiten gibt.
-                list_offers = self.__get_amounts_and_prices_from_table(table)
+                list_offers = get_amounts_and_prices_from_table(table)
 
                 for element in table[len(table) - 1][0]:
                     if "weiter" in element.text:
                         next_page = True
                         i_page = i_page + 1
 
-        return list_offers
-
-    def __get_amounts_and_prices_from_table(self, table):
-        list_offers = []
-        for i in range(1, len(table) - 1):
-            amount = table[i][0].text
-            amount = amount.replace(".", "")
-
-            price = table[i][3].text
-            price = unicodedata.normalize("NFKD", price)
-            price, _ = price.split()
-            price = price.replace(".", "")
-            price = price.replace(",", ".")
-            product = table[i][1][0].text
-            seller = table[i][2][0].text
-            offer = Offer(product=product, amount=amount, price=price, seller=seller)
-            list_offers.append(offer)
         return list_offers
 
     def get_npc_prices(self):
@@ -597,12 +565,8 @@ class HTTPConnection:
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/hilfe.php?item=2"
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         return content
-
-    def __check_if_http_status_is_ok(self, response):
-        if not response["status"] == str(HTTP_STATE_OK):
-            raise HTTPStateError("HTTP Status is not ok")
 
     def get_notes(self):
         """
@@ -616,7 +580,7 @@ class HTTPConnection:
 
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{NOTES_API}"
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
-        self.__check_if_http_status_is_ok(response)
+        check_if_http_status_is_ok(response)
         content = content.decode("UTF-8")
         my_parser = etree.HTMLParser(recover=True)
         html_tree = etree.fromstring(content, parser=my_parser)
@@ -625,3 +589,26 @@ class HTTPConnection:
         if note.text is None:
             return None
         return note.text.strip()
+
+
+def get_amounts_and_prices_from_table(table):
+    list_offers = []
+    for i in range(1, len(table) - 1):
+        amount = table[i][0].text
+        amount = amount.replace(".", "")
+
+        price = table[i][3].text
+        price = unicodedata.normalize("NFKD", price)
+        price, _ = price.split()
+        price = price.replace(".", "")
+        price = price.replace(",", ".")
+        product = table[i][1][0].text
+        seller = table[i][2][0].text
+        offer = Offer(product=product, amount=amount, price=price, seller=seller)
+        list_offers.append(offer)
+    return list_offers
+
+
+def check_if_http_status_is_ok(response):
+    if not response["status"] == str(HTTP_STATE_OK):
+        raise HTTPStateError("HTTP Status is not ok")

@@ -26,7 +26,7 @@ class ProductInformation:
         )
         content = bytearray(content, encoding="UTF-8")
 
-        npc_prices_dict = self.__parse_npc_prices_from_html(content)
+        npc_prices_dict = parse_npc_prices_from_html(content)
         # except:
         #    pass #TODO Exception definieren
         # else:
@@ -73,17 +73,15 @@ class ProductInformation:
         self.__set_all_prices_of_npc()
 
     def get_product_by_id(self, identifier) -> product.Product:
-        for product in self.__products:
-            if int(identifier) == int(product.id):
-                return product
+        for current_product in self.__products:
+            if int(identifier) == int(current_product.id):
+                return current_product
+        return None
 
     def get_product_by_name(self, name: str) -> product.Product:
-        for product in self.__products:
-            if name.lower() == product.name.lower():
-                return product
-        for product in self.__products:
-            if name.lower() in product.name.lower():
-                return product
+        for current_product in self.__products:
+            if name.lower() == current_product.name.lower():
+                return current_product
         return None
 
     def get_list_of_all_product_ids(self) -> list:
@@ -95,37 +93,38 @@ class ProductInformation:
 
         return product_id_list
 
-    def __parse_npc_prices_from_html(self, html: bytearray):
-        """
-        Parsing all NPC prices from the HTML script of the game help.
-        """
-        # ElementTree needs a file to parse.
-        # With BytesIO a file is created in memory, not on disk.
-        html_file = io.BytesIO(html)
 
-        html_tree = eTree.parse(html_file)
-        root = html_tree.getroot()
-        table = root.find('./body/div[@id="content"]/table')
+def parse_npc_prices_from_html(html: bytearray):
+    """
+    Parsing all NPC prices from the HTML script of the game help.
+    """
+    # ElementTree needs a file to parse.
+    # With BytesIO a file is created in memory, not on disk.
+    html_file = io.BytesIO(html)
 
-        dict_result = {}
+    html_tree = eTree.parse(html_file)
+    root = html_tree.getroot()
+    table = root.find('./body/div[@id="content"]/table')
 
-        for row in table.iter("tr"):
-            product_name = row[0].text
-            npc_preis = row[1].text
+    dict_result = {}
 
-            # Bei der Tabellenüberschrift ist der Text None
-            if product_name is not None and npc_preis is not None:
-                # NPC-Preis aufbereiten
-                npc_preis = str(npc_preis)
-                npc_preis = npc_preis.replace(" wT", "")
-                npc_preis = npc_preis.replace(".", "")
-                npc_preis = npc_preis.replace(",", ".")
-                npc_preis = npc_preis.strip()
-                if "-" in npc_preis:
-                    npc_preis = None
-                else:
-                    npc_preis = float(npc_preis)
+    for row in table.iter("tr"):
+        product_name = row[0].text
+        npc_preis = row[1].text
 
-                dict_result[product_name] = npc_preis
+        # Bei der Tabellenüberschrift ist der Text None
+        if product_name is not None and npc_preis is not None:
+            # NPC-Preis aufbereiten
+            npc_preis = str(npc_preis)
+            npc_preis = npc_preis.replace(" wT", "")
+            npc_preis = npc_preis.replace(".", "")
+            npc_preis = npc_preis.replace(",", ".")
+            npc_preis = npc_preis.strip()
+            if "-" in npc_preis:
+                npc_preis = None
+            else:
+                npc_preis = float(npc_preis)
 
-        return dict_result
+            dict_result[product_name] = npc_preis
+
+    return dict_result

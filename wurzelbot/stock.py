@@ -64,8 +64,8 @@ class Stock:
         return sorted_stock
 
     def get_lowest_stock_entry(self):
-        for productID in self.get_ordered_stock_list("amount").keys():
-            return productID
+        for product_id in self.get_ordered_stock_list("amount").keys():
+            return product_id
         return -1
 
 

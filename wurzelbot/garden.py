@@ -82,6 +82,7 @@ class Garden:
         if s_x == 2 and s_y == 2:
             return f"{field_id},{field_id + 1},{field_id + 17},{field_id + 18}"
         self.__logger.debug(f"Error der plant_size --> sx: {s_x} sy: {s_y}")
+        return
 
     def __get_all_field_ids_from_field_id_and_size_as_int_list(
         self, field_id: int, s_x: int, s_y: int
@@ -94,10 +95,7 @@ class Garden:
             field_id, s_x, s_y
         )
         list_fields = s_fields.split(",")  # Stringarray
-
-        for i in range(0, len(list_fields)):
-            list_fields[i] = int(list_fields[i])
-
+        list_fields = [int(field) for field in list_fields]
         return list_fields
 
     def __is_plant_growable_on_field(
@@ -131,13 +129,13 @@ class Garden:
         jcontent = self.__http_connection.execute_command(
             "do=changeGarden&garden=" + str(self.__id)
         )
-        return self.__find_empty_fields_from_json_content(jcontent)
+        return find_empty_fields_from_json_content(jcontent)
 
     def get_blocked_fields(self) -> dict:
         jcontent = self.__http_connection.execute_command(
             "do=changeGarden&garden=" + str(self.__id)
         )
-        return self.__find_blocked_fields_from_json_content(jcontent)
+        return find_blocked_fields_from_json_content(jcontent)
 
     def destroy_weed_fields(self, cash: float) -> int:
         number_freed_fields = 0
@@ -160,6 +158,7 @@ class Garden:
             else:
                 self.__logger.info(f"Number of freed fields: {number_freed_fields}")
                 return number_freed_fields
+        return 0
 
     def __destroy_fields_of_type(
         self, blocked_fields: list, blocked_field_type: BlockedFieldType, cash: float
@@ -189,41 +188,6 @@ class Garden:
             field[3] = datetime.fromtimestamp(int(field[3]))
             self.__fields.append(field)
         return self.__fields
-
-    def __find_empty_fields_from_json_content(self, jcontent: dict) -> list:
-        """
-        Searches the JSON content for fields that are empty and returns them.
-        """
-        empty_fields = []
-
-        for field in jcontent["garden"]:
-            if jcontent["garden"][field][0] == 0:
-                empty_fields.append(int(field))
-
-        # Sorting over an empty array changes object type to None
-        if len(empty_fields) > 0:
-            empty_fields.sort(reverse=False)
-
-        return empty_fields
-
-    def __find_blocked_fields_from_json_content(self, jcontent: dict) -> dict:
-        """
-        Searches the JSON content for fields that are infested with weeds and returns them.
-        """
-        weed_fields = {}
-
-        # 41 weed, 42 tree stump, 43 stone, 45 mole
-        for field in jcontent["garden"]:
-            blocked_field_type = jcontent["garden"][field][0]
-            if blocked_field_type in [
-                BlockedFieldType.WEED.value["id"],
-                BlockedFieldType.STONE.value["id"],
-                BlockedFieldType.TREE_STUMP.value["id"],
-                BlockedFieldType.MOLE.value["id"],
-            ]:
-                weed_fields.update({int(field): blocked_field_type})
-
-        return weed_fields
 
     def harvest(self):
         self.__http_connection.execute_command(f"do=changeGarden&garden={self.__id}")
@@ -327,8 +291,8 @@ class Garden:
                 self.__http_connection.water_plant(
                     self.__id, plants["fieldID"][i], s_fields
                 )
-        except Exception as e:
-            self.__logger.error(e)
+        except Exception as error:
+            self.__logger.error(error)
             self.__logger.error(f"Garden {self.__id} could not get watered.")
         else:
             self.__logger.info(
@@ -387,3 +351,35 @@ class AquaGarden(Garden):
 
     def harvest(self):
         self.__http_connection.execute_command("do=watergardenHarvestAll")
+
+
+def find_empty_fields_from_json_content(jcontent: dict) -> list:
+    """
+    Searches the JSON content for fields that are empty and returns them.
+    """
+    empty_fields = []
+
+    for field in jcontent["garden"]:
+        if jcontent["garden"][field][0] == 0:
+            empty_fields.append(int(field))
+
+    # Sorting over an empty array changes object type to None
+    if len(empty_fields) > 0:
+        empty_fields.sort(reverse=False)
+
+    return empty_fields
+
+
+def find_blocked_fields_from_json_content(jcontent: dict) -> dict:
+    """
+    Searches the JSON content for fields that are infested with weeds and returns them.
+    """
+    weed_fields = {}
+
+    # 41 weed, 42 tree stump, 43 stone, 45 mole
+    for field in jcontent["garden"]:
+        blocked_field_type = jcontent["garden"][field][0]
+        if blocked_field_type in [x.value["id"] for x in BlockedFieldType]:
+            weed_fields.update({int(field): blocked_field_type})
+
+    return weed_fields

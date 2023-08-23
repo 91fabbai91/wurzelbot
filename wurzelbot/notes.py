@@ -46,8 +46,5 @@ class Notes:
     def __extract_amount(self, line, prefix):
         min_stock_str = line.replace(prefix, "").strip()
         min_stock_int = 0
-        try:
-            min_stock_int = int(min_stock_str)
-        except:
-            self.__logger.error(f'Error: "{prefix}" must be an int')
+        min_stock_int = int(min_stock_str)
         return min_stock_int
