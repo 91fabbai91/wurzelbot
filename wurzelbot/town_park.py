@@ -4,7 +4,7 @@ from enum import Enum
 import http_connection
 
 
-class TownPark(object):
+class TownPark:
     def __init__(self, http_connection: http_connection.HTTPConnection, park_id: int):
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__http_connection = http_connection
@@ -25,11 +25,11 @@ class TownPark(object):
     def __get_renewable_deko_from_park(self):
         jcontent = self.__go_to_park()
         items = jcontent["data"]["data"]["park"][str(self.__id)]["items"]
-        renewableItems = {}
+        renewable_items = {}
         for i, item in items.items():
             if item["remain"] < 0:
-                renewableItems.update({i: item})
-        return renewableItems
+                renewable_items.update({i: item})
+        return renewable_items
 
     def get_blocked_fields(self):
         jcontent = self.__go_to_park()

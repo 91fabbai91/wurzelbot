@@ -17,9 +17,9 @@ class LoginData(BaseModel):
 
     @field_validator("server")
     @classmethod
-    def server_match(cls, v):
-        if v < 0 or v > 46:
+    def server_match(cls, server):
+        if server < 0 or server > 46:
             raise ValueError(
                 "Server must be Integer, greater than 0 and smaller than 47"
             )
-        return v
+        return server

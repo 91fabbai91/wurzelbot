@@ -3,13 +3,13 @@ import logging
 import http_connection
 
 
-class Notes(object):
-    def __init__(self, httpConnection: http_connection.HTTPConnection):
-        self.__httpConnection = httpConnection
+class Notes:
+    def __init__(self, http_connection: http_connection.HTTPConnection):
+        self.__http_connection = http_connection
         self.__logger = logging.getLogger(self.__class__.__name__)
 
     def get_notes(self):
-        return self.__httpConnection.get_notes()
+        return self.__http_connection.get_notes()
 
     def get_min_stock(self, plant_name=None):
         note = self.get_notes()

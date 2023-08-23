@@ -12,12 +12,12 @@ class Login(BaseSettings):
 
     @field_validator("server")
     @classmethod
-    def server_match(cls, v):
-        if v < 0 or v > 46:
+    def server_match(cls, server):
+        if server < 0 or server > 46:
             raise ValueError(
                 "Server must be Integer, greater than 0 and smaller than 47"
             )
-        return v
+        return server
 
     model_config = SettingsConfigDict(
         secrets_dir="/run/secrets/login", frozen=True, validate_assignment=True
@@ -43,10 +43,10 @@ class Tasks(BaseModel):
 
     @field_validator("sell_to_wimps_percentage")
     @classmethod
-    def percentage_validator(cls, v):
-        if v < 0 or v > 100:
-            raise ValueError(f"{v} is not a percentage value")
-        return v
+    def percentage_validator(cls, percentage):
+        if percentage < 0 or percentage > 100:
+            raise ValueError(f"{percentage} is not a percentage value")
+        return percentage
 
 
 class Settings(BaseSettings):

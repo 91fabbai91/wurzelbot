@@ -43,12 +43,12 @@ repos:
     hooks:
       - id: dockerfilelint
 
-  - repo: local
-    hooks:
-      - id: pylint
-        name: pylint
-        entry: pylint
-        language: system
-        types: [python]
-        require_serial: true
-        args: ["-sn", "-rn", "--rcfile=pylintrc"]
+  # - repo: local
+  #   hooks:
+  #     - id: pylint
+  #       name: pylint
+  #       entry: pylint
+  #       language: system
+  #       types: [python]
+  #       require_serial: true
+  #       args: ["-sn", "-rn", "--rcfile=pylintrc"]

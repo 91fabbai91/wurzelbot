@@ -16,7 +16,7 @@ import user
 import wimp
 
 
-class Wurzelbot(object):
+class Wurzelbot:
     def __init__(self):
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__http_connection = http_connection.HTTPConnection()
@@ -122,7 +122,7 @@ class Wurzelbot(object):
             for garden in self.__user.gardens:
                 weed_fields.append(garden.get_weed_fields())
         except:
-            self.__logBot.error(
+            self.__logger.error(
                 f"Could not determine weed fields of garden {garden.id}"
             )
         else:
@@ -155,7 +155,7 @@ class Wurzelbot(object):
     def print_stock(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        isSmthPrinted = False
+        is_smth_printed = False
         for product_id in self.__stock.get_keys():
             product = self.__product_information.get_product_by_id(product_id)
 
@@ -166,24 +166,24 @@ class Wurzelbot(object):
             self.__logger.info(
                 f"{product.getName().ljust(30)} Amount: {amount.rjust(5)}"
             )
-            isSmthPrinted = True
+            is_smth_printed = True
 
-        if not isSmthPrinted:
+        if not is_smth_printed:
             self.__logger.info("Your stock is empty")
 
     def get_ordered_stock_list(self) -> list:
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        orderedList = ""
+        ordered_list = ""
         for product_id in self.__stock.get_ordered_stock_list("amount")[0]:
-            orderedList += str(
+            ordered_list += str(
                 self.__product_information.get_product_by_id(product_id).getName()
             ).ljust(20)
-            orderedList += str(
+            ordered_list += str(
                 self.__stock.get_ordered_stock_list("amount")[1][product_id]
             ).rjust(5)
-            orderedList += str("\n")
-        return orderedList.strip()
+            ordered_list += str("\n")
+        return ordered_list.strip()
 
     def get_lowest_plant_stock_entry(self) -> str:
         if not self.__wurzelbot_started:
@@ -215,7 +215,7 @@ class Wurzelbot(object):
         if self.__user.town_park_available:
             self.__town_park.renew_all_items_in_park()
 
-    def grow_plants_in_gardens_by_name(self, productName, amount=-1) -> int:
+    def grow_plants_in_gardens_by_name(self, product_name, amount=-1) -> int:
         """
         Plant as many plants of one variety as possible across all gardens.
         """
@@ -223,16 +223,16 @@ class Wurzelbot(object):
             raise NotStartedException("Wurzelbot not started yet")
         planted_totally = 0
 
-        product = self.__product_information.get_product_by_name(productName)
+        product = self.__product_information.get_product_by_name(product_name)
 
         if product is None:
-            logMsg = f"plant {productName} not found"
-            self.__logger.error(logMsg)
+            log_msg = f"plant {product_name} not found"
+            self.__logger.error(log_msg)
             return 0
 
         if not product.is_plantable or not product.is_plant():
-            logMsg = f"{productName} could not get planted"
-            self.__logger.error(logMsg)
+            log_msg = f"{product_name} could not get planted"
+            self.__logger.error(log_msg)
             return 0
 
         for garden in self.__user.gardens:
@@ -402,11 +402,11 @@ class Wurzelbot(object):
             )
             sellable_amount = product_data["amount"] - minimal_balance
             cheapest_offer = self.__marketplace.get_cheapest_offer(int(id))
-            if cheapest_offer == None:
+            if cheapest_offer is None:
                 self.__logger.info(
                     f"No offers for {self.__product_information.get_product_by_id(id).name}"
                 )
-            if sellable_amount > 0 and cheapest_offer != None:
+            if sellable_amount > 0 and cheapest_offer is not None:
                 price_per_unit = min(
                     (cheapest_offer - self.__marketplace.MINIMAL_DISCOUNT),
                     self.__product_information.get_product_by_id(int(id)).price_npc,
@@ -426,7 +426,8 @@ class Wurzelbot(object):
                     )
                 else:
                     self.__logger.debug(
-                        f"Could not sell anything because {cash} is not enough for the fees to sale a single item"
+                        f"Could not sell anything because {cash} is not enough\
+                          for the fees to sale a single item"
                     )
 
 

@@ -2,7 +2,7 @@ import logging
 import time
 
 
-class Session(object):
+class Session:
     """
     The session class is the Python counterpart of a PHP session and is therefore modeled after it.
     """
@@ -11,9 +11,8 @@ class Session(object):
     __lifetime = 7200
     __lifetime_reserve = 300
 
-    # A reserve time is used to be able to complete all actions in time shortly before the end of the session.
-    # to be able to complete
-
+    # A reserve time is used to be able to complete all actions in time shortly
+    # before the end of the session.
     def __init__(self):
         """
         Initialization of all attributes with a default value.
@@ -29,27 +28,24 @@ class Session(object):
         Checks if the open session has expired.
         """
         current_time = time.time()
-        if current_time > self.__end_time:
-            return True
-        else:
-            return False
+        return bool(current_time > self.__end_time)
 
     def is_session_valid(self):
         """
         Checks whether the current session is valid based on various criteria.
         """
-        bReturn = True
-        if self.__session_id == None:
-            bReturn = False
+        b_return = True
+        if self.__session_id is None:
+            b_return = False
         if self.is_session_time_elapsed():
-            bReturn = False
-        return bReturn
+            b_return = False
+        return b_return
 
-    def open_session(self, sessionID, server):
+    def open_session(self, session_id, server):
         """
         Create a new session with all necessary data.
         """
-        self.__session_id = sessionID
+        self.__session_id = session_id
         self.__server = server
 
         self.__start_time = time.time()
@@ -57,19 +53,19 @@ class Session(object):
             self.__lifetime - self.__lifetime_reserve
         )
 
-        sID = str(self.__session_id)
-        self.__logger.info(f"Session (ID: {sID}) opened")
+        s_id = str(self.__session_id)
+        self.__logger.info(f"Session (ID: {s_id}) opened")
 
-    def closeSession(self, wunr, server):
+    def close_session(self):
         """
         Resetting all information. Equivalent to closing the session.
         """
-        sID = str(self.__session_id)
+        s_id = str(self.__session_id)
         self.__session_id = None
         self.__server = None
         self.__start_time = None
         self.__end_time = None
-        self.__logger.info(f"Session (ID: {sID}) closed")
+        self.__logger.info(f"Session (ID: {s_id}) closed")
 
     def get_remaining_time(self):
         """

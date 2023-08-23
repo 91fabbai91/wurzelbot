@@ -11,10 +11,7 @@ class BeesTour(Enum):
     TWENTYFOUR_HOURS_TOUR = 3
 
 
-class BeesFarm(object):
-    __http_connection: http_connection.HTTPConnection
-    __logger_: logging.Logger
-
+class BeesFarm:
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
         self.__http_connection = http_connection
         self.__logger = logging.getLogger(self.__class__.__name__)
@@ -32,8 +29,8 @@ class BeesFarm(object):
                 if hive["time"]:
                     self.__hives.append(hive)
                     self.__logger.debug(f"Added Hive with id {index}")
-            except:
-                pass
+            except KeyError:
+                self.__logger.debug("Key time in hive not found.")
 
     def __go_to_bees(self):
         jcontent = self.__http_connection.execute_command("do=bees_init")

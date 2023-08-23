@@ -5,7 +5,7 @@ import garden
 import http_connection
 
 
-class User(object):
+class User:
     def __init__(self, http_connection: http_connection.HTTPConnection):
         self.__http_connection = http_connection
         self.__logger = logging.getLogger(self.__class__.__name__)
@@ -34,34 +34,34 @@ class User(object):
         return self.__account_login
 
     @account_login.setter
-    def account_login(self, al):
-        self.__account_login = al
+    def account_login(self, account_login):
+        self.__account_login = account_login
 
     @property
     def username(self):
         return self.__username
 
     @username.setter
-    def username(self, u: str):
-        self.__username = u
+    def username(self, username: str):
+        self.__username = username
 
     @property
     def user_id(self):
         return self.__user_id
 
     @user_id.setter
-    def user_id(self, id):
-        self.__user_id = id
+    def user_id(self, identifier):
+        self.__user_id = identifier
 
     @property
     def number_of_gardens(self):
         return self.__number_of_gardens
 
     @number_of_gardens.setter
-    def number_of_gardens(self, nr: int):
-        if nr < 0 or nr > 5:
+    def number_of_gardens(self, number: int):
+        if number < 0 or number > 5:
             raise ValueError("Wrong number of gardens provided")
-        self.__number_of_gardens = nr
+        self.__number_of_gardens = number
         for i in range(1, self.__number_of_gardens + 1):
             self.__gardens.append(garden.Garden(self.__http_connection, i))
 
@@ -114,8 +114,8 @@ class User(object):
         self.__mail_addresse_confirmed = confirmend
 
     def __get_username_from_server(self):
-        jContent = self.__http_connection.get_username_from_server()
-        self.__username = self.__get_username_from_json_content(jContent)
+        jcontent = self.__http_connection.get_username_from_server()
+        self.__username = self.__get_username_from_json_content(jcontent)
         self.__logger.info("Username: " + self.__username)
 
     def __get_user_data_from_server(self):
@@ -131,7 +131,7 @@ class User(object):
 
         builder = UserDataBuilder()
         builder.level_number = int(content["levelnr"])
-        builder.bar = float(content["bar_unformat"])
+        builder.bar_money = float(content["bar_unformat"])
         builder.coins = int(content["coins"])
         builder.level = str(content["level"])
         builder.points = int(content["points"])
@@ -148,21 +148,21 @@ class User(object):
         """
         Ermittelt die Anzahl der Gärten und initialisiert alle.
         """
-        jContent = self.__http_connection.execute_command(
+        jcontent = self.__http_connection.execute_command(
             f"do=statsGetStats&which=0&start=0&additional={self.__user_id}"
         )
 
         result = False
-        for i in range(0, len(jContent["table"])):
-            sGartenAnz = str(jContent["table"][i])
-            if "Gärten" in sGartenAnz:
-                sGartenAnz = sGartenAnz.replace("<tr>", "")
-                sGartenAnz = sGartenAnz.replace("<td>", "")
-                sGartenAnz = sGartenAnz.replace("</tr>", "")
-                sGartenAnz = sGartenAnz.replace("</td>", "")
-                sGartenAnz = sGartenAnz.replace("Gärten", "")
-                sGartenAnz = sGartenAnz.strip()
-                tmp_number_of_gardens = int(sGartenAnz)
+        for i in range(0, len(jcontent["table"])):
+            s_garten_anz = str(jcontent["table"][i])
+            if "Gärten" in s_garten_anz:
+                s_garten_anz = s_garten_anz.replace("<tr>", "")
+                s_garten_anz = s_garten_anz.replace("<td>", "")
+                s_garten_anz = s_garten_anz.replace("</tr>", "")
+                s_garten_anz = s_garten_anz.replace("</td>", "")
+                s_garten_anz = s_garten_anz.replace("Gärten", "")
+                s_garten_anz = s_garten_anz.strip()
+                tmp_number_of_gardens = int(s_garten_anz)
                 result = True
                 break
 
@@ -184,48 +184,47 @@ class User(object):
         jcontent = self.__http_connection.execute_command("do=park_init")
         return jcontent
 
-    def __get_number_of_gardens_from_json_content(self, jContent):
+    def __get_number_of_gardens_from_json_content(self, jcontent):
         """
         Sucht im übergebenen JSON Objekt nach der Anzahl der Gärten und gibt diese zurück.
         """
         result = False
-        for i in range(0, len(jContent["table"])):
-            sGartenAnz = str(jContent["table"][i])
-            if "Gärten" in sGartenAnz:
-                sGartenAnz = sGartenAnz.replace("<tr>", "")
-                sGartenAnz = sGartenAnz.replace("<td>", "")
-                sGartenAnz = sGartenAnz.replace("</tr>", "")
-                sGartenAnz = sGartenAnz.replace("</td>", "")
-                sGartenAnz = sGartenAnz.replace("Gärten", "")
-                sGartenAnz = sGartenAnz.strip()
-                iGartenAnz = int(sGartenAnz)
+        for i in range(0, len(jcontent["table"])):
+            s_garten_anz = str(jcontent["table"][i])
+            if "Gärten" in s_garten_anz:
+                s_garten_anz = s_garten_anz.replace("<tr>", "")
+                s_garten_anz = s_garten_anz.replace("<td>", "")
+                s_garten_anz = s_garten_anz.replace("</tr>", "")
+                s_garten_anz = s_garten_anz.replace("</td>", "")
+                s_garten_anz = s_garten_anz.replace("Gärten", "")
+                s_garten_anz = s_garten_anz.strip()
+                iGartenAnz = int(s_garten_anz)
                 result = True
                 break
 
         if result:
             return iGartenAnz
-        else:
-            self.__logger.debug(jContent["table"])
+        self.__logger.debug(jcontent["table"])
 
-    def __get_username_from_json_content(self, jContent):
+    def __get_username_from_json_content(self, jcontent):
         """
         Searches for the username in the passed JSON object and returns it.
         """
         result = False
-        for i in range(0, len(jContent["table"])):
-            sUserName = str(jContent["table"][i])
-            if "Spielername" in sUserName:
-                sUserName = sUserName.replace("<tr>", "")
-                sUserName = sUserName.replace("<td>", "")
-                sUserName = sUserName.replace("</tr>", "")
-                sUserName = sUserName.replace("</td>", "")
-                sUserName = sUserName.replace("Spielername", "")
-                sUserName = sUserName.replace("&nbsp;", "")
-                sUserName = sUserName.strip()
+        for i in range(0, len(jcontent["table"])):
+            s_username = str(jcontent["table"][i])
+            if "Spielername" in s_username:
+                s_username = s_username.replace("<tr>", "")
+                s_username = s_username.replace("<td>", "")
+                s_username = s_username.replace("</tr>", "")
+                s_username = s_username.replace("</td>", "")
+                s_username = s_username.replace("Spielername", "")
+                s_username = s_username.replace("&nbsp;", "")
+                s_username = s_username.strip()
                 result = True
                 break
         if result:
-            return sUserName
+            return s_username
         else:
             raise self.__logger.error("Username not found")
 
@@ -233,10 +232,7 @@ class User(object):
         if self.__user_data.level_number < 10:
             return False
         jContent = self.__http_connection.execute_command("do=citymap_init")
-        if jContent["data"]["location"]["bees"]["bought"] == 1:
-            return True
-        else:
-            return False
+        return bool(jContent["data"]["location"]["bees"]["bought"])
 
     def is_town_park_available(self):
         if self.__user_data.level_number < 5:
@@ -244,10 +240,7 @@ class User(object):
         jContent = self.__http_connection.execute_command("do=citymap_init")
         if jContent["data"]["location"]["park"]["bought"] == False:
             return False
-        elif jContent["data"]["location"]["park"]["bought"]["parkid"] == "1":
-            return True
-        else:
-            return False
+        return bool(jContent["data"]["location"]["park"]["bought"]["parkid"])
 
     def is_aqua_garden_available(self):
         if self.__user_data.level_number < 19:
@@ -256,27 +249,18 @@ class User(object):
         result = re.search(
             r"trophy_54.png\);[^;]*(gray)[^;^class$]*class", jContent["html"]
         )
-        if result == None:
-            return True
-        else:
-            return False
+        return result == None
 
     def is_deco_garden_available(self):
         if self.__user_data.level_number < 13:
             return False
-        jContent = self.__http_connection.execute_command("do=citymap_init")
-        if jContent["data"]["location"]["decogarden"]["bought"] == 1:
-            return True
-        else:
-            return False
+        jcontent = self.__http_connection.execute_command("do=citymap_init")
+        return bool(jcontent["data"]["location"]["decogarden"]["bought"])
 
     def is_mail_address_confirmed(self):
         content = self.__http_connection.get_user_profile()
         result = re.search(r"Unbestätigte Email:", content)
-        if result == None:
-            return True
-        else:
-            return False
+        return result == None
 
     @property
     def gardens(self):
@@ -306,7 +290,7 @@ class UserDataBuilder(object):
     def __init__(self):
         self.__level_number = None
         self.__level = None
-        self.__bar = None
+        self.__bar_money = None
         self.__coins = None
         self.__points = None
         self.__mail = None
@@ -327,8 +311,8 @@ class UserDataBuilder(object):
         return self.__g_tag
 
     @g_tag.setter
-    def g_tag(self, g):
-        self.__g_tag = g
+    def g_tag(self, g_tag):
+        self.__g_tag = g_tag
 
     @property
     def level_number(self):
@@ -347,55 +331,55 @@ class UserDataBuilder(object):
         self.__level = level
 
     @property
-    def bar(self):
-        return self.__bar
+    def bar_money(self):
+        return self.__bar_money
 
-    @bar.setter
-    def bar(self, bar):
-        self.__bar = bar
+    @bar_money.setter
+    def bar_money(self, bar_money):
+        self.__bar_money = bar_money
 
     @property
     def coins(self):
         self.__coins
 
     @coins.setter
-    def coins(self, c):
-        self.__coins = c
+    def coins(self, coins):
+        self.__coins = coins
 
     @property
     def points(self):
         return self.__points
 
     @points.setter
-    def points(self, p):
-        self.__points = p
+    def points(self, points):
+        self.__points = points
 
     @property
     def mail(self):
         return self.__mail
 
     @mail.setter
-    def mail(self, m: str):
-        self.__mail = m
+    def mail(self, mail: str):
+        self.__mail = mail
 
     @property
     def contracts(self):
         return self.__contracts
 
     @contracts.setter
-    def contracts(self, c):
-        self.__contracts = c
+    def contracts(self, contracts):
+        self.__contracts = contracts
 
     def build(self):
         return UserData(self)
 
 
-class UserData(object):
+class UserData:
     def __init__(self, builder: UserDataBuilder):
         self.__mail = None
         self.__level_number = builder.level_number
         self.__level = builder.level
-        self.__bar = builder.bar
+        self.__bar = builder.bar_money
         self.__coins = builder.coins
         self.__points = builder.points
         self.__mail = builder.mail

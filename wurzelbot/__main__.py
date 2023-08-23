@@ -1,9 +1,7 @@
 import logging
 import sys
-from enum import Enum
 
 from login_data import LoginData
-from pydantic import BaseModel
 
 from config import Settings
 from wurzelbot import Wurzelbot

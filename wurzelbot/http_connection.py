@@ -19,7 +19,8 @@ HTTP_STATE_SWITCHING_PROTOCOLS = 101
 HTTP_STATE_PROCESSING = 102
 HTTP_STATE_OK = 200
 HTTP_STATE_FOUND = 302  # moved temporarily
-USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 Vivaldi/2.2.1388.37"
+USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36\
+            (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 Vivaldi/2.2.1388.37"
 STATIC_DOMAIN = ".wurzelimperium.de"
 AJAX_PHP = "/ajax/ajax.php?"
 MESSAGE_API = "/nachrichten"
@@ -58,7 +59,7 @@ class HTTPRequestError(Exception):
         return repr(self.value)
 
 
-class HTTPConnection(object):
+class HTTPConnection:
     # singleton for just one login, due to the backend
     def __new__(cls):
         if not hasattr(cls, "instance"):
@@ -72,7 +73,6 @@ class HTTPConnection(object):
         self.__session = session.Session()
         self.__token = None
         self.__user_id = None
-        self.__cookie = None
 
     def __del__(self):
         self.__session = None
@@ -109,14 +109,13 @@ class HTTPConnection(object):
             response, content = self.__webclient.request(url, "GET", headers=headers)
             self.__check_if_http_status_is_found(response)
         except:
-            raise
+            pass
         else:
             cookie = SimpleCookie(response["set-cookie"])
             cookie.load(str(response["set-cookie"]).replace("secure, ", "", -1))
             self.__session.open_session(
                 cookie["PHPSESSID"].value, str(login_data.server)
             )
-            self.__cookie = cookie
             self.__user_id = cookie["wunr"].value
 
     def logout(self):
@@ -126,17 +125,15 @@ class HTTPConnection(object):
 
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/main.php?page=logout"
 
-        try:  # content ist beim Logout leer
-            response, content = self.__webclient.request(
-                adresse, "GET", headers=headers
-            )
+        try:
+            response, _ = self.__webclient.request(adresse, "GET", headers=headers)
             self.__check_if_http_status_is_found(response)
             cookie = SimpleCookie(response["set-cookie"])
             self.__check_if_session_is_deleted(cookie)
         except:
-            raise
+            pass
         else:
-            self.__del__()
+            del self
 
     def sell_on_market(self, item_id: int, price: float, number: int):
         self.execute_command("do=citymap_init")
@@ -156,9 +153,10 @@ class HTTPConnection(object):
             "Cookie": f"PHPSESSID={self.__session.session_id};wunr={self.__user_id}",
             "Connection": "keep-alive",
             "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept": "text/html,application/xhtml+xml,application/xml\
+                        ;q=0.9,image/avif,image/webp,*/*;q=0.8",
         }
-        response, content = self.__webclient.request(
+        response, _ = self.__webclient.request(
             f"http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_BOOTH_API}",
             method="POST",
             body=parameter,
@@ -223,14 +221,14 @@ class HTTPConnection(object):
         if i_err == 1:
             self.__logger.debug(tmp_token)
             raise JSONError("Fehler bei der Ermittlung des Tokens")
-        else:
-            self.__token = tmp_token
+
+        self.__token = tmp_token
 
     def __check_if_http_status_is_ok(self, response):
         """
         Prüft, ob der Status der HTTP Anfrage OK ist.
         """
-        if not (response["status"] == str(HTTP_STATE_OK)):
+        if not response["status"] == str(HTTP_STATE_OK):
             self.__logger.debug(f"HTTP State: {response['status']}")
             raise HTTPStateError("HTTP Status ist nicht OK")
 
@@ -238,7 +236,7 @@ class HTTPConnection(object):
         """
         Prüft, ob der Status der HTTP Anfrage FOUND ist.
         """
-        if not (response["status"] == str(HTTP_STATE_FOUND)):
+        if not response["status"] == str(HTTP_STATE_FOUND):
             self.__logger.debug(f"HTTP State: {response['status']}")
             raise HTTPStateError("HTTP Status ist nicht FOUND")
 
@@ -246,7 +244,7 @@ class HTTPConnection(object):
         """
         Prüft, ob die Session gelöscht wurde.
         """
-        if not (cookie["PHPSESSID"].value == "deleted"):
+        if not cookie["PHPSESSID"].value == "deleted":
             self.__logger.debug(f"SessionID: {cookie['PHPSESSID'].value}")
             raise HTTPRequestError("Session was not deleted")
 
@@ -259,7 +257,8 @@ class HTTPConnection(object):
             + self.__user_id,
             "Connection": "Keep-Alive",
         }
-        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{AJAX_PHP}{command}&token={self.__token}"
+        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{AJAX_PHP}\
+                    {command}&token={self.__token}"
 
         try:
             response, content = self.__webclient.request(
@@ -271,8 +270,7 @@ class HTTPConnection(object):
             )
         except:
             raise
-        else:
-            return jcontent
+        return jcontent
 
     def execute_tree_gardencommand(self, command: str):
         headers = {
@@ -293,8 +291,7 @@ class HTTPConnection(object):
             )
         except:
             raise
-        else:
-            return jcontent
+        return jcontent
 
     def execute_decogarden_command(self, command: str):
         headers = {
@@ -319,8 +316,7 @@ class HTTPConnection(object):
             )
         except:
             raise
-        else:
-            return jcontent
+        return jcontent
 
     def execute_wimp_command(self, command: str):
         headers = {
@@ -338,8 +334,7 @@ class HTTPConnection(object):
             )
         except:
             raise
-        else:
-            return jcontent
+        return jcontent
 
     def destroy_weed_field(self, field_id: int):
         headers = {
@@ -390,8 +385,7 @@ class HTTPConnection(object):
             self.__check_if_http_status_is_ok(response)
         except:
             raise
-        else:
-            return content
+        return content
 
     def read_user_data_from_server(self):
         """
@@ -416,16 +410,13 @@ class HTTPConnection(object):
             "Connection": "Keep-Alive",
         }
 
-        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{PLANT_API}?pflanze[]={plant}&feld[]={field}&felder[]={fields}&cid={self.__token}&garden={garden_id}"
+        address = f"http://s{self.__session.server}{STATIC_DOMAIN}{PLANT_API}\
+                    ?pflanze[]={plant}&feld[]={field}&felder[]={fields}&cid={self.__token}&garden={garden_id}"
 
         try:
-            response, content = self.__webclient.request(
-                adresse, "GET", headers=headers
-            )
+            self.__webclient.request(address, "GET", headers=headers)
         except:
             raise
-        else:
-            pass
 
     def water_plant(self, garden_id, field_id, fields_to_water):
         headers = {
@@ -434,7 +425,8 @@ class HTTPConnection(object):
             "X-Requested-With": "XMLHttpRequest",
             "Connection": "Keep-Alive",
         }
-        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{WATER_API}?feld[]={field_id}&felder[]={fields_to_water}&cid={self.__token}&garden={garden_id}"
+        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{WATER_API}\
+                    ?feld[]={field_id}&felder[]={fields_to_water}&cid={self.__token}&garden={garden_id}"
 
         try:
             response, content = self.__webclient.request(
@@ -458,7 +450,8 @@ class HTTPConnection(object):
             "Referer": f"PHPSESSID={self.__session.session_id};wunr={self.__user_id}",
             "X-Requested-With": "X-Requested-With: XMLHttpRequest",
         }
-        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{AJAX_PHP}do=statsGetStats&which=0&start=0&additional={self.__user_id}&token={self.__token}"
+        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{AJAX_PHP}\
+                    do=statsGetStats&which=0&start=0&additional={self.__user_id}&token={self.__token}"
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
         self.__check_if_http_status_is_ok(response)
@@ -476,7 +469,8 @@ class HTTPConnection(object):
             "Cookie": f"PHPSESSID={self.__session.session_id};wunr={self.__user_id}",
             "Connection": "Keep-Alive",
         }
-        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/ajax/gettrophies.php?category=giver"
+        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}\
+                    /ajax/gettrophies.php?category=giver"
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
         self.__check_if_http_status_is_ok(response)
@@ -513,8 +507,7 @@ class HTTPConnection(object):
             jContent = parsing_utils.generate_json_content_and_check_for_ok(content)
         except:
             raise
-        else:
-            return jContent["produkte"]
+        return jContent["produkte"]
 
     def update_storage(self):
         headers = {
@@ -529,7 +522,7 @@ class HTTPConnection(object):
             {"all": "1", "sort": "1", "type": "normal", "token": self.__token}
         )
         try:
-            response, content = self.__webclient.request(
+            _, content = self.__webclient.request(
                 adress, method="POST", body=parameter, headers=headers
             )
             content = parsing_utils.generate_json_content_and_check_for_ok(content)
@@ -549,8 +542,8 @@ class HTTPConnection(object):
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
         content = content.decode("UTF-8")
         self.__check_if_http_status_is_ok(response)
-        reToken = re.search(r"ajax\.setToken\(\"(.*)\"\);", content)
-        self.__token = reToken.group(
+        re_token = re.search(r"ajax\.setToken\(\"(.*)\"\);", content)
+        self.__token = re_token.group(
             1
         )  # TODO: except, wenn token nicht aktualisiert werden kann
         return content
@@ -577,15 +570,17 @@ class HTTPConnection(object):
         """
 
         headers = {
-            "Cookie": f"PHPSESSID={self.__session.session_id};wunr={self.__user_id}",
+            "Cookie": f"PHPSESSID={self.__session.session_id};\
+                wunr={self.__user_id}",
             "Content-Length": "0",
         }
 
-        nextPage = True
-        iPage = 1
-        while nextPage:
-            nextPage = False
-            adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/stadt/markt.php?order=p&v={id}&filter=1&page={iPage}"
+        next_page = True
+        i_page = 1
+        while next_page:
+            next_page = False
+            adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}\
+                        /stadt/markt.php?order=p&v={id}&filter=1&page={i_page}"
 
             try:
                 response, content = self.__webclient.request(
@@ -601,16 +596,16 @@ class HTTPConnection(object):
                 table = root.findall("./body/div/table/*")
 
                 if table[1][0].text == "Keine Angebote":
-                    list_offers = list()
+                    list_offers = []
                 else:
-                    # range von 1 bis länge-1, da erste Zeile Überschriften sind und die letzte Weiter/Zurück.
-                    # Falls es mehrere seiten gibt.
+                    # range von 1 bis länge-1, da erste Zeile Überschriften sind
+                    # und die letzte Weiter/Zurück. Falls es mehrere seiten gibt.
                     list_offers = self.__get_amounts_and_prices_from_table(table)
 
                     for element in table[len(table) - 1][0]:
                         if "weiter" in element.text:
-                            nextPage = True
-                            iPage = iPage + 1
+                            next_page = True
+                            i_page = i_page + 1
 
         return list_offers
 
@@ -649,7 +644,7 @@ class HTTPConnection(object):
         return content
 
     def __check_if_http_status_is_ok(self, response):
-        if not (response["status"] == str(HTTP_STATE_OK)):
+        if not response["status"] == str(HTTP_STATE_OK):
             raise HTTPStateError("HTTP Status is not ok")
 
     def get_notes(self):
@@ -675,7 +670,6 @@ class HTTPConnection(object):
             note = html_tree.find('./body/form/div/textarea[@id="notiztext"]')
             if note.text is None:
                 return None
-            else:
-                return note.text.strip()
+            return note.text.strip()
         except Exception as exc:
             self.__logger.error(exc)

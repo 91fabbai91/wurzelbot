@@ -5,7 +5,7 @@ import re
 import http_connection
 
 
-class Stock(object):
+class Stock:
     def __init__(self, http_connection: http_connection.HTTPConnection):
         self.__http_connection = http_connection
         self.__logger = logging.getLogger(self.__class__.__name__)
@@ -18,17 +18,17 @@ class Stock(object):
     def get_product_information_from_server(self):
         content = self.__http_connection.get_all_product_informations()
 
-        reProducts = re.search(r"data_products = ({.*}});var", content)
-        self.__product_information = json.loads(reProducts.group(1))
+        re_products = re.search(r"data_products = ({.*}});var", content)
+        self.__product_information = json.loads(re_products.group(1))
         return self.__product_information
 
     def __reset_numbers_in_stock(self):
-        for productID in self.__products.keys():
-            self.__products[productID] = 0
+        for product_id in self.__products.keys():
+            self.__products[product_id] = 0
 
-    def init_product_list(self, productList):
-        for productID in productList:
-            self.__products[str(productID)] = 0
+    def init_product_list(self, product_list):
+        for product_id in product_list:
+            self.__products[str(product_id)] = 0
 
     def update_number_in_stock(self):
         """
@@ -45,8 +45,8 @@ class Stock(object):
     def get_keys(self):
         return self.__products.keys()
 
-    def get_stock_by_product_id(self, productID):
-        return self.__products[str(productID)]
+    def get_stock_by_product_id(self, product_id):
+        return self.__products[str(product_id)]
 
     def get_ordered_stock_list(self, order_attribute: str, descending: bool = False):
         extended_product_list = merge_dictionaries(

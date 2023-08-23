@@ -16,7 +16,7 @@ MSG_STATE_SENT_ERR_BLOCKED = 32
 MSG_STATE_SENT_ERR_RECIPIENT_DOESNT_EXIST = 64
 
 
-class Messenger(object):
+class Messenger:
     def __init__(self, http_connection: http_connection.HTTPConnection):
         self.__http_connection = http_connection
         self.__logger = logging.getLogger()
@@ -30,8 +30,7 @@ class Messenger(object):
         res = re.search(r'name="hpc" value="(.*)" id="hpc"', result)
         if res is None:
             raise MessengerError("")
-        else:
-            return res.group(1)
+        return res.group(1)
 
     def __was_delivery_successful(self, result):
         """
@@ -40,8 +39,7 @@ class Messenger(object):
         res = re.search(r"Deine Nachricht wurde an.*verschickt.", result)
         if res is not None:
             return True
-        else:
-            return False
+        return False
 
     def __did_the_message_recipient_exist(self, result):
         """
@@ -50,8 +48,7 @@ class Messenger(object):
         res = re.search(r"Der Empfänger existiert nicht.", result)
         if res is not None:
             return False
-        else:
-            return True
+        return True
 
     def __did_the_message_had_a_subject(self, result):
         """
@@ -60,8 +57,7 @@ class Messenger(object):
         res = re.search(r"Es wurde kein Betreff angegeben.", result)
         if res is not None:
             return False
-        else:
-            return True
+        return True
 
     def __did_the_message_had_a_text(self, result):
         """
@@ -70,8 +66,7 @@ class Messenger(object):
         res = re.search(r"Es wurde keine Nachricht eingegeben.", result)
         if res is not None:
             return False
-        else:
-            return True
+        return True
 
     def __did_the_message_had_a_recipient(self, result):
         """
@@ -80,8 +75,7 @@ class Messenger(object):
         res = re.search(r"Es wurde kein Empfänger angegeben.", result)
         if res is not None:
             return False
-        else:
-            return True
+        return True
 
     def __blocked_from_message_recipient(self, result):
         """
@@ -90,8 +84,7 @@ class Messenger(object):
         res = re.search(r"Der Empfänger hat dich auf die Blockliste gesetzt.", result)
         if res is not None:
             return True
-        else:
-            return False
+        return False
 
     def __get_message_delivery_state(self, result):
         """
@@ -128,11 +121,10 @@ class Messenger(object):
 
         try:
             result = self.__http_connection.execute_message_command("new.php")
-            id = self.__get_message_id_from_new_message_result(result)
+            identifier = self.__get_message_id_from_new_message_result(result)
         except:
             raise
-        else:
-            return id
+        return identifier
 
     def clear_sent_list(self):
         """
@@ -149,7 +141,7 @@ class Messenger(object):
         number_of_failed_messages = 0
         number_of_unknown_messages = 0
 
-        errorMask = (
+        error_mask = (
             MSG_STATE_SENT_ERR_BLOCKED
             | MSG_STATE_SENT_ERR_NO_RECIPIENT
             | MSG_STATE_SENT_ERR_NO_SUBJECT
@@ -164,12 +156,12 @@ class Messenger(object):
             elif msg.state & MSG_STATE_UNKNOWN != 0:
                 number_of_unknown_messages += 1
 
-            elif msg.state & errorMask != 0:
-                number_of_failedMessages += 1
+            elif msg.state & error_mask != 0:
+                number_of_failed_messages += 1
 
         summary = {
             "sent": number_of_all_sent_messages,
-            "fail": number_of_failedMessages,
+            "fail": number_of_failed_messages,
             "success": number_of_successful_messages,
             "unknown": number_of_unknown_messages,
         }
@@ -180,16 +172,16 @@ class Messenger(object):
         """
         Sends a message and adds it to the list of sent messages.
         """
-        if not type(recipients) is ListType:
+        if not isinstance(recipients, list):
             raise MessengerError("")
 
-        n = len(recipients)
-        i = 0
+        number_recipients = len(recipients)
+        counter = 0
         for recipient in recipients:
             try:
-                newMessageID = self.__get_new_message_id()
+                new_message_id = self.__get_new_message_id()
                 new_message = message.Message(
-                    id=newMessageID, recipient=recipient, subject=subject, body=body
+                    id=new_message_id, recipient=recipient, subject=subject, body=body
                 )
                 result_of_sent_message = self.__http_connection.execute_message_command(
                     "new.php", new_message
@@ -200,15 +192,14 @@ class Messenger(object):
                 new_message.delivery_state = message_delivery_state
                 self.__sent.append(new_message)
             except:
-                self.__logger.exception("Exception " + recipient)
+                self.__logger.exception(f"Exception {recipient }")
                 raise
-            else:
-                i += 1
-                self.__logger.debug(str(i) + " von " + str(n))
+            counter += 1
+            self.__logger.debug(f"{counter} von {number_recipients}")
 
-    # TODO: Write complete function
     def read_message(self):
-        # Parses messages from inbox to python objects and level up messages can so be read from wurzelbot
+        # Parses messages from inbox to python objects
+        # and level up messages can so be read from wurzelbot
         content = self.__http_connection.execute_message_command(
             "list.php?folder=inbox"
         )

@@ -8,7 +8,7 @@ import http_connection
 import product
 
 
-class ProductInformation(object):
+class ProductInformation:
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__http_connection = http_connection
@@ -26,54 +26,55 @@ class ProductInformation(object):
         )
         content = bytearray(content, encoding="UTF-8")
 
-        dictNPCPrices = self.__parse_npc_prices_from_html(content)
+        npc_prices_dict = self.__parse_npc_prices_from_html(content)
         # except:
         #    pass #TODO Exception definieren
         # else:
-        dNPCKeys = dictNPCPrices.keys()
+        npc_dict_keys = npc_prices_dict.keys()
 
         for product in self.__products:
             productname = product.name
-            if productname in dNPCKeys:
-                product.price_npc = dictNPCPrices[productname]
+            if productname in npc_dict_keys:
+                product.price_npc = npc_prices_dict[productname]
 
     def init_all_products(self):
         """
         Initialisiert alle Produkte.
         """
         content = self.__http_connection.get_all_product_informations()
-        reProducts = re.search(r"data_products = ({.*}});var", content)
-        products = reProducts.group(1)
-        jProducts = json.loads(products)
-        dictProducts = dict(jProducts)
-        keys = dictProducts.keys()
+        re_products = re.search(r"data_products = ({.*}});var", content)
+        products = re_products.group(1)
+        json_productcs = json.loads(products)
+        dict_products = dict(json_productcs)
+        keys = dict_products.keys()
         keys = sorted(keys)
-        # Nicht genutzte Attribute: img, imgPhase, fileext, clear, edge, pieces, speedup_cooldown in Kategorie z
+        # Nicht genutzte Attribute: img, imgPhase, fileext,
+        # clear, edge, pieces, speedup_cooldown in Kategorie z
         for key in keys:
             # 999 ist nur ein Testeintrag und wird nicht benötigt.
             if key == "999":
                 continue
 
-            name = dictProducts[key]["name"].replace("&nbsp;", " ")
+            name = dict_products[key]["name"].replace("&nbsp;", " ")
             self.__products.append(
                 product.Product(
                     id=int(key),
-                    cat=dictProducts[key]["category"],
-                    sx=dictProducts[key]["sx"],
-                    sy=dictProducts[key]["sy"],
+                    cat=dict_products[key]["category"],
+                    sx=dict_products[key]["sx"],
+                    sy=dict_products[key]["sy"],
                     name=name,
-                    lvl=dictProducts[key]["level"],
-                    crop=dictProducts[key]["crop"],
-                    is_plantable=dictProducts[key]["plantable"],
-                    time=dictProducts[key]["time"],
+                    lvl=dict_products[key]["level"],
+                    crop=dict_products[key]["crop"],
+                    is_plantable=dict_products[key]["plantable"],
+                    time=dict_products[key]["time"],
                 )
             )
 
         self.__set_all_prices_of_npc()
 
-    def get_product_by_id(self, id) -> product.Product:
+    def get_product_by_id(self, identifier) -> product.Product:
         for product in self.__products:
-            if int(id) == int(product.id):
+            if int(identifier) == int(product.id):
                 return product
 
     def get_product_by_name(self, name: str) -> product.Product:
@@ -89,8 +90,8 @@ class ProductInformation(object):
         product_id_list = []
 
         for product in self.__products:
-            id = product.id
-            product_id_list.append(id)
+            identifier = product.id
+            product_id_list.append(identifier)
 
         return product_id_list
 
@@ -106,14 +107,14 @@ class ProductInformation(object):
         root = html_tree.getroot()
         table = root.find('./body/div[@id="content"]/table')
 
-        dictResult = {}
+        dict_result = {}
 
         for row in table.iter("tr"):
-            produktname = row[0].text
+            product_name = row[0].text
             npc_preis = row[1].text
 
             # Bei der Tabellenüberschrift ist der Text None
-            if produktname != None and npc_preis != None:
+            if product_name is not None and npc_preis is not None:
                 # NPC-Preis aufbereiten
                 npc_preis = str(npc_preis)
                 npc_preis = npc_preis.replace(" wT", "")
@@ -125,6 +126,6 @@ class ProductInformation(object):
                 else:
                     npc_preis = float(npc_preis)
 
-                dictResult[produktname] = npc_preis
+                dict_result[product_name] = npc_preis
 
-        return dictResult
+        return dict_result
