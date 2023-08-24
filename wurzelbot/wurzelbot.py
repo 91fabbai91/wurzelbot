@@ -22,7 +22,6 @@ class Wurzelbot:
         self.__http_connection = http_connection.HTTPConnection()
         self.__messenger = None
         self.__stock = None
-        self.__town_park = None
         self.__user = None
         self.__city_quest = None
         self.__park_quest = None
@@ -41,8 +40,6 @@ class Wurzelbot:
         self.__user = user.User(self.__http_connection)
         self.__messenger = messenger.Messenger(self.__http_connection)
         self.__stock = stock.Stock(self.__http_connection)
-        if self.__user.is_town_park_available():
-            self.__town_park = town_park.TownPark(self.__http_connection, 1)
         self.__city_quest = quest.CityQuest(self.__http_connection)
         self.__deco_garden_quest = quest.DecoGardenQuest(self.__http_connection)
         self.__park_quest = quest.ParkQuest(self.__http_connection)
@@ -134,8 +131,10 @@ class Wurzelbot:
     def collect_cash_from_park(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        if self.__user.is_town_park_available():
-            self.__town_park.collect_cash_points_from_park()
+        try:
+            self.__user.town_park.collect_cash_points_from_park()
+        except ValueError as error:
+            self.__logger.error(error)
 
     def print_stock(self):
         if not self.__wurzelbot_started:
@@ -197,8 +196,10 @@ class Wurzelbot:
     def renew_all_items_in_park(self):
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
-        if self.__user.town_park_available:
-            self.__town_park.renew_all_items_in_park()
+        try:
+            self.__user.town_park.renew_all_items_in_park()
+        except ValueError as error:
+            self.__logger.error(error)
 
     def grow_plants_in_gardens_by_name(self, product_name, amount=-1) -> int:
         """
@@ -269,6 +270,12 @@ class Wurzelbot:
     def destroy_weed_fields_in_garden(self) -> None:
         for current_garden in self.__user.gardens:
             current_garden.destroy_weed_fields(self.__user.user_data.bar)
+
+    def destroy_weed_fields_in_town_park(self) -> None:
+        try:
+            self.__user.town_park.destroy_weed_fields()
+        except ValueError as error:
+            self.__logger.error(error)
 
     def get_missing_quest_amount(self, current_quest: quest.Quest) -> dict:
         missing_quest_amount = {}

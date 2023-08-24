@@ -3,6 +3,7 @@ import re
 
 import garden
 import http_connection
+import town_park
 
 
 class User:
@@ -14,6 +15,7 @@ class User:
         self.__user_id = self.__http_connection.user_id
         self.__number_of_gardens = None
         self.__gardens = []
+        self.__town_park = None
         self.__user_data = None
         self.__honey_farm_available = False
         self.__aqua_garden_available = False
@@ -26,6 +28,8 @@ class User:
         self.aqua_garden_available = self.is_aqua_garden_available()
         self.honey_farm_available = self.is_honey_farm_available()
         self.town_park_available = self.is_town_park_available()
+        if self.__town_park_available:
+            self.__town_park = town_park.TownPark(http_connection, 1)
         self.deco_garden_available = self.is_deco_garden_available()
         self.mail_address_confirmed = self.is_mail_address_confirmed()
 
@@ -244,6 +248,12 @@ class User:
     @property
     def gardens(self):
         return self.__gardens
+
+    @property
+    def town_park(self):
+        if self.__town_park is None:
+            raise ValueError("TownPark now available yet!")
+        return self.__town_park
 
     def get_daily_login_bonus(self):
         jcontent = self.__http_connection.read_user_data_from_server()

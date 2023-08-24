@@ -153,7 +153,9 @@ class Garden:
                     )
                 )
 
-        self.__logger.info(f"Number of freed fields: {number_freed_fields}")
+        self.__logger.debug(
+            f"Number of freed fields: {number_freed_fields} in garden {self.__id}"
+        )
         return number_freed_fields
 
     def __destroy_fields_of_type(

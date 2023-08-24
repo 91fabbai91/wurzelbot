@@ -26,6 +26,7 @@ if __name__ == "__main__":
     wurzelbot.get_daily_login_bonus()
     wurzelbot.harvest_all_garden()
     wurzelbot.destroy_weed_fields_in_garden()
+    wurzelbot.destroy_weed_fields_in_town_park()
     if wurzelbot.has_empty_fields():
         for quest_name in settings.tasks.grow_for_quests:
             wurzelbot.plant_according_to_quest(quest_name)
