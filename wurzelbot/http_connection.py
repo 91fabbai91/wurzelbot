@@ -1,7 +1,6 @@
-import io
 import logging
 import re
-import unicodedata
+from http import HTTPStatus
 from http.cookies import SimpleCookie
 from math import floor
 from urllib.parse import urlencode
@@ -11,16 +10,8 @@ import login_data
 import message
 import parsing_utils
 import session
-from lxml import etree, html
-from offer import Offer
 from parsing_utils import HTTPStateError, JSONError
 
-# Defines
-HTTP_STATE_CONTINUE = 100
-HTTP_STATE_SWITCHING_PROTOCOLS = 101
-HTTP_STATE_PROCESSING = 102
-HTTP_STATE_OK = 200
-HTTP_STATE_FOUND = 302  # moved temporarily
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36"
     + "(KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 Vivaldi/2.2.1388.37"
@@ -207,7 +198,7 @@ class HTTPConnection:
         """
         Prüft, ob der Status der HTTP Anfrage OK ist.
         """
-        if not response["status"] == str(HTTP_STATE_OK):
+        if not response["status"] == str(HTTPStatus.OK):
             self.__logger.debug(f"HTTP State: {response['status']}")
             raise HTTPStateError("HTTP Status ist nicht OK")
 
@@ -215,7 +206,7 @@ class HTTPConnection:
         """
         Prüft, ob der Status der HTTP Anfrage FOUND ist.
         """
-        if not response["status"] == str(HTTP_STATE_FOUND):
+        if not response["status"] == str(HTTPStatus.FOUND):
             self.__logger.debug(f"HTTP State: {response['status']}")
             raise HTTPStateError("HTTP Status ist nicht FOUND")
 
@@ -295,6 +286,21 @@ class HTTPConnection:
             content.decode("UTF-8")
         )
         return jcontent
+
+    def execute_market_command(self, identifier: int, page: int = 1) -> str:
+        headers = {
+            "Cookie": f"PHPSESSID={self.__session.session_id};"
+            + f"wunr={self.__user_id}",
+            "Content-Length": "0",
+        }
+        adresse = (
+            f"http://s{self.__session.server}{STATIC_DOMAIN}"
+            + f"{MARKET_API}?order=p&v={identifier}&filter=1&page={page}"
+        )
+
+        response, content = self.__webclient.request(adresse, "GET", headers=headers)
+        check_if_http_status_is_ok(response)
+        return content.decode("UTF-8")
 
     def destroy_weed_field(self, field_id: int):
         headers = {
@@ -450,10 +456,10 @@ class HTTPConnection:
             "Cookie": f"PHPSESSID={self.__session.session_id};wunr={self.__user_id}",
         }
 
-        adress = (
+        address = (
             f"http://s{self.__session.server}{STATIC_DOMAIN}/ajax/updatelager.php?all=1"
         )
-        response, content = self.__webclient.request(adress, "GET", headers=headers)
+        response, content = self.__webclient.request(address, "GET", headers=headers)
         check_if_http_status_is_ok(response)
         jcontent = parsing_utils.generate_json_content_and_check_for_ok(content)
         return jcontent["produkte"]
@@ -466,12 +472,12 @@ class HTTPConnection:
             "Accept": "text/javascript, text/html, application/xml, text/xml, */*",
         }
 
-        adress = f"http://s{self.__session.server}{STATIC_DOMAIN}/ajax/updatelager.php"
+        address = f"http://s{self.__session.server}{STATIC_DOMAIN}/ajax/updatelager.php"
         parameter = urlencode(
             {"all": "1", "sort": "1", "type": "normal", "token": self.__token}
         )
         _, content = self.__webclient.request(
-            adress, method="POST", body=parameter, headers=headers
+            address, method="POST", body=parameter, headers=headers
         )
         content = parsing_utils.generate_json_content_and_check_for_ok(content)
 
@@ -484,8 +490,8 @@ class HTTPConnection:
             "Cookie": f"PHPSESSID={self.__session.session_id};wunr={self.__user_id}"
         }
 
-        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/main.php?page=garden"
-        response, content = self.__webclient.request(adresse, "GET", headers=headers)
+        address = f"http://s{self.__session.server}{STATIC_DOMAIN}/main.php?page=garden"
+        response, content = self.__webclient.request(address, "GET", headers=headers)
         content = content.decode("UTF-8")
         check_if_http_status_is_ok(response)
         re_token = re.search(r"ajax\.setToken\(\"(.*)\"\);", content)
@@ -502,55 +508,13 @@ class HTTPConnection:
             "Content-Length": "0",
         }
 
-        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}/stadt/markt.php?show=overview"
+        adresse = (
+            f"http://s{self.__session.server}{STATIC_DOMAIN}{MARKET_API}?show=overview"
+        )
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
         check_if_http_status_is_ok(response)
         return content
-
-    def get_offers_from_product(self, identifier: int) -> list:
-        """
-        Gibt eine Liste mit allen Angeboten eines Produkts zurück.
-        """
-        list_offers = []
-        headers = {
-            "Cookie": f"PHPSESSID={self.__session.session_id};"
-            + f"wunr={self.__user_id}",
-            "Content-Length": "0",
-        }
-
-        next_page = True
-        i_page = 1
-        while next_page:
-            next_page = False
-            adresse = (
-                f"http://s{self.__session.server}{STATIC_DOMAIN}"
-                + f"/stadt/markt.php?order=p&v={identifier}&filter=1&page={i_page}"
-            )
-
-            response, content = self.__webclient.request(
-                adresse, "GET", headers=headers
-            )
-            check_if_http_status_is_ok(response)
-
-            html_file = io.BytesIO(content)
-            html_tree = html.parse(html_file)
-            root = html_tree.getroot()
-            table = root.findall("./body/div/table/*")
-
-            if table[1][0].text == "Keine Angebote":
-                list_offers = []
-            else:
-                # range von 1 bis länge-1, da erste Zeile Überschriften sind
-                # und die letzte Weiter/Zurück. Falls es mehrere seiten gibt.
-                list_offers = get_amounts_and_prices_from_table(table)
-
-                for element in table[len(table) - 1][0]:
-                    if "weiter" in element.text:
-                        next_page = True
-                        i_page = i_page + 1
-
-        return list_offers
 
     def get_npc_prices(self):
         """
@@ -566,7 +530,7 @@ class HTTPConnection:
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
         check_if_http_status_is_ok(response)
-        return content
+        return content.decode("UTF-8")
 
     def get_notes(self):
         """
@@ -581,34 +545,9 @@ class HTTPConnection:
         adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{NOTES_API}"
         response, content = self.__webclient.request(adresse, "GET", headers=headers)
         check_if_http_status_is_ok(response)
-        content = content.decode("UTF-8")
-        my_parser = etree.HTMLParser(recover=True)
-        html_tree = etree.fromstring(content, parser=my_parser)
-
-        note = html_tree.find('./body/form/div/textarea[@id="notiztext"]')
-        if note.text is None:
-            return None
-        return note.text.strip()
-
-
-def get_amounts_and_prices_from_table(table):
-    list_offers = []
-    for i in range(1, len(table) - 1):
-        amount = table[i][0].text
-        amount = amount.replace(".", "")
-
-        price = table[i][3].text
-        price = unicodedata.normalize("NFKD", price)
-        price, _ = price.split()
-        price = price.replace(".", "")
-        price = price.replace(",", ".")
-        product = table[i][1][0].text
-        seller = table[i][2][0].text
-        offer = Offer(product=product, amount=amount, price=price, seller=seller)
-        list_offers.append(offer)
-    return list_offers
+        return content.decode("UTF-8")
 
 
 def check_if_http_status_is_ok(response):
-    if not response["status"] == str(HTTP_STATE_OK):
+    if not response["status"] == str(HTTPStatus.OK):
         raise HTTPStateError("HTTP Status is not ok")

@@ -1,11 +1,11 @@
 import io
 import logging
 import re
-import xml.etree.ElementTree as eTree
-from enum import IntEnum, StrEnum
+from enum import Enum, IntEnum
 
 import http_connection
 import message
+from lxml import html
 
 
 class MessageState(IntEnum):
@@ -18,7 +18,7 @@ class MessageState(IntEnum):
     SENT_ERR_RECIPIENT_DOESNT_EXIST = 64
 
 
-class Folder(StrEnum):
+class Folder(Enum):
     INBOX = "inbox"
     SYSTEM = "system"
 
@@ -120,14 +120,12 @@ class Messenger:
         self.__logger.info(parse_inbox_from_html(html))
 
 
-def parse_inbox_from_html(html: str):
+def parse_inbox_from_html(html_string: str):
     # ElementTree needs a file to parse.
     # With BytesIO a file is created in memory, not on disk.
-    html_file = io.BytesIO(html)
 
-    html_tree = eTree.parse(html_file)
-    root = html_tree.getroot()
-    table = root.find("./body/table")
+    html_tree = html.parse_fromstring(html_string)
+    table = html_tree.find(".//body/table")[0]
     return table
 
 

@@ -2,10 +2,10 @@ import io
 import json
 import logging
 import re
-import xml.etree.ElementTree as eTree
 
 import http_connection
 import product
+from lxml import html
 
 
 class ProductInformation:
@@ -21,10 +21,6 @@ class ProductInformation:
         """
 
         content = self.__http_connection.get_npc_prices()
-        content = content.decode("UTF-8").replace(
-            "Gärten & Regale", "Gärten und Regale"
-        )
-        content = bytearray(content, encoding="UTF-8")
 
         npc_prices_dict = parse_npc_prices_from_html(content)
         # except:
@@ -94,17 +90,16 @@ class ProductInformation:
         return product_id_list
 
 
-def parse_npc_prices_from_html(html: bytearray):
+def parse_npc_prices_from_html(html_string: str):
     """
     Parsing all NPC prices from the HTML script of the game help.
     """
     # ElementTree needs a file to parse.
     # With BytesIO a file is created in memory, not on disk.
-    html_file = io.BytesIO(html)
 
-    html_tree = eTree.parse(html_file)
-    root = html_tree.getroot()
-    table = root.find('./body/div[@id="content"]/table')
+    html_tree = html.fromstring(html_string)
+
+    table = html_tree.xpath('//body/div[@id="content"]/table')[0]
 
     dict_result = {}
 

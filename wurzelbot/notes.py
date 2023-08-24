@@ -2,6 +2,7 @@ import logging
 import re
 
 import http_connection
+from lxml import html
 
 
 class Notes:
@@ -12,7 +13,13 @@ class Notes:
         self.__get_initial_min_stock()
 
     def get_notes(self):
-        return self.__http_connection.get_notes()
+        notes = self.__http_connection.get_notes()
+        html_tree = html.fromstring(notes)
+
+        note = html_tree.find('./body/form/div/textarea[@id="notiztext"]')
+        if note.text is None:
+            return None
+        return note.text.strip()
 
     def __get_initial_min_stock(self):
         note = self.get_notes()
