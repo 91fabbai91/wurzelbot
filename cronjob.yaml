@@ -11,8 +11,8 @@ spec:
         spec:
           containers:
           - name: wurzelbot
-            image: bongomedia/wurzelbot:bugfix
-            imagePullPolicy: IfNotPresent
+            image: bongomedia/wurzelbot:dev
+            imagePullPolicy: Always
             env:
             - name: LOGINS__SERVER
               value: '20'
@@ -32,10 +32,6 @@ spec:
               value: 'wurzelbot.log'
             - name: TASKS__SELL_TO_WIMPS_PERCENTAGE
               value: '50'
-            - name: TASKS__SELL_ON_MARKETPLACE__ENABLED
-              value: 'False'
-            - name: TASKS__SELL_ON_MARKETPLACE__MIN_STOCK
-              value: '100'
             - name: TASKS__FARM_TOWN_PARK
               value: 'True'
             - name: TASKS__START_BEES_TOUR
