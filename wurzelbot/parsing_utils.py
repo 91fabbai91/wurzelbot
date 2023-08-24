@@ -36,7 +36,6 @@ def generate_json_content_and_check_for_status_success(content):
     if jcontent["status"] == "SUCCESS":
         return jcontent
     logging.error("JSON not successful")
-    return None
 
 
 def generate_yaml_content_and_check_status_for_ok(content: str):

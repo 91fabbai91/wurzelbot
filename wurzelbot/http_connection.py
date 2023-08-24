@@ -198,7 +198,7 @@ class HTTPConnection:
         """
         Prüft, ob der Status der HTTP Anfrage OK ist.
         """
-        if not response["status"] == str(HTTPStatus.OK):
+        if not response["status"] == str(HTTPStatus.OK.value):
             self.__logger.debug(f"HTTP State: {response['status']}")
             raise HTTPStateError("HTTP Status ist nicht OK")
 
@@ -206,7 +206,7 @@ class HTTPConnection:
         """
         Prüft, ob der Status der HTTP Anfrage FOUND ist.
         """
-        if not response["status"] == str(HTTPStatus.FOUND):
+        if not response["status"] == str(HTTPStatus.FOUND.value):
             self.__logger.debug(f"HTTP State: {response['status']}")
             raise HTTPStateError("HTTP Status ist nicht FOUND")
 
@@ -549,5 +549,5 @@ class HTTPConnection:
 
 
 def check_if_http_status_is_ok(response):
-    if not response["status"] == str(HTTPStatus.OK):
+    if not response["status"] == str(HTTPStatus.OK.value):
         raise HTTPStateError("HTTP Status is not ok")
