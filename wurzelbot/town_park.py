@@ -6,9 +6,22 @@ import http_connection
 
 
 class BlockedFieldType(Enum):
-    WEED = {"id": 1, "costs": 1000}
-    TREE_STUMP = {"id": 2, "costs": 10000}
-    STONE = {"id": 3, "costs": 30000}
+    WEED = (1, 1000)
+    TREE_STUMP = (2, 10000)
+    STONE = (3, 30000)
+
+    def __init__(self, identifier: int, costs: int) -> None:
+        super().__init__()
+        self.__id = identifier
+        self.__costs = costs
+
+    @property
+    def id(self) -> int:
+        return self.__id
+
+    @property
+    def costs(self) -> int:
+        return self.__costs
 
 
 class TownPark:
@@ -54,7 +67,7 @@ class TownPark:
         for i, field in fields.items():
             if field["item"].startswith("trash"):
                 blocked_field_type = int(field["item"].replace("trash", ""))
-                if blocked_field_type in [x.value["id"] for x in BlockedFieldType]:
+                if blocked_field_type in [x.id for x in BlockedFieldType]:
                     blocked_fields.update({int(i): int(blocked_field_type)})
         return blocked_fields
 
@@ -64,8 +77,8 @@ class TownPark:
         blocked_fields_type_count = Counter(list(blocked_fields.values()))
         for blocked_field_type in BlockedFieldType:
             if (
-                blocked_fields_type_count[blocked_field_type.value["id"]] > 0
-                and self.__park_points > blocked_field_type.value["costs"]
+                blocked_fields_type_count[blocked_field_type.id] > 0
+                and self.__park_points > blocked_field_type.costs
             ):
                 number_freed_fields = (
                     number_freed_fields
@@ -83,12 +96,12 @@ class TownPark:
         number_freed_fields = 0
         for field_id, field_type in blocked_fields.items():
             if (
-                field_type == blocked_field_type.value["id"]
-                and self.__park_points >= blocked_field_type.value["costs"]
+                field_type == blocked_field_type.id
+                and self.__park_points >= blocked_field_type.costs
             ):
                 if self.__remove_blocked_field(field_id) is not None:
                     number_freed_fields = number_freed_fields + 1
-                    self.__park_points -= blocked_field_type.value["costs"]
+                    self.__park_points -= blocked_field_type.costs
 
         return number_freed_fields
 

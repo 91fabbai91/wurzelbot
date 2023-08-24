@@ -10,10 +10,23 @@ from wimp import Wimp
 
 
 class BlockedFieldType(Enum):
-    WEED = {"id": 41, "costs": 2.5}
-    TREE_STUMP = {"id": 42, "costs": 250.0}
-    STONE = {"id": 43, "costs": 50.0}
-    MOLE = {"id": 45, "costs": 500.0}
+    WEED = (41, 2.5)
+    TREE_STUMP = (42, 250.0)
+    STONE = (43, 50.0)
+    MOLE = (45, 500.0)
+
+    def __init__(self, identifier: int, costs: float) -> None:
+        super().__init__()
+        self.__id = identifier
+        self.__costs = costs
+
+    @property
+    def id(self) -> int:
+        return self.__id
+
+    @property
+    def costs(self):
+        return self.__costs
 
 
 class Garden:
@@ -143,8 +156,8 @@ class Garden:
         blocked_fields_type_count = Counter(list(blocked_fields.values()))
         for blocked_field_type in BlockedFieldType:
             if (
-                blocked_fields_type_count[blocked_field_type.value["id"]] > 0
-                and cash > blocked_field_type.value["costs"]
+                blocked_fields_type_count[blocked_field_type.id] > 0
+                and cash > blocked_field_type.costs
             ):
                 number_freed_fields = (
                     number_freed_fields
@@ -163,13 +176,10 @@ class Garden:
     ) -> int:
         number_freed_fields = 0
         for field_id, field_type in blocked_fields.items():
-            if (
-                field_type == blocked_field_type.value["id"]
-                and cash >= blocked_field_type.value["costs"]
-            ):
+            if field_type == blocked_field_type.id and cash >= blocked_field_type.costs:
                 if self.__http_connection.destroy_weed_field(field_id) is not None:
                     number_freed_fields = number_freed_fields + 1
-                    cash -= blocked_field_type.value["costs"]
+                    cash -= blocked_field_type.costs
 
         return number_freed_fields
 
@@ -377,7 +387,7 @@ def find_blocked_fields_from_json_content(jcontent: dict) -> dict:
     # 41 weed, 42 tree stump, 43 stone, 45 mole
     for field in jcontent["garden"]:
         blocked_field_type = jcontent["garden"][field][0]
-        if blocked_field_type in [x.value["id"] for x in BlockedFieldType]:
+        if blocked_field_type in [x.id for x in BlockedFieldType]:
             weed_fields.update({int(field): blocked_field_type})
 
     return weed_fields
