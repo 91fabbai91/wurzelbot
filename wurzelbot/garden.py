@@ -6,7 +6,7 @@ from enum import Enum
 
 import http_connection
 import parsing_utils
-from wimp import Wimp
+from wimp import Wimp, WimpOrigin
 
 
 class BlockedFieldType(Enum):
@@ -326,6 +326,7 @@ class Garden:
                     id=wimp["sheet"]["id"],
                     product_amount=product_data,
                     reward=wimp["sheet"]["sum"],
+                    origin=WimpOrigin.GARDEN,
                 )
             )
         return wimps_list

@@ -345,18 +345,19 @@ class Wurzelbot:
         wimps_data = []
         for current_garden in self.__user.gardens:
             for wimp_data in current_garden.get_wimps_data():
-                wimps_data.append(wimp_data)
+                wimps_data.extend(wimp_data)
+            wimps_data.extend(self.__bees_farm.get_wimp_data())
 
         for current_wimp in wimps_data:
             if not self.check_wimps_profitable(current_wimp, percentage):
-                self.__user.decline_wimp(current_wimp.id)
+                self.__user.decline_wimp(current_wimp.id, current_wimp.origin)
             else:
                 if self.check_wimps_required_amount(
                     minimal_balance, current_wimp.product_amount, stock_list
                 ):
                     self.__logger.info(f"Selling products to wimp: {current_wimp.id}")
                     new_products_counts = self.__user.sell_products_to_wimp(
-                        current_wimp.id
+                        current_wimp.id, current_wimp.origin
                     )
                     for identifier, amount in current_wimp.product_amount.items():
                         stock_list[identifier]["amount"] -= amount
@@ -368,7 +369,12 @@ class Wurzelbot:
         to_sell = False
         for identifier, amount in wimp.product_amount.items():
             npc_sum += (
-                self.__product_information.get_product_by_id(identifier).price_npc
+                min(
+                    self.__product_information.get_product_by_id(identifier).price_npc,
+                    self.__marketplace.get_cheapest_offer(
+                        identifier, self.__user.username
+                    ),
+                )
                 * amount
             )
         to_sell = bool(wimp.reward / npc_sum >= percentage)

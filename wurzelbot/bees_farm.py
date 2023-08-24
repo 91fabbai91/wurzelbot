@@ -2,6 +2,7 @@ import logging
 from enum import Enum, unique
 
 import http_connection
+from wimp import Wimp, WimpOrigin
 
 
 @unique
@@ -32,7 +33,7 @@ class BeesFarm:
             except KeyError:
                 self.__logger.debug("Key time in hive not found.")
 
-    def __go_to_bees(self):
+    def __go_to_bees(self) -> dict:
         jcontent = self.__http_connection.execute_command("do=bees_init")
         return jcontent
 
@@ -55,3 +56,21 @@ class BeesFarm:
                 self.start_bees_tour(index + 1, tour)
             elif hive["tour_remain"] < 0:
                 self.start_bees_tour(index + 1, tour)
+
+    def get_wimp_data(self) -> list:
+        wimps_list = []
+        bees_data = self.__go_to_bees()
+        wimps = bees_data["data"]["wimps"]
+        for wimp in wimps:
+            product_data = {}
+            for product_id, product_amount in wimp["data"].items():
+                product_data.update({product_id: int(product_amount)})
+            wimps_list.append(
+                Wimp(
+                    id=wimp["id"],
+                    reward=wimp["price"],
+                    product_amount=product_data,
+                    origin=WimpOrigin.BEES_FARM,
+                )
+            )
+        return wimps_list

@@ -4,6 +4,7 @@ import re
 import garden
 import http_connection
 import town_park
+from wimp import WimpOrigin
 
 
 class User:
@@ -264,15 +265,29 @@ class User:
                     f"do=dailyloginbonus_getreward&day={day}"
                 )
 
-    def sell_products_to_wimp(self, wimp_id):
-        return self.__http_connection.execute_wimp_command(f"do=accept&id={wimp_id}")[
-            "newProductCounts"
-        ]
+    def sell_products_to_wimp(self, wimp_id, wimp_origin: WimpOrigin):
+        if wimp_origin == WimpOrigin.GARDEN:
+            return self.__http_connection.execute_wimp_command(
+                f"do=accept&id={wimp_id}"
+            )["newProductCounts"]
+        elif wimp_origin == WimpOrigin.BEES_FARM:
+            return self.__http_connection.execute_command(
+                f"do=bees_wimpshandle&id={wimp_id}&status=1"
+            )
+        else:
+            raise ValueError("Wrong Type of WimpOrigin")
 
-    def decline_wimp(self, wimp_id):
-        return self.__http_connection.execute_wimp_command(f"do=decline&id={wimp_id}")[
-            "action"
-        ]
+    def decline_wimp(self, wimp_id, wimp_origin: WimpOrigin):
+        if wimp_origin == WimpOrigin.GARDEN:
+            return self.__http_connection.execute_wimp_command(
+                f"do=decline&id={wimp_id}"
+            )["action"]
+        elif wimp_origin == WimpOrigin.BEES_FARM:
+            return self.__http_connection.execute_command(
+                f"do=bees_wimpshandle&id={wimp_id}&status=2"
+            )
+        else:
+            raise ValueError("Wrong Type of WimpOrigin")
 
 
 class UserDataBuilder:

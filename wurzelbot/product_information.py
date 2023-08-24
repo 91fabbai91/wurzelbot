@@ -63,6 +63,7 @@ class ProductInformation:
                     crop=dict_products[key]["crop"],
                     is_plantable=dict_products[key]["plantable"],
                     time=dict_products[key]["time"],
+                    price_npc=float("inf"),
                 )
             )
 
@@ -116,7 +117,7 @@ def parse_npc_prices_from_html(html_string: str):
             npc_preis = npc_preis.replace(",", ".")
             npc_preis = npc_preis.strip()
             if "-" in npc_preis:
-                npc_preis = None
+                npc_preis = float("inf")
             else:
                 npc_preis = float(npc_preis)
 
