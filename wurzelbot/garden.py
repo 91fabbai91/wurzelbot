@@ -142,23 +142,19 @@ class Garden:
         blocked_fields = self.get_blocked_fields()
         blocked_fields_type_count = Counter(list(blocked_fields.values()))
         for blocked_field_type in BlockedFieldType:
-            try:
-                if (
-                    blocked_fields_type_count[blocked_field_type.value["id"]] > 0
-                    and cash > blocked_field_type.value["costs"]
-                ):
-                    number_freed_fields = (
-                        number_freed_fields
-                        + self.__destroy_fields_of_type(
-                            blocked_fields, blocked_field_type, cash
-                        )
+            if (
+                blocked_fields_type_count[blocked_field_type.value["id"]] > 0
+                and cash > blocked_field_type.value["costs"]
+            ):
+                number_freed_fields = (
+                    number_freed_fields
+                    + self.__destroy_fields_of_type(
+                        blocked_fields, blocked_field_type, cash
                     )
-            except parsing_utils.JSONError as exception:
-                self.__logger.error(exception)
-            else:
-                self.__logger.info(f"Number of freed fields: {number_freed_fields}")
-                return number_freed_fields
-        return 0
+                )
+
+        self.__logger.info(f"Number of freed fields: {number_freed_fields}")
+        return number_freed_fields
 
     def __destroy_fields_of_type(
         self, blocked_fields: list, blocked_field_type: BlockedFieldType, cash: float

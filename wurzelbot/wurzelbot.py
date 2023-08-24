@@ -293,7 +293,7 @@ class Wurzelbot:
         return missing_quest_amount
 
     def plant_according_to_quest(self, quest_type_name: str):
-        quest_level = ""
+        quest_level = None
         try:
             if quest_type_name == quest.CityQuest.__name__:
                 quest_level = self.__city_quest
@@ -318,7 +318,8 @@ class Wurzelbot:
                 raise NameError(f"No Element named {quest_type_name}")
         except quest.QuestError as error:
             self.__logger.error(error)
-
+        if quest_level is None:
+            return
         missing_amount = self.get_missing_quest_amount(current_quest=quest_level)
         for product_name, amount in missing_amount.items():
             self.grow_plants_in_gardens_by_name(product_name, amount)
