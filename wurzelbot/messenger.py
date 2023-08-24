@@ -54,7 +54,7 @@ class Messenger:
         number_of_unknown_messages = 0
 
         error_mask = (
-            MessageState.SENT_ERR_BLOCKED.value
+            MessageState.SENT_ERR_BLOCKED
             | MessageState.SENT_ERR_NO_RECIPIENT
             | MessageState.SENT_ERR_NO_SUBJECT
             | MessageState.SENT_ERR_NO_TEXT
