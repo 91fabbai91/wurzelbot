@@ -1,80 +1,31 @@
-import logging
+from typing import Optional
 
-class Product():
-    
-    def __init__(self, id, cat, sx, sy, name, lvl, crop, plantable, time):
-        self.__logger = logging.getLogger(self.__class__.__name__)
-        self.__id = id
-        self.__category = cat
-        self.__sx = sx
-        self.__sy = sy
-        self.__name = name.decode('UTF-8')
-        self.__level = lvl
-        self.__crop = crop
-        self.__is_plantable = plantable
-        self.__time_until_harvest = time
-        self.__price_npc = None
-   
-    @property
-    def id(self):
-        return self.__id
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PositiveFloat,
+    StrictBool,
+    StrictInt,
+    StrictStr,
+)
 
-    @property
-    def category(self):
-        return self.__category
 
-    @property
-    def name(self):
-        return self.__name
-    
-    @property
-    def sx(self):
-        return self.__sx
+class Product(BaseModel):
+    id: StrictInt = Field(default=None, frozen=True, strict=True)
+    cat: StrictStr = Field(..., frozen=True)
+    sx: Optional[StrictInt] = Field(None, frozen=True)
+    sy: Optional[StrictInt] = Field(None, frozen=True)
+    name: StrictStr = Field(..., frozen=True)
+    lvl: StrictInt = Field(..., frozen=True)
+    crop: StrictInt = Field(..., frozen=True)
+    is_plantable: Optional[StrictBool] = Field(None, frozen=True)
+    time: StrictInt = Field(..., frozen=True)
+    price_npc: Optional[PositiveFloat] = None
+    model_config = ConfigDict(validate_assignment=True)
 
-    @property
-    def sy(self):
-        return self.__sy
-    
-    @property
-    def price_npc(self):
-        return self.__price_npc
-    
-    @property
-    def is_plantable(self):
-        return self.__is_plantable
-
-    @property
-    def time_unti_harvest(self):
-        return self.__time_until_harvest
-
-    @property
-    def crop(self):
-        return self.__crop
-    
-    @property
-    def level(self):
-        return self.__level
-
-   
     def is_plant(self):
-        return self.__category == "v"
-    
+        return self.cat == "v"
+
     def is_decoration(self):
-        return self.__category == "d"
-
-    @price_npc.setter
-    def price_npc(self, price):
-        self.__price_npc = price
-        
-    def print_all(self):
-        # Show nothing instead of None
-        xstr = lambda s: s or ""
-
-        self.__logger.info('ID:', str(self.__id).rjust(3), ' ', \
-              'CAT:', str(self.__category).ljust(5), ' ', \
-              'Name:', str(self.__name).ljust(35), ' ', \
-              'Plantable:', str(self.__is_plantable).ljust(5), ' ', \
-              'NPC:', str(xstr(self.__price_npc)).rjust(6), ' ', \
-              'SX:', str(xstr(self.__sx)), ' ', \
-              'SY:', str(xstr(self.__sy)))
-
+        return self.cat == "d"

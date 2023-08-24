@@ -1,19 +1,25 @@
-class LoginData(object):
-    def __init__(self, server: int, username: str, password: str):
-        if(server<0 or server>46):
-            raise ValueError("Server must be Integer, greater than 0 and smaller than 47")
-        self.__server = server
-        self.__username = username
-        self.__password = password
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PositiveInt,
+    SecretStr,
+    StrictStr,
+    field_validator,
+)
 
-    @property
-    def server(self):
-        return self.__server
 
-    @property
-    def username(self):
-        return self.__username
+class LoginData(BaseModel):
+    server: PositiveInt = Field(..., frozen=True)
+    username: StrictStr = Field(..., frozen=True)
+    password: SecretStr = Field(..., frozen=True)
+    model_config = ConfigDict(validate_assignment=True, frozen=True)
 
-    @property
-    def password(self):
-        return self.__password
+    @field_validator("server")
+    @classmethod
+    def server_match(cls, server):
+        if server < 0 or server > 46:
+            raise ValueError(
+                "Server must be Integer, greater than 0 and smaller than 47"
+            )
+        return server

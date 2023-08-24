@@ -1,0 +1,9 @@
+# https://github.com/pylint-dev/pylint/blob/main/examples/pylintrc
+[MAIN]
+init-hook='import sys; sys.path.append("wurzelbot")'
+
+[MESSAGES CONTROL]
+disable=missing-docstring, missing-class-docstring, missing-function-docstring, import-error, logging-fstring-interpolation
+
+[DESIGN]
+max-attributes=16

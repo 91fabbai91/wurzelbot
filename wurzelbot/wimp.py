@@ -1,24 +1,8 @@
-import http_connection
-
-class Wimp(object):
-    def __init__(self, id: int, product_amount: list, reward: float) -> None:
-        self.__http_connection = http_connection
-        self.__product_amount = product_amount
-        self.__id = id
-        self.__reward = reward
-    
-    @property
-    def product_amount(self):
-        return self.__product_amount
-
-    @property
-    def id(self):
-        return self.__id
-    
-    @property
-    def reward(self):
-        return self.__reward
+from pydantic import BaseModel, ConfigDict, PositiveFloat, PositiveInt
 
 
-    
-
+class Wimp(BaseModel):
+    id: PositiveInt
+    product_amount: dict
+    reward: PositiveFloat
+    model_config = ConfigDict(frozen=True, validate_assignment=True)
