@@ -90,9 +90,13 @@ class DecoGardenQuest(Quest):
                 "do=getGarden"
             )["objects"]
             for garden_object in deco_garden_objects.values():
-                quest_data = self._http_connection.execute_decogarden_command(
+                raw_quest_data = self._http_connection.execute_decogarden_command(
                     f"do=clickObj&which={garden_object['id']}"
-                )["questData"]
+                )
+                try:
+                    quest_data = raw_quest_data["quest_data"]
+                except:
+                    pass
                 self._reward.append(quest_data["reward"])
                 for product in quest_data["products"]:
                     if product["name"] in self._amount.keys():

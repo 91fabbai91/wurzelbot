@@ -279,7 +279,11 @@ class Wurzelbot:
 
     def get_missing_quest_amount(self, current_quest: quest.Quest) -> dict:
         missing_quest_amount = {}
-        amounts, _ = current_quest.get_quest()
+        try:
+            amounts, _ = current_quest.get_quest()
+        except quest.QuestError as error:
+            self.__logger.error(error)
+            return missing_quest_amount
         number_of_plants = self.number_of_plants_in_garden()
         for name, value in amounts.items():
             if name[-1] == "n" and name != "Radieschen":
