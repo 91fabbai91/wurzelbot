@@ -350,7 +350,8 @@ class Wurzelbot:
         for current_garden in self.__user.gardens:
             for wimp_data in current_garden.get_wimps_data():
                 wimps_data.append(wimp_data)
-            wimps_data.extend(self.__bees_farm.get_wimp_data())
+            if self.__bees_farm is not None:
+                wimps_data.extend(self.__bees_farm.get_wimp_data())
 
         for current_wimp in wimps_data:
             if not self.check_wimps_profitable(current_wimp, percentage):
