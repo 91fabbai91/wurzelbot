@@ -428,7 +428,7 @@ class HTTPConnection:
         }
         adresse = (
             f"http://s{self.__session.server}{STATIC_DOMAIN}"
-            + "/ajax/gettrophies.php?category=giver"
+            + f"/ajax/achievements.php?token={self.__token}"
         )
 
         response, content = self.__webclient.request(adresse, "GET", headers=headers)

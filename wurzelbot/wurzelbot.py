@@ -345,7 +345,7 @@ class Wurzelbot:
         wimps_data = []
         for current_garden in self.__user.gardens:
             for wimp_data in current_garden.get_wimps_data():
-                wimps_data.extend(wimp_data)
+                wimps_data.append(wimp_data)
             wimps_data.extend(self.__bees_farm.get_wimp_data())
 
         for current_wimp in wimps_data:
