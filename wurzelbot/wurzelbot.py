@@ -282,7 +282,7 @@ class Wurzelbot:
         amounts, _ = current_quest.get_quest()
         number_of_plants = self.number_of_plants_in_garden()
         for name, value in amounts.items():
-            if name[-1] == "n":
+            if name[-1] == "n" and name != "Radieschen":
                 name = name.rstrip(name[-1])
             product = self.__product_information.get_product_by_name(name)
             current_stock = self.__stock.get_stock_by_product_id(product.id)

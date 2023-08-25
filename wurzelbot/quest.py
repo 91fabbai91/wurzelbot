@@ -89,7 +89,7 @@ class DecoGardenQuest(Quest):
             deco_garden_objects = self._http_connection.execute_decogarden_command(
                 "do=getGarden"
             )["objects"]
-            for garden_object in deco_garden_objects:
+            for garden_object in deco_garden_objects.values():
                 quest_data = self._http_connection.execute_decogarden_command(
                     f"do=clickObj&which={garden_object['id']}"
                 )["questData"]
