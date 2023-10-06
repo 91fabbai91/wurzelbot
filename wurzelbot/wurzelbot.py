@@ -1,4 +1,5 @@
 import logging
+import math
 from collections import Counter
 
 import bees_farm
@@ -202,14 +203,20 @@ class Wurzelbot:
             self.__logger.error(error)
 
     def grow_plants_in_gardens_by_name(self, product_name, amount=-1) -> int:
+        product = self.__product_information.get_product_by_name(product_name)
+        self.grow_plants_in_gardens(product=product, amount=amount)
+
+    def grow_plants_in_gardens_by_id(self, product_id, amount=-1) -> int:
+        product = self.__product_information.get_product_by_id(product_id)
+        self.grow_plants_in_gardens(product=product, amount=amount)
+
+    def grow_plants_in_gardens(self, product, amount=-1) -> int:
         """
         Plant as many plants of one variety as possible across all gardens.
         """
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
         planted_totally = 0
-
-        product = self.__product_information.get_product_by_name(product_name)
 
         if product is None:
             log_msg = f"plant {product_name} not found"
@@ -286,6 +293,8 @@ class Wurzelbot:
             return missing_quest_amount
         number_of_plants = self.number_of_plants_in_garden()
         for name, value in amounts.items():
+            if name == "Walnüsse":
+                name = "Walnuss"
             if name[-1] == "n" and name != "Radieschen":
                 name = name.rstrip(name[-1])
             product = self.__product_information.get_product_by_name(name)
@@ -335,26 +344,20 @@ class Wurzelbot:
         for product_name, amount in missing_amount.items():
             self.grow_plants_in_gardens_by_name(product_name, amount)
 
-    def get_all_wimps_products(self) -> dict:
-        all_wimps_products = Counter()
-        for current_garden in self.__user.gardens:
-            wimp_data = current_garden.get_wimps_data()
-            for products in wimp_data.values():
-                all_wimps_products.update(products[1])
-
-        return dict(all_wimps_products)
+    def plant_according_to_wimps(self, wimps_list, percentage):
+        for current_wimp in wimps_list:
+            if current_wimp.marketplace_percentage < percentage:
+                self.__user.decline_wimp(current_wimp.id, current_wimp.origin)
+                continue
+            for product_id, amount in current_wimp.product_amount.items():
+                self.grow_plants_in_gardens_by_id(product_id=product_id, amount=amount)
 
     def sell_wimps_products(self, minimal_balance, percentage):
         stock_list = self.__stock.get_ordered_stock_list("amount")
-        wimps_data = []
-        for current_garden in self.__user.gardens:
-            for wimp_data in current_garden.get_wimps_data():
-                wimps_data.append(wimp_data)
-            if self.__bees_farm is not None:
-                wimps_data.extend(self.__bees_farm.get_wimp_data())
+        wimps_data = self.get_wimps_data()
 
         for current_wimp in wimps_data:
-            if not self.check_wimps_profitable(current_wimp, percentage):
+            if not current_wimp.is_profitable(percentage):
                 self.__user.decline_wimp(current_wimp.id, current_wimp.origin)
             else:
                 if self.check_wimps_required_amount(
@@ -369,9 +372,19 @@ class Wurzelbot:
                 else:
                     pass
 
-    def check_wimps_profitable(self, wimp: wimp.Wimp, percentage: int) -> bool:
+    def get_wimps_data(self):
+        wimps_data = []
+        for current_garden in self.__user.gardens:
+            for wimp_data in current_garden.get_wimps_data():
+                wimps_data.append(wimp_data)
+            if self.__bees_farm is not None:
+                wimps_data.extend(self.__bees_farm.get_wimp_data())
+        wimps_data = list(map(self.get_wimps_marketprice_percentage, wimps_data))
+        wimps_data.sort(key=lambda wimp: wimp.marketplace_percentage, reverse=True)
+        return wimps_data
+
+    def get_wimps_marketprice_percentage(self, wimp: wimp.Wimp) -> wimp:
         npc_sum = 0
-        to_sell = False
         for identifier, amount in wimp.product_amount.items():
             npc_sum += (
                 min(
@@ -382,8 +395,8 @@ class Wurzelbot:
                 )
                 * amount
             )
-        to_sell = bool(wimp.reward / npc_sum >= percentage)
-        return to_sell
+        wimp.marketprice_percentage = math.round(wimp.reward / npc_sum * 100)
+        return wimp
 
     def check_wimps_required_amount(self, minimal_balance, products, stock_list):
         to_sell = True

@@ -20,14 +20,14 @@ This repo is mainly inspired by MrFlamez WurzelimperiumBot on github
 
 ### Dependencies
 
-- Python 3.8
+- Python 3.10
 - Poetry
 - Docker/podman (if you want to run it inside a container)
 
 ### Configuration
 
 You can do the configuration with environment variables or with .env files.
-The password is stored inside a secret file in the directory /run/secrets/login/password which contains the password. It is also compatible with docker secrets
+Another option is to build a kubernetes cronjob or use systems cron service.
 
 ### Executing program (without container)
 
@@ -48,6 +48,11 @@ The password is stored inside a secret file in the directory /run/secrets/login/
 - Edit the crontabs `crontab -e`
 - Set the tool to be executed every 10 minutes `*/10 * * * * docker run -v /home/ubuntu/wurzelbot/config:/code/config wurzelbot` or `*/10 * * * * poetry run python main.py`
 
+### Periodic execution (with kubernetes)
+
+- Find the cronjob.yaml in this repository
+- Edit it to your needs. To store credentials in kubernetes secrets find a link: https://kubernetes.io/docs/concepts/configuration/secret/
+
 ## Authors
 
 Contributors names and contact info
@@ -66,7 +71,6 @@ Inspiration, code snippets, etc.
 
 ## Ideas for further steps
 
-- Sell automatically fruits and vegetables
 - Improve unit tests
 - Add Command line interface
 - Tutorial to run this as a batch job in cloud environments
