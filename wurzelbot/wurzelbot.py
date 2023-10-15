@@ -219,12 +219,12 @@ class Wurzelbot:
         planted_totally = 0
 
         if product is None:
-            log_msg = f"plant {product_name} not found"
+            log_msg = f"plant {product.name} not found"
             self.__logger.error(log_msg)
             return 0
 
         if not product.is_plantable or not product.is_plant():
-            log_msg = f"{product_name} could not get planted"
+            log_msg = f"{product.name} could not get planted"
             self.__logger.error(log_msg)
             return 0
 
@@ -293,7 +293,7 @@ class Wurzelbot:
             return missing_quest_amount
         number_of_plants = self.number_of_plants_in_garden()
         for name, value in amounts.items():
-            if name == "Walnüsse":
+            if name == "Waln&uuml;sse":
                 name = "Walnuss"
             if name[-1] == "n" and name != "Radieschen":
                 name = name.rstrip(name[-1])

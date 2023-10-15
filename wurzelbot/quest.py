@@ -38,6 +38,7 @@ class CityQuest(Quest):
                 f"Needed amount: {self._amount} and reward: {self._reward}"
             )
         except Exception as error:
+            self._logger.error(error)
             raise QuestError("No City Quest available") from error
         return self._amount, self._reward
 
