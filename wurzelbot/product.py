@@ -18,9 +18,9 @@ class Product(BaseModel):
     sy: Optional[StrictInt] = Field(None, frozen=True)
     name: StrictStr = Field(..., frozen=True)
     lvl: StrictInt = Field(..., frozen=True)
-    crop: StrictInt = Field(..., frozen=True)
+    crop: Optional[StrictInt] = Field(None, frozen=True)
     is_plantable: Optional[StrictBool] = Field(None, frozen=True)
-    time: StrictInt = Field(..., frozen=True)
+    time: Optional[StrictInt] = Field(None, frozen=True)
     price_npc: Optional[PositiveFloat] = None
     model_config = ConfigDict(validate_assignment=True)
 

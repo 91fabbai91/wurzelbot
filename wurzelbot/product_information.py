@@ -4,8 +4,8 @@ import logging
 import re
 
 import http_connection
-import product
 from lxml import html
+from product import Product
 
 
 class ProductInformation:
@@ -52,30 +52,43 @@ class ProductInformation:
                 continue
 
             name = dict_products[key]["name"].replace("&nbsp;", " ")
-            self.__products.append(
-                product.Product(
-                    id=int(key),
-                    cat=dict_products[key]["category"],
-                    sx=dict_products[key]["sx"],
-                    sy=dict_products[key]["sy"],
-                    name=name,
-                    lvl=dict_products[key]["level"],
-                    crop=dict_products[key]["crop"],
-                    is_plantable=dict_products[key]["plantable"],
-                    time=dict_products[key]["time"],
-                    price_npc=float("inf"),
+            product = dict_products[key]
+            sx = None
+            sy = None
+            time = None
+            crop = None
+            if product["plantable"]:
+                sx = product["sx"]
+                sy = product["sy"]
+                time = product["time"]
+                crop = product["crop"]
+            try:
+                self.__products.append(
+                    Product(
+                        id=int(key),
+                        cat=product["category"],
+                        sx=sx,
+                        sy=sy,
+                        name=name,
+                        lvl=product["level"],
+                        crop=crop,
+                        is_plantable=product["plantable"],
+                        time=time,
+                        price_npc=float("inf"),
+                    )
                 )
-            )
+            except KeyError as key_error:
+                self.__logger.error(f"Key for {name} not found")
 
         self.__set_all_prices_of_npc()
 
-    def get_product_by_id(self, identifier) -> product.Product:
+    def get_product_by_id(self, identifier) -> Product:
         for current_product in self.__products:
             if int(identifier) == int(current_product.id):
                 return current_product
         return None
 
-    def get_product_by_name(self, name: str) -> product.Product:
+    def get_product_by_name(self, name: str) -> Product:
         for current_product in self.__products:
             if name.lower() == current_product.name.lower():
                 return current_product

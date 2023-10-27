@@ -1,5 +1,4 @@
 import logging
-import math
 from collections import Counter
 
 import bees_farm
@@ -380,7 +379,7 @@ class Wurzelbot:
             if self.__bees_farm is not None:
                 wimps_data.extend(self.__bees_farm.get_wimp_data())
         wimps_data = list(map(self.get_wimps_marketprice_percentage, wimps_data))
-        wimps_data.sort(key=lambda wimp: wimp.marketplace_percentage, reverse=True)
+        wimps_data.sort(key=lambda wimp: wimp.marketprice_percentage, reverse=True)
         return wimps_data
 
     def get_wimps_marketprice_percentage(self, wimp: wimp.Wimp) -> wimp:
@@ -395,7 +394,7 @@ class Wurzelbot:
                 )
                 * amount
             )
-        wimp.marketprice_percentage = math.round(wimp.reward / npc_sum * 100)
+        wimp.marketprice_percentage = round(wimp.reward / npc_sum * 100)
         return wimp
 
     def check_wimps_required_amount(self, minimal_balance, products, stock_list):
