@@ -292,6 +292,8 @@ class Wurzelbot:
             return missing_quest_amount
         number_of_plants = self.number_of_plants_in_garden()
         for name, value in amounts.items():
+            if name == "&Auml;pfel":
+                name = "Apfel"
             if name == "Waln&uuml;sse":
                 name = "Walnuss"
             if name[-1] == "n" and name != "Radieschen":
