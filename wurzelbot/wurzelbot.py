@@ -296,6 +296,8 @@ class Wurzelbot:
                 name = "Apfel"
             if name == "Waln&uuml;sse":
                 name = "Walnuss"
+            if name == "K&uuml;rbisse":
+                name = "Kürbis"
             if name[-1] == "n" and name != "Radieschen":
                 name = name.rstrip(name[-1])
             product = self.__product_information.get_product_by_name(name)
