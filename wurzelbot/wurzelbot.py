@@ -292,7 +292,7 @@ class Wurzelbot:
             return missing_quest_amount
         number_of_plants = self.number_of_plants_in_garden()
         for name, value in amounts.items():
-            self.__logger.info(f"Planting {} of {}", value, name)
+            self.__logger.info(f"Planting {value} of {name}")
             if name == "&Auml;pfel":
                 name = "Apfel"
             if name == "Waln&uuml;sse":
