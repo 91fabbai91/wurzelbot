@@ -298,7 +298,7 @@ class Wurzelbot:
             if name == "Waln&uuml;sse":
                 name = "Walnuss"
             if name == "K&uuml;rbisse":
-                name = "K&uuml;rbis"
+                name = "Kürbis"
             if name == "Kürbisse":
                 name = "Kürbis"
             if name.endswith("Honig"):
