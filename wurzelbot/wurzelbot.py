@@ -297,7 +297,7 @@ class Wurzelbot:
             self.__logger.info(
                 f"Planting {value} of {name} for {current_quest.__class__}"
             )
-            if name[-1] == "n":
+            if name[-1] == "n" and not name == "Radieschen":
                 name = name.rstrip(name[-1])
             name = self.__product_information.get_plural(name)
             product = self.__product_information.get_product_by_name(name)

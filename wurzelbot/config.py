@@ -50,7 +50,7 @@ class Tasks(BaseModel):
 
 
 class ProductInformation(BaseModel):
-    filename: Optional[StrictStr] = "product_names.json"
+    filename: StrictStr = "product_names.json"
 
 
 class Settings(BaseSettings):
