@@ -49,10 +49,15 @@ class Tasks(BaseModel):
         return percentage
 
 
+class ProductInformation(BaseModel):
+    filename: Optional[StrictStr] = "product_names.json"
+
+
 class Settings(BaseSettings):
     logins: Login
     logging: Logging
     tasks: Tasks
+    product_information: ProductInformation
     model_config = SettingsConfigDict(
         env_file=os.path.expanduser("config/.env"),
         env_nested_delimiter="__",

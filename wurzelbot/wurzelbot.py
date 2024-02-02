@@ -34,7 +34,9 @@ class Wurzelbot:
         self.__notes = None
         self.__wurzelbot_started = False
 
-    def start_wurzelbot(self, login_data: login_data.LoginData):
+    def start_wurzelbot(
+        self, login_data: login_data.LoginData, product_names_filename: str
+    ):
         self.__logger.debug("Start Wurzelbot")
         self.__http_connection.login(login_data)
         self.__user = user.User(self.__http_connection)
@@ -46,7 +48,7 @@ class Wurzelbot:
         self.__bee_farm_quest = quest.BeesGardenQuest(self.__http_connection)
         self.__tree_quest = quest.TreeQuest(self.__http_connection)
         self.__product_information = product_information.ProductInformation(
-            self.__http_connection
+            self.__http_connection, product_names_filename
         )
         self.__marketplace = marketplace.Marketplace(self.__http_connection)
         if self.__user.is_honey_farm_available():
@@ -292,19 +294,12 @@ class Wurzelbot:
             return missing_quest_amount
         number_of_plants = self.number_of_plants_in_garden()
         for name, value in amounts.items():
-            self.__logger.info(f"Planting {value} of {name}")
-            if name == "&Auml;pfel":
-                name = "Apfel"
-            if name == "Waln&uuml;sse":
-                name = "Walnuss"
-            if name == "K&uuml;rbisse":
-                name = "Kürbis"
-            if name == "Kürbisse":
-                name = "Kürbis"
-            if name.endswith("Honig"):
-                name = name.replace("-Honig", "")
-            if name[-1] == "n" and name != "Radieschen":
+            self.__logger.info(
+                f"Planting {value} of {name} for {current_quest.__class__}"
+            )
+            if name[-1] == "n":
                 name = name.rstrip(name[-1])
+            name = self.__product_information.get_plural(name)
             product = self.__product_information.get_product_by_name(name)
             current_stock = self.__stock.get_stock_by_product_id(product.id)
             try:

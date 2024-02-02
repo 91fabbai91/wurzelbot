@@ -22,7 +22,7 @@ if __name__ == "__main__":
         password=settings.logins.password,
     )
     wurzelbot = Wurzelbot()
-    wurzelbot.start_wurzelbot(login_data)
+    wurzelbot.start_wurzelbot(login_data, settings.product_information.filename)
     wurzelbot.get_daily_login_bonus()
     wurzelbot.harvest_all_garden()
     wurzelbot.destroy_weed_fields_in_garden()

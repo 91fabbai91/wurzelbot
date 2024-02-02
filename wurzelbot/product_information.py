@@ -1,6 +1,6 @@
-import io
 import json
 import logging
+import os
 import re
 
 import http_connection
@@ -9,11 +9,29 @@ from product import Product
 
 
 class ProductInformation:
-    def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
+    def __init__(
+        self,
+        http_connection: http_connection.HTTPConnection,
+        product_information_filename: str,
+    ) -> None:
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__http_connection = http_connection
         self.__products = []
         self.init_all_products()
+        here = os.path.dirname(os.path.abspath(__file__))
+        filename = os.path.join(here, product_information_filename)
+        with open(filename) as file:
+            self.__product_plural = json.load(file)
+        self.__logger.debug(self.__product_plural)
+
+    def get_plural(self, product_singular: str):
+        try:
+            return self.__product_plural(product_singular)
+        except Exception as exp:
+            self.__logger.debug(
+                f"No plural for {product_singular}. {exp.with_traceback}"
+            )
+            return product_singular
 
     def __set_all_prices_of_npc(self):
         """
