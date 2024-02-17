@@ -26,7 +26,7 @@ class ProductInformation:
 
     def get_plural(self, product_singular: str):
         try:
-            return self.__product_plural(product_singular)
+            return self.__product_plural[product_singular]
         except Exception as exp:
             self.__logger.debug(
                 f"No plural for {product_singular}. {exp.with_traceback}"
