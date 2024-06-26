@@ -32,10 +32,14 @@ class Wurzelbot:
         self.__marketplace = None
         self.__bees_farm = None
         self.__notes = None
+        self.__blacklisted_plants = set()
         self.__wurzelbot_started = False
 
     def start_wurzelbot(
-        self, login_data: login_data.LoginData, product_names_filename: str
+        self,
+        login_data: login_data.LoginData,
+        product_names_filename: str,
+        blacklisted_plants: set = set(),
     ):
         self.__logger.debug("Start Wurzelbot")
         self.__http_connection.login(login_data)
@@ -54,6 +58,7 @@ class Wurzelbot:
         if self.__user.is_honey_farm_available():
             self.__bees_farm = bees_farm.BeesFarm(self.__http_connection)
         self.__notes = notes.Notes(self.__http_connection)
+        self.__blacklisted_plants = blacklisted_plants
         self.__wurzelbot_started = True
         self.__logger.debug("Wurzelbot started!")
 
@@ -253,6 +258,12 @@ class Wurzelbot:
             "amount"
         ).items():
             product = self.__product_information.get_product_by_id(product_id)
+            if product.name in self.__blacklisted_plants:
+                self.__logger.info(
+                    f"{product.name} is in blacklisted plants list."
+                    f"Blacklisted plants are {self.__blacklisted_plants}"
+                )
+                continue
             if product.is_plantable and product.is_plant():
                 if (
                     self.grow_plants_in_gardens_by_name(

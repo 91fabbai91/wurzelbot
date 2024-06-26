@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import FrozenSet, List, Optional
 
 from pydantic import BaseModel, PositiveInt, SecretStr, StrictStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -40,6 +40,7 @@ class Tasks(BaseModel):
     farm_town_park: bool = True
     start_bees_tour: bool = True
     grow_plants: Optional[List[StrictStr]] = list()
+    blacklisted_plants: Optional[FrozenSet[StrictStr]] = set()
 
     @field_validator("sell_to_wimps_percentage")
     @classmethod

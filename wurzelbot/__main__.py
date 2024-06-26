@@ -23,8 +23,11 @@ if __name__ == "__main__":
     )
     wurzelbot = Wurzelbot()
     product_information_filename = settings.product_information_filename
+    blacklisted_plants = settings.tasks.blacklisted_plants
 
-    wurzelbot.start_wurzelbot(login_data, product_information_filename)
+    wurzelbot.start_wurzelbot(
+        login_data, product_information_filename, blacklisted_plants
+    )
     wurzelbot.get_daily_login_bonus()
     wurzelbot.harvest_all_garden()
     wurzelbot.destroy_weed_fields_in_garden()
