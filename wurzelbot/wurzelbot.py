@@ -229,6 +229,8 @@ class Wurzelbot:
             self.__logger.error(log_msg)
             return 0
 
+        # TODO: try to buy amount
+
         for current_garden in self.__user.gardens:
             if amount == -1 or amount > self.__stock.get_stock_by_product_id(
                 product.id

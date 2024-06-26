@@ -1,5 +1,5 @@
 import os
-from typing import FrozenSet, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, PositiveInt, SecretStr, StrictStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -34,12 +34,12 @@ class SellOnMarketPlace(BaseModel):
 
 
 class Tasks(BaseModel):
-    grow_for_quests: Optional[FrozenSet[StrictStr]] = set()
+    grow_for_quests: Optional[List[StrictStr]] = list()
     sell_to_wimps_percentage: Optional[PositiveInt] = None
     sell_on_marketplace: Optional[SellOnMarketPlace] = None
     farm_town_park: bool = True
     start_bees_tour: bool = True
-    grow_plants: Optional[FrozenSet[StrictStr]] = set()
+    grow_plants: Optional[List[StrictStr]] = list()
 
     @field_validator("sell_to_wimps_percentage")
     @classmethod
@@ -47,6 +47,18 @@ class Tasks(BaseModel):
         if percentage < 0 or percentage > 100:
             raise ValueError(f"{percentage} is not a percentage value")
         return percentage
+
+    @field_validator("grow_for_quests")
+    @classmethod
+    def quest_validator(cls, quests):
+        dictionary = dict.fromkeys(quests)
+        return list(dictionary)
+
+    @field_validator("grow_plants")
+    @classmethod
+    def plants_validator(cls, plants):
+        dictionary = dict.fromkeys(plants)
+        return list(dictionary)
 
 
 class Settings(BaseSettings):

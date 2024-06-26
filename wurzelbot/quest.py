@@ -28,7 +28,7 @@ class CityQuest(Quest):
             quest_data = self._http_connection.execute_command(
                 "do=CityQuest&action=getQuest"
             )["data"]["questtext"]
-            quest_data = quest_data.replace(".", "")
+            quest_data = quest_data.replace(".", "").strip()
             amount, self._reward = re.split(" f&uuml;r ", quest_data)
             self._reward = re.split(" und ", self._reward)
             amount = re.split("Liefere |, | und | ", amount)
