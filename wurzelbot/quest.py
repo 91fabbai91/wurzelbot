@@ -39,7 +39,7 @@ class CityQuest(Quest):
             )
         except Exception as error:
             self._logger.error(error)
-            raise QuestError("No City Quest available") from error
+            raise QuestError("No CityQuest available") from error
         return self._amount, self._reward
 
     def fulfill_quest(self):
@@ -47,7 +47,7 @@ class CityQuest(Quest):
             self._http_connection.execute_command("do=CityQuest&action=getQuest")
             self._http_connection.execute_command("do=CityQuest&action=send")
         except Exception as error:
-            raise QuestError("No ParkQuest available") from error
+            self._logger.error("Not possible to finish ParkQuest")
 
 
 class ParkQuest(Quest):
@@ -78,7 +78,7 @@ class ParkQuest(Quest):
                     + f"&amount={product['missing']}&questnr={quest_data['questnr']}"
                 )
         except Exception as error:
-            raise QuestError("Not possible to finish quest") from error
+            self._logger.error("Not possible to finish ParkQuest")
 
 
 class DecoGardenQuest(Quest):
@@ -127,7 +127,7 @@ class DecoGardenQuest(Quest):
                             &questNr={quest_data['questnr']}&amount={product['missing']}"
                     )
         except Exception as error:
-            raise QuestError("No DecoGardenQuest available") from error
+            self._logger.error("Not possible to finish DecoGardenQuest")
 
 
 class BeesGardenQuest(Quest):
