@@ -1,5 +1,6 @@
 import logging
 import re
+from xml.etree.ElementTree import ParseError
 
 import http_connection
 from lxml import html
@@ -14,8 +15,9 @@ class Notes:
 
     def get_notes(self):
         notes = self.__http_connection.get_notes()
+        if notes == "":
+            return notes
         html_tree = html.fromstring(notes)
-
         note = html_tree.find('./body/form/div/textarea[@id="notiztext"]')
         if note.text is None:
             return None
