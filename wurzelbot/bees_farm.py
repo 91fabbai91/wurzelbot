@@ -90,5 +90,5 @@ class BeesFarm:
 
     def change_all_bee_hives_product(self, product_id):
         for index, hive in self.__hives.items():
-            if int(hive.pid) != product_id:
-                self.__change_bee_hive_product(index, int(hive.pid))
+            if int(hive["pid"]) != product_id:
+                self.__change_bee_hive_product(index, int(hive["pid"]))
