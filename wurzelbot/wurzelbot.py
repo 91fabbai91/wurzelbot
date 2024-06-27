@@ -367,6 +367,8 @@ class Wurzelbot:
             # if honey is needed plant as many as possible
             if product_name.endswith("-Honig"):
                 amount = -1
+                product = self.__product_information.get_product_by_name(product_name)
+                self.__bees_farm.change_all_bee_hives_product(product.id)
             product_name = product_name.removesuffix("n-Honig")
             product_name = product_name.removesuffix("blüte")
             self.grow_plants_in_gardens_by_name(product_name, amount)
