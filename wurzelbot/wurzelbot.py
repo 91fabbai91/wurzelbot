@@ -367,9 +367,8 @@ class Wurzelbot:
             # if honey is needed plant as many as possible
             if product_name.endswith("-Honig"):
                 amount = -1
-            product_name = product_name.removesuffix("-Honig").removesuffix(
-                "bl&uuml;ten"
-            )
+            product_name = product_name.removesuffix("n-Honig")
+            product_name = product_name.removesuffix("blüte")
             self.grow_plants_in_gardens_by_name(product_name, amount)
 
     def plant_according_to_wimps(self, wimps_list, percentage):
