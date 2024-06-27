@@ -364,6 +364,12 @@ class Wurzelbot:
             self.__logger.error(f"Fulfill method not implemented for {quest_type_name}")
 
         for product_name, amount in missing_amount.items():
+            # if honey is needed plant as many as possible
+            if product_name.endswith("-Honig"):
+                amount = -1
+            product_name = product_name.removesuffix("-Honig").removesuffix(
+                "bl&uuml;ten"
+            )
             self.grow_plants_in_gardens_by_name(product_name, amount)
 
     def plant_according_to_wimps(self, wimps_list, percentage):

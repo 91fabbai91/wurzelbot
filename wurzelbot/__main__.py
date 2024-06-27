@@ -32,12 +32,14 @@ if __name__ == "__main__":
     wurzelbot.harvest_all_garden()
     wurzelbot.destroy_weed_fields_in_garden()
     wurzelbot.destroy_weed_fields_in_town_park()
-    if wurzelbot.has_empty_fields():
-        for quest_name in settings.tasks.grow_for_quests:
-            wurzelbot.plant_according_to_quest(quest_name)
-    if wurzelbot.has_empty_fields():
-        for plant in settings.tasks.grow_plants:
-            wurzelbot.grow_plants_in_gardens_by_name(plant)
+    for quest_name in settings.tasks.grow_for_quests:
+        if not wurzelbot.has_empty_fields():
+            break
+        wurzelbot.plant_according_to_quest(quest_name)
+    for plant in settings.tasks.grow_plants:
+        if not wurzelbot.has_empty_fields():
+            break
+        wurzelbot.grow_plants_in_gardens_by_name(plant)
     if settings.tasks.start_bees_tour:
         wurzelbot.start_all_bees_tour()
     if settings.tasks.farm_town_park:

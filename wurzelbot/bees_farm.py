@@ -16,7 +16,7 @@ class BeesFarm:
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
         self.__http_connection = http_connection
         self.__logger = logging.getLogger(self.__class__.__name__)
-        self.__hives = []
+        self.__hives = {}
         self.__setup_bees_farm()
 
     @property
@@ -28,10 +28,16 @@ class BeesFarm:
         for index, hive in bee_state["data"]["data"]["hives"].items():
             try:
                 if hive["time"]:
-                    self.__hives.append(hive)
+                    self.__hives[int(index)] = hive
                     self.__logger.debug(f"Added Hive with id {index}")
             except KeyError:
                 self.__logger.debug("Key time in hive not found.")
+        # sort hives by level
+        self.__hives = dict(
+            sorted(
+                self.__hives.items(), key=lambda hive: hive[1]["level"], reverse=True
+            )
+        )
 
     def __go_to_bees(self) -> dict:
         jcontent = self.__http_connection.execute_command("do=bees_init")
@@ -53,11 +59,11 @@ class BeesFarm:
                     self.__http_connection.execute_command(f"do=bees_fill")
                     self.__logger.debug("Got Honey")
 
-        for index, hive in enumerate(self.__hives):
+        for index, hive in self.__hives.items():
             if "tour_remain" not in hive:
-                self.start_bees_tour(index + 1, tour)
+                self.start_bees_tour(index, tour)
             elif hive["tour_remain"] < 0:
-                self.start_bees_tour(index + 1, tour)
+                self.start_bees_tour(index, tour)
 
     def get_wimp_data(self) -> list:
         wimps_list = []
@@ -76,3 +82,13 @@ class BeesFarm:
                 )
             )
         return wimps_list
+
+    def __change_bee_hive_product(self, hive_id: int, product_id: int):
+        self.__http_connection.execute_command(
+            f"do=bees_changehiveproduct&id={hive_id}&pid={product_id}"
+        )
+
+    def change_all_bee_hives_product(self, product_id):
+        for index, hive in self.__hives.items():
+            if int(hive.pid) != product_id:
+                self.__change_bee_hive_product(index, int(hive.pid))

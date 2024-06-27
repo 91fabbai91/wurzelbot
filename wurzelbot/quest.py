@@ -150,7 +150,12 @@ class BeesGardenQuest(Quest):
             raise QuestError("No BeesGardenQuest available") from error
 
     def fulfill_quest(self):
-        return super().fulfill_quest()
+        quest_data = self._http_connection.execute_command("do=bees_quest_get")
+        quest_number = quest_data["questnr"]
+        for product in quest_data["products"]:
+            self._http_connection(
+                f'do=bees_quest_entry&pid={product["pid"]}&amount={product["missing"]}&questnr={quest_number}'
+            )
 
 
 class TreeQuest(Quest):
