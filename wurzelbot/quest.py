@@ -152,8 +152,8 @@ class BeesGardenQuest(Quest):
     def fulfill_quest(self):
         quest_data = self._http_connection.execute_command("do=bees_quest_get")
         quest_number = quest_data["questnr"]
-        for product in quest_data["products"]:
-            self._http_connection(
+        for product in quest_data["questData"]["products"]:
+            self._http_connection.execute_command(
                 f'do=bees_quest_entry&pid={product["pid"]}&amount={product["missing"]}&questnr={quest_number}'
             )
 
