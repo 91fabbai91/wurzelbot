@@ -73,7 +73,7 @@ class Marketplace:
                 list_offers = get_amounts_and_prices_from_table(table)
 
                 for element in table[::-1][0]:
-                    if "weiter" in element.text:
+                    if element.text and "weiter" in element.text:
                         next_page = True
                         page_number = page_number + 1
 

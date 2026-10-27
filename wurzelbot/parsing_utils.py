@@ -9,10 +9,12 @@ def generate_json_content_and_check_for_ok(content: str):
     Preparation and verification of JSON data received from the server.
     """
     jcontent = json.loads(content)
-    if jcontent["status"] == "ok":
+    if jcontent.get("status") == "ok":
         return jcontent
     else:
-        logging.error(f"JSON not ok. {jcontent['message']}")
+        msg = jcontent.get("message", "JSON not ok")
+        logging.error(f"JSON not ok. {msg}")
+        raise JSONError("JSON not ok")
 
 
 def generate_json_content_and_check_for_success(content):
@@ -20,11 +22,12 @@ def generate_json_content_and_check_for_success(content):
     Parsing all NPC prices from the HTML script of the game help.
     """
     jcontent = json.loads(content)
-    try:
-        if jcontent["success"] == 1:
-            return jcontent
-    except:
-        logging.error(f"JSON not successful. {jcontent['errorMsg']}")
+    if jcontent.get("success") == 1:
+        return jcontent
+    else:
+        msg = jcontent.get("errorMsg", "JSON not successful")
+        logging.error(f"JSON not successful. {msg}")
+        raise JSONError("JSON not successful")
 
 
 def generate_json_content_and_check_for_status_success(content):
@@ -33,9 +36,10 @@ def generate_json_content_and_check_for_status_success(content):
     """
     jcontent = json.loads(content)
 
-    if jcontent["status"] == "SUCCESS":
+    if jcontent.get("status") == "SUCCESS":
         return jcontent
     logging.error("JSON not successful")
+    raise JSONError("JSON not successful")
 
 
 def generate_yaml_content_and_check_status_for_ok(content: str):

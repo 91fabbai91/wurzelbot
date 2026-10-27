@@ -155,25 +155,24 @@ class Wurzelbot:
                 continue
 
             self.__logger.info(
-                f"{product.getName().ljust(30)} Amount: {amount.rjust(5)}"
+                f"{product.getName().ljust(30)} Amount: {str(amount).rjust(5)}"
             )
             is_smth_printed = True
 
         if not is_smth_printed:
             self.__logger.info("Your stock is empty")
 
-    def get_ordered_stock_list(self) -> list:
+    def get_ordered_stock_list(self) -> str:
         if not self.__wurzelbot_started:
             raise NotStartedException("Wurzelbot not started yet")
         ordered_list = ""
-        for product_id in self.__stock.get_ordered_stock_list("amount")[0]:
-            ordered_list += str(
-                self.__product_information.get_product_by_id(product_id).getName()
-            ).ljust(20)
-            ordered_list += str(
-                self.__stock.get_ordered_stock_list("amount")[1][product_id]
-            ).rjust(5)
-            ordered_list += str("\n")
+        stock_data = self.__stock.get_ordered_stock_list("amount")
+        for product_id, data in stock_data.items():
+            product = self.__product_information.get_product_by_id(product_id)
+            if product:
+                ordered_list += str(product.getName()).ljust(20)
+                ordered_list += str(data.get("amount", 0)).rjust(5)
+                ordered_list += str("\n")
         return ordered_list.strip()
 
     def get_lowest_plant_stock_entry(self) -> str:
@@ -181,13 +180,13 @@ class Wurzelbot:
             raise NotStartedException("Wurzelbot not started yet")
         lowest_stock = -1
         lowest_product_id = -1
-        for product_id in self.__stock.get_ordered_stock_list("amount")[0]:
-            if (
-                not self.__product_information.get_product_by_id(product_id).is_plant
-                or not self.__product_information.get_product_by_id(
-                    product_id
-                ).is_plantable
-            ):
+        stock_data = self.__stock.get_ordered_stock_list("amount")
+        for product_id in stock_data.keys():
+            product = self.__product_information.get_product_by_id(product_id)
+            if product is None:
+                continue
+            is_plant = product.is_plant() if callable(product.is_plant) else product.is_plant
+            if not is_plant or not product.is_plantable:
                 continue
 
             current_stock = self.__stock.get_stock_by_product_id(product_id)

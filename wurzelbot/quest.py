@@ -72,6 +72,7 @@ class ParkQuest(Quest):
     def fulfill_quest(self):
         try:
             quest_data = self._http_connection.execute_command("do=park_getquest")
+            quest_data = quest_data.get("questData", quest_data)
             for product in quest_data["products"]:
                 self._http_connection.execute_command(
                     f"do=park_quest_entry&pid={product['pid']}"

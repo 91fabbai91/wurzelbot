@@ -29,3 +29,6 @@ class Product(BaseModel):
 
     def is_decoration(self):
         return self.cat == "d"
+
+    def getName(self):
+        return self.name

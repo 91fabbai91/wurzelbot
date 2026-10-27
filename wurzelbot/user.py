@@ -118,6 +118,14 @@ class User:
     def mail_addresse_confirmend(self, confirmend: bool):
         self.__mail_addresse_confirmed = confirmend
 
+    @property
+    def mail_address_confirmed(self):
+        return self.__mail_addresse_confirmed
+
+    @mail_address_confirmed.setter
+    def mail_address_confirmed(self, confirmed: bool):
+        self.__mail_addresse_confirmed = confirmed
+
     def __get_username_from_server(self):
         jcontent = self.__http_connection.get_username_from_server()
         self.__username = self.__get_username_from_json_content(jcontent)
@@ -344,7 +352,7 @@ class UserDataBuilder:
 
     @property
     def coins(self):
-        self.__coins
+        return self.__coins
 
     @coins.setter
     def coins(self, coins):
@@ -430,7 +438,7 @@ class UserData:
 
     @property
     def coins(self):
-        self.__coins
+        return self.__coins
 
     @property
     def bar(self):

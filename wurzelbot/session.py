@@ -27,6 +27,8 @@ class Session:
         """
         Checks if the open session has expired.
         """
+        if self.__end_time is None:
+            return True
         current_time = time.time()
         return bool(current_time > self.__end_time)
 
@@ -34,12 +36,11 @@ class Session:
         """
         Checks whether the current session is valid based on various criteria.
         """
-        b_return = True
         if self.__session_id is None:
-            b_return = False
+            return False
         if self.is_session_time_elapsed():
-            b_return = False
-        return b_return
+            return False
+        return True
 
     def open_session(self, session_id, server):
         """

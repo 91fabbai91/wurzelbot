@@ -19,3 +19,7 @@ class Wimp(BaseModel):
 
     def is_profitable(self, percentage):
         return bool(self.marketprice_percentage >= percentage)
+
+    @property
+    def marketplace_percentage(self):
+        return self.marketprice_percentage

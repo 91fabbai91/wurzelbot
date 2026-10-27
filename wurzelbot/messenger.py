@@ -29,6 +29,15 @@ class Messenger:
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__sent = []
 
+    def __get_message_id_from_new_message_result(self, result):
+        """
+        Extracts from content the ID of the newly created message
+        """
+        res = re.search(r'name="hpc" value="([0-9]+)" id="hpc"', str(result))
+        if res is None:
+            raise MessengerError("Could not extract message ID")
+        return int(res.group(1))
+
     def __get_new_message_id(self):
         """ "
         Requests a new message with the HTTP Connection and determines the ID for sending later.
@@ -123,8 +132,10 @@ class Messenger:
 def parse_inbox_from_html(html_string: str):
     # ElementTree needs a file to parse.
     # With BytesIO a file is created in memory, not on disk.
+    if isinstance(html_string, (bytearray, memoryview)):
+        html_string = bytes(html_string)
 
-    html_tree = html.parse_fromstring(html_string)
+    html_tree = html.fromstring(html_string)
     table = html_tree.find(".//body/table")[0]
     return table
 

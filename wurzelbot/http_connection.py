@@ -180,10 +180,11 @@ class HTTPConnection:
     def __get_token_from_url(self, url):
         # token extrahieren
         split = re.search(r"https://.*/logw.php.*token=([a-f0-9]{32})", url)
+        tmp_token = None
         i_err = 0
         if split:
             tmp_token = split.group(1)
-            if tmp_token == "":
+            if not tmp_token:
                 i_err = 1
         else:
             i_err = 1
@@ -333,7 +334,7 @@ class HTTPConnection:
                     "msg_send": "senden",
                 }
             )
-        adresse = f"http://s{self.__session.server()}{STATIC_DOMAIN}{MESSAGE_API}/{url_extension}"
+        adresse = f"http://s{self.__session.server}{STATIC_DOMAIN}{MESSAGE_API}/{url_extension}"
 
         if parameter is not None:
             response, content = self.__webclient.request(

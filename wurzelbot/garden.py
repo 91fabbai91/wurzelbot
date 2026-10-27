@@ -37,6 +37,7 @@ class Garden:
         self.__logger = logging.getLogger(f"Garden{self.__id}")
         self.__http_connection = http_connection
         self.__number_of_fields = self.__len_x * self.__len_y
+        self._http_connection = http_connection
         self.__fields = []
         self.update_planted_fields()
 
@@ -150,6 +151,9 @@ class Garden:
         )
         return find_blocked_fields_from_json_content(jcontent)
 
+    def get_weed_fields(self) -> dict:
+        return self.get_blocked_fields()
+
     def destroy_weed_fields(self, cash: float) -> int:
         number_freed_fields = 0
         blocked_fields = self.get_blocked_fields()
@@ -193,7 +197,8 @@ class Garden:
     def __get_plants_on_fields(self, jcontent: dict) -> list:
         self.__fields = []
         for field in jcontent["grow"]:
-            field[3] = datetime.fromtimestamp(int(field[3]))
+            if not isinstance(field[3], datetime):
+                field[3] = datetime.fromtimestamp(int(field[3]))
             self.__fields.append(field)
         return self.__fields
 
@@ -334,32 +339,32 @@ class Garden:
 
 class AquaGarden(Garden):
     def __init__(self, http_connection):
-        super(http_connection, 101)
+        super().__init__(http_connection, 101)
 
     def water_plants(self):
         """
         Alle Pflanzen im Wassergarten werden bewässert.
         """
         try:
-            jcontent = self.__http_connection.getPlantsToWaterInAquaGarden()
-            plants = self.__find_plants_to_be_watered_from_json_content(jcontent)
+            jcontent = self._http_connection.getPlantsToWaterInAquaGarden()
+            plants = self._Garden__find_plants_to_be_watered_from_json_content(jcontent)
             number_of_plants = len(plants["fieldID"])
             for i in range(0, number_of_plants):
-                s_fields = self.__get_all_field_ids_from_field_id_and_size_as_string(
+                s_fields = self._Garden__get_all_field_ids_from_field_id_and_size_as_string(
                     plants["fieldID"][i], plants["sx"][i], plants["sy"][i]
                 )
-                self.__http_connection.waterPlantInAquaGarden(
+                self._http_connection.waterPlantInAquaGarden(
                     plants["fieldID"][i], s_fields
                 )
-        except:
-            self.__logger.error("Watergarden could not get watered.")
+        except Exception as e:
+            self._Garden__logger.error(f"Watergarden could not get watered. {e}")
         else:
-            self.__logger.info(
+            self._Garden__logger.info(
                 f"In water garden were {number_of_plants} plants watered."
             )
 
     def harvest(self):
-        self.__http_connection.execute_command("do=watergardenHarvestAll")
+        self._http_connection.execute_command("do=watergardenHarvestAll")
 
 
 def find_empty_fields_from_json_content(jcontent: dict) -> list:
