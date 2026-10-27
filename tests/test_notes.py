@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+
 from notes import Notes
 
 
@@ -47,4 +48,3 @@ def test_notes_windows_line_endings(mock_http):
     notes_obj = Notes(mock_http)
     assert notes_obj.get_min_stock() == 10
     assert notes_obj.get_min_stock("Gurke") == 30
-

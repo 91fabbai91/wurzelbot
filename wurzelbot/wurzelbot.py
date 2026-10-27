@@ -185,7 +185,9 @@ class Wurzelbot:
             product = self.__product_information.get_product_by_id(product_id)
             if product is None:
                 continue
-            is_plant = product.is_plant() if callable(product.is_plant) else product.is_plant
+            is_plant = (
+                product.is_plant() if callable(product.is_plant) else product.is_plant
+            )
             if not is_plant or not product.is_plantable:
                 continue
 

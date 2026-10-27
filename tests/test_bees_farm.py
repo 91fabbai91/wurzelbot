@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+
 from bees_farm import BeesFarm, BeesTour
 from wimp import WimpOrigin
 
@@ -15,9 +16,7 @@ def test_bees_farm_init(mock_http):
         "2": {"time": 200, "level": 3, "pid": 2},
         "3": {"level": 2},  # missing "time"
     }
-    mock_http.execute_command.return_value = {
-        "data": {"data": {"hives": hives_data}}
-    }
+    mock_http.execute_command.return_value = {"data": {"data": {"hives": hives_data}}}
 
     bf = BeesFarm(mock_http)
     # Sorted by level reverse: 2 (level 3) then 1 (level 1)
@@ -102,4 +101,3 @@ def test_bees_farm_change_products(mock_http):
     bf = BeesFarm(mock_http)
     bf.change_all_bee_hives_product(product_id=2)
     assert mock_http.execute_command.call_count >= 2
-

@@ -350,8 +350,10 @@ class AquaGarden(Garden):
             plants = self._Garden__find_plants_to_be_watered_from_json_content(jcontent)
             number_of_plants = len(plants["fieldID"])
             for i in range(0, number_of_plants):
-                s_fields = self._Garden__get_all_field_ids_from_field_id_and_size_as_string(
-                    plants["fieldID"][i], plants["sx"][i], plants["sy"][i]
+                s_fields = (
+                    self._Garden__get_all_field_ids_from_field_id_and_size_as_string(
+                        plants["fieldID"][i], plants["sx"][i], plants["sy"][i]
+                    )
                 )
                 self._http_connection.waterPlantInAquaGarden(
                     plants["fieldID"][i], s_fields

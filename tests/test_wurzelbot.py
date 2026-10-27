@@ -1,10 +1,12 @@
-import pytest
 from unittest.mock import MagicMock, patch
-from wurzelbot import Wurzelbot, NotStartedException
+
+import pytest
+import quest
 from login_data import LoginData
 from product import Product
 from wimp import Wimp, WimpOrigin
-import quest
+
+from wurzelbot import NotStartedException, Wurzelbot
 
 
 def test_not_started_exception_guards():
@@ -80,13 +82,13 @@ def test_start_and_stop_wurzelbot(mock_http):
 
     bot._Wurzelbot__http_connection = mock_http
 
-    with patch("user.User") as mock_user_cls, \
-         patch("messenger.Messenger"), \
-         patch("stock.Stock"), \
-         patch("product_information.ProductInformation"), \
-         patch("marketplace.Marketplace"), \
-         patch("notes.Notes"):
-
+    with patch("user.User") as mock_user_cls, patch("messenger.Messenger"), patch(
+        "stock.Stock"
+    ), patch("product_information.ProductInformation"), patch(
+        "marketplace.Marketplace"
+    ), patch(
+        "notes.Notes"
+    ):
         mock_user = mock_user_cls.return_value
         mock_user.is_honey_farm_available.return_value = True
 
@@ -108,7 +110,9 @@ def test_basic_delegations(running_bot):
 
     # Sell on market
     fake_prod = MagicMock(id=5)
-    running_bot._Wurzelbot__product_information.get_product_by_name.return_value = fake_prod
+    running_bot._Wurzelbot__product_information.get_product_by_name.return_value = (
+        fake_prod
+    )
     running_bot.sell_on_market("Salat", price=0.25, number=10)
     running_bot._Wurzelbot__marketplace.sell_on_market.assert_called_with(5, 0.25, 10)
 
@@ -170,12 +174,16 @@ def test_stock_printing_and_ordering(running_bot):
 
     running_bot._Wurzelbot__stock.get_keys.return_value = ["1"]
     running_bot._Wurzelbot__stock.get_stock_by_product_id.return_value = 50
-    running_bot._Wurzelbot__product_information.get_product_by_id.return_value = fake_prod
+    running_bot._Wurzelbot__product_information.get_product_by_id.return_value = (
+        fake_prod
+    )
 
     running_bot.print_stock()
 
     # Ordered stock
-    running_bot._Wurzelbot__stock.get_ordered_stock_list.return_value = {"1": {"amount": 50}}
+    running_bot._Wurzelbot__stock.get_ordered_stock_list.return_value = {
+        "1": {"amount": 50}
+    }
     ordered_str = running_bot.get_ordered_stock_list()
     assert "Salat" in ordered_str
     assert "50" in ordered_str
@@ -195,8 +203,12 @@ def test_grow_plants_workflows(running_bot):
         sy=1,
         is_plantable=True,
     )
-    running_bot._Wurzelbot__product_information.get_product_by_name.return_value = fake_plant
-    running_bot._Wurzelbot__product_information.get_product_by_id.return_value = fake_plant
+    running_bot._Wurzelbot__product_information.get_product_by_name.return_value = (
+        fake_plant
+    )
+    running_bot._Wurzelbot__product_information.get_product_by_id.return_value = (
+        fake_plant
+    )
     running_bot._Wurzelbot__stock.get_stock_by_product_id.return_value = 20
 
     mock_g = MagicMock()
@@ -213,7 +225,9 @@ def test_grow_plants_workflows(running_bot):
     mock_g.grow_plants.assert_called_with(fake_plant, 1, 1, 10)
 
     # grow_anything
-    running_bot._Wurzelbot__stock.get_ordered_stock_list.return_value = {"1": {"amount": 20}}
+    running_bot._Wurzelbot__stock.get_ordered_stock_list.return_value = {
+        "1": {"amount": 20}
+    }
     running_bot.grow_anything()
 
 
@@ -232,7 +246,9 @@ def test_quests_workflows(running_bot):
         sy=1,
         is_plantable=True,
     )
-    running_bot._Wurzelbot__product_information.get_product_by_name.return_value = fake_prod
+    running_bot._Wurzelbot__product_information.get_product_by_name.return_value = (
+        fake_prod
+    )
     running_bot._Wurzelbot__product_information.get_plural.return_value = "Salat"
     running_bot._Wurzelbot__stock.get_stock_by_product_id.return_value = 20
     running_bot._Wurzelbot__user.gardens = []
@@ -269,9 +285,13 @@ def test_wimps_workflows(running_bot):
         is_plantable=True,
         price_npc=0.16,
     )
-    running_bot._Wurzelbot__product_information.get_product_by_id.return_value = fake_prod
+    running_bot._Wurzelbot__product_information.get_product_by_id.return_value = (
+        fake_prod
+    )
     running_bot._Wurzelbot__marketplace.get_cheapest_offer.return_value = 0.20
-    running_bot._Wurzelbot__stock.get_ordered_stock_list.return_value = {"1": {"amount": 50}}
+    running_bot._Wurzelbot__stock.get_ordered_stock_list.return_value = {
+        "1": {"amount": 50}
+    }
     running_bot._Wurzelbot__stock.get_stock_by_product_id.return_value = 50
     running_bot._Wurzelbot__notes.get_min_stock.return_value = 10
 
@@ -307,7 +327,9 @@ def test_sell_on_marketplace_with_min_stock(running_bot):
         crop=1,
         price_npc=0.18,
     )
-    running_bot._Wurzelbot__product_information.get_product_by_id.return_value = fake_prod
+    running_bot._Wurzelbot__product_information.get_product_by_id.return_value = (
+        fake_prod
+    )
 
     running_bot.sell_on_marketplace_with_min_stock(minimal_balance=10)
     running_bot._Wurzelbot__marketplace.sell_on_market.assert_called_once()

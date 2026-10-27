@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock
-from town_park import TownPark, BlockedFieldType
+
+from town_park import BlockedFieldType, TownPark
 
 
 def test_blocked_field_type_enum():
@@ -68,7 +69,7 @@ def test_town_park_destroy_weed_fields(mock_http):
 def test_town_park_renew_items_and_buy(mock_http):
     park_items = {
         "item_1": {"remain": -10},  # needs renew
-        "item_2": {"remain": 500},   # still active
+        "item_2": {"remain": 500},  # still active
     }
     mock_http.execute_command.side_effect = [
         # __init__
@@ -88,4 +89,3 @@ def test_town_park_renew_items_and_buy(mock_http):
     tp.remove_blocked_field(5)
     tp.buy_new_item("bench", 2)
     assert mock_http.execute_command.call_count >= 5
-

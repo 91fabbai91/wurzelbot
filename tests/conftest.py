@@ -1,8 +1,9 @@
 import json
-import pytest
 from unittest.mock import MagicMock
-from product import Product
+
+import pytest
 from login_data import LoginData
+from product import Product
 
 
 @pytest.fixture
@@ -119,7 +120,7 @@ def sample_garden_json():
     garden_fields = {}
     for i in range(1, 205):
         garden_fields[str(i)] = [0, 0, 0, 0, 0, 0, 0, 0, 0, "1x1"]
-    
+
     # field 1 has plant 1
     garden_fields["1"] = [1, 1, 0, 0, 0, 0, 0, 0, 0, "1x1"]
     # field 2 is weed (41)

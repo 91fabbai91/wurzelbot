@@ -1,6 +1,6 @@
 import pytest
-from pydantic import ValidationError
 from product import Product
+from pydantic import ValidationError
 
 
 def test_product_is_plant():
@@ -98,4 +98,3 @@ def test_product_validation_errors():
 
     with pytest.raises(ValidationError):
         Product(id=1, cat="v", name="Salat", lvl="eins")
-

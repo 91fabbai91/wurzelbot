@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+
 from lxml import html
 from marketplace import Marketplace, get_amounts_and_prices_from_table
 
@@ -28,7 +29,9 @@ def test_marketplace_tradeable_products(mock_http):
     tradeable_html = """
     <a href="markt.php?order=p&v=1&filter=1">Salat</a>
     <a href="markt.php?order=p&v=2&filter=1">Möhre</a>
-    """.encode("utf-8")
+    """.encode(
+        "utf-8"
+    )
     mock_http.get_all_tradeable_products.return_value = tradeable_html
 
     mp = Marketplace(mock_http)

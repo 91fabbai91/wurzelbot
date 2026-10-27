@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+
 from stock import Stock, merge_dictionaries
 
 
@@ -74,4 +75,3 @@ def test_stock_lowest_entry(mock_http, sample_products_js_content):
     mock_http.read_storage_from_server.return_value = {}
     stock_obj.update_number_in_stock()
     assert stock_obj.get_lowest_stock_entry() == -1
-

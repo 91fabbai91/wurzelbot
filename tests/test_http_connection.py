@@ -1,14 +1,11 @@
-import pytest
-from unittest.mock import MagicMock, patch
 from http import HTTPStatus
-from http_connection import (
-    HTTPConnection,
-    HTTPRequestError,
-    check_if_http_status_is_ok,
-)
-from parsing_utils import HTTPStateError, JSONError
+from unittest.mock import MagicMock, patch
+
+import pytest
+from http_connection import HTTPConnection, HTTPRequestError, check_if_http_status_is_ok
 from login_data import LoginData
 from message import Message
+from parsing_utils import HTTPStateError, JSONError
 
 
 def test_singleton():
@@ -44,9 +41,7 @@ def conn():
 def test_login(conn):
     login_info = LoginData(server=1, username="testuser", password="secretpassword")
     dispatch_response = {"status": "200"}
-    dispatch_content = (
-        b'{"status":"ok", "url":"https://s1.wurzelimperium.de/logw.php?token=0123456789abcdef0123456789abcdef"}'
-    )
+    dispatch_content = b'{"status":"ok", "url":"https://s1.wurzelimperium.de/logw.php?token=0123456789abcdef0123456789abcdef"}'
 
     redirect_response = {
         "status": "302",
@@ -66,9 +61,14 @@ def test_login(conn):
 def test_login_invalid_token(conn):
     login_info = LoginData(server=1, username="testuser", password="secretpassword")
     dispatch_response = {"status": "200"}
-    dispatch_content = b'{"status":"ok", "url":"https://s1.wurzelimperium.de/invalid_url"}'
+    dispatch_content = (
+        b'{"status":"ok", "url":"https://s1.wurzelimperium.de/invalid_url"}'
+    )
 
-    conn._HTTPConnection__webclient.request.return_value = (dispatch_response, dispatch_content)
+    conn._HTTPConnection__webclient.request.return_value = (
+        dispatch_response,
+        dispatch_content,
+    )
 
     with pytest.raises(JSONError, match="Fehler bei der Ermittlung des Tokens"):
         conn.login(login_info)
@@ -283,9 +283,7 @@ def conn():
 def test_login(conn):
     login_info = LoginData(server=1, username="testuser", password="secretpassword")
     dispatch_response = {"status": "200"}
-    dispatch_content = (
-        b'{"status":"ok", "url":"https://s1.wurzelimperium.de/logw.php?token=0123456789abcdef0123456789abcdef"}'
-    )
+    dispatch_content = b'{"status":"ok", "url":"https://s1.wurzelimperium.de/logw.php?token=0123456789abcdef0123456789abcdef"}'
 
     redirect_response = {
         "status": "302",
@@ -305,9 +303,14 @@ def test_login(conn):
 def test_login_invalid_token(conn):
     login_info = LoginData(server=1, username="testuser", password="secretpassword")
     dispatch_response = {"status": "200"}
-    dispatch_content = b'{"status":"ok", "url":"https://s1.wurzelimperium.de/invalid_url"}'
+    dispatch_content = (
+        b'{"status":"ok", "url":"https://s1.wurzelimperium.de/invalid_url"}'
+    )
 
-    conn._HTTPConnection__webclient.request.return_value = (dispatch_response, dispatch_content)
+    conn._HTTPConnection__webclient.request.return_value = (
+        dispatch_response,
+        dispatch_content,
+    )
 
     with pytest.raises(JSONError, match="Fehler bei der Ermittlung des Tokens"):
         conn.login(login_info)
@@ -491,4 +494,3 @@ def test_sell_on_market(conn):
     )
     conn.sell_on_market(item_id=1, price=1.50, number=10)
     assert conn._HTTPConnection__webclient.request.call_count >= 4
-

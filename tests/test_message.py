@@ -1,6 +1,6 @@
 import pytest
-from pydantic import ValidationError
 from message import Message
+from pydantic import ValidationError
 
 
 def test_message_creation_and_attributes():
@@ -42,4 +42,3 @@ def test_message_validation_error():
     # missing required fields
     with pytest.raises(ValidationError):
         Message(id=1, recipient="U1")
-

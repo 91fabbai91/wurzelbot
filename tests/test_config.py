@@ -1,6 +1,7 @@
 import pytest
 from pydantic import ValidationError
-from config import Login, Logging, SellOnMarketPlace, Tasks, Settings
+
+from config import Logging, Login, SellOnMarketPlace, Settings, Tasks
 
 
 def test_login_valid_and_invalid_server():

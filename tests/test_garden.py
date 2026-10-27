@@ -1,11 +1,12 @@
 import time
 from unittest.mock import MagicMock, patch
+
 from garden import (
-    Garden,
     AquaGarden,
     BlockedFieldType,
-    find_empty_fields_from_json_content,
+    Garden,
     find_blocked_fields_from_json_content,
+    find_empty_fields_from_json_content,
 )
 from wimp import WimpOrigin
 
@@ -133,4 +134,3 @@ def test_aqua_garden(mock_http, sample_garden_json):
     with patch("time.time", return_value=1700000000.0):
         ag.water_plants()
     assert mock_http.waterPlantInAquaGarden.call_count >= 1
-

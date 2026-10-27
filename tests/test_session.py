@@ -1,5 +1,6 @@
 import time
 from unittest.mock import patch
+
 from session import Session
 
 
@@ -54,4 +55,3 @@ def test_session_close():
     assert s.session_id is None
     assert s.server is None
     assert s.is_session_valid() is False
-

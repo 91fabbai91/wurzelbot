@@ -1,13 +1,14 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from quest import (
-    Quest,
-    CityQuest,
-    ParkQuest,
-    DecoGardenQuest,
     BeesGardenQuest,
-    TreeQuest,
+    CityQuest,
+    DecoGardenQuest,
+    ParkQuest,
+    Quest,
     QuestError,
+    TreeQuest,
 )
 
 
@@ -166,4 +167,3 @@ def test_tree_quest_error(mock_http):
 def test_quest_error_str():
     err = QuestError("Failed")
     assert str(err) == "'Failed'"
-

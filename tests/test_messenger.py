@@ -1,24 +1,30 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from messenger import (
-    Messenger,
-    MessageState,
     Folder,
+    MessageState,
+    Messenger,
     MessengerError,
     blocked_from_message_recipient,
-    was_delivery_successful,
-    did_the_message_had_a_text,
     did_the_message_had_a_recipient,
-    did_the_message_recipient_exist,
     did_the_message_had_a_subject,
+    did_the_message_had_a_text,
+    did_the_message_recipient_exist,
     get_message_delivery_state,
     parse_inbox_from_html,
+    was_delivery_successful,
 )
 
 
 def test_helper_patterns():
     # blocked
-    assert blocked_from_message_recipient("Der Empfänger hat dich auf die Blockliste gesetzt.") is True
+    assert (
+        blocked_from_message_recipient(
+            "Der Empfänger hat dich auf die Blockliste gesetzt."
+        )
+        is True
+    )
     assert blocked_from_message_recipient("Alles ok") is False
 
     # success
@@ -30,7 +36,9 @@ def test_helper_patterns():
     assert did_the_message_had_a_text("Text vorhanden") is True
 
     # recipient
-    assert did_the_message_had_a_recipient("Es wurde kein Empfänger angegeben.") is False
+    assert (
+        did_the_message_had_a_recipient("Es wurde kein Empfänger angegeben.") is False
+    )
     assert did_the_message_had_a_recipient("Empfänger angegeben") is True
 
     # recipient exists
@@ -59,7 +67,9 @@ def test_get_message_delivery_state():
 
 
 def test_parse_inbox_from_html():
-    html_inbox = "<html><body><table><tr><td>Nachricht 1</td></tr></table></body></html>"
+    html_inbox = (
+        "<html><body><table><tr><td>Nachricht 1</td></tr></table></body></html>"
+    )
     table = parse_inbox_from_html(html_inbox)
     assert table is not None
     assert len(table) == 1
@@ -105,4 +115,3 @@ def test_messenger_read_message(mock_http):
 def test_messenger_error_str():
     err = MessengerError("Delivery failed")
     assert str(err) == "'Delivery failed'"
-

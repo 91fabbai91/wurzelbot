@@ -1,6 +1,7 @@
-import pytest
 from unittest.mock import MagicMock
-from user import User, UserDataBuilder, UserData, get_user_data_from_json_content
+
+import pytest
+from user import User, UserData, UserDataBuilder, get_user_data_from_json_content
 from wimp import WimpOrigin
 
 
@@ -41,9 +42,7 @@ def test_user_init(mock_http, sample_user_data_dict, sample_garden_json):
         {"data": {"location": {"decogarden": {"bought": 1}}}},
     ]
     # is_aqua_garden_available
-    mock_http.get_trophies.return_value = {
-        "html": "trophy_54.png); gray class"
-    }
+    mock_http.get_trophies.return_value = {"html": "trophy_54.png); gray class"}
     # is_mail_address_confirmed
     mock_http.get_user_profile.return_value = "Profil: Bestätigt"
 
@@ -60,7 +59,9 @@ def test_user_init(mock_http, sample_user_data_dict, sample_garden_json):
     assert user.mail_address_confirmed is False
 
 
-def test_user_properties_and_setters(mock_http, sample_user_data_dict, sample_garden_json):
+def test_user_properties_and_setters(
+    mock_http, sample_user_data_dict, sample_garden_json
+):
     mock_http.get_username_from_server.return_value = {
         "table": ["<tr><td>Spielername</td><td>Max</td></tr>"]
     }

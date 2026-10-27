@@ -20,4 +20,3 @@ def test_offer_custom_values():
     assert offer.seller == "GartenFreund"
     assert offer.price == 0.25
     assert offer.amount == 100
-

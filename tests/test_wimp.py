@@ -65,4 +65,3 @@ def test_wimp_validation_error():
             reward=-5.0,
             origin=WimpOrigin.GARDEN,
         )
-
