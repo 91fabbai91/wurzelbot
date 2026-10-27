@@ -1,6 +1,7 @@
 import pytest
-from login_data import LoginData
 from pydantic import ValidationError
+
+from login_data import LoginData
 
 
 def test_login_data_valid():

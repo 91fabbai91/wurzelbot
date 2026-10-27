@@ -5,7 +5,7 @@ import re
 import http_connection
 
 
-class Quest(metaclass=abc.ABCMeta):
+class Quest(metaclass=abc.ABCMeta):  # noqa: B024
     def __init__(self, http_connection: http_connection.HTTPConnection) -> None:
         self._http_connection = http_connection
         self._amount = {}
@@ -46,7 +46,7 @@ class CityQuest(Quest):
         try:
             self._http_connection.execute_command("do=CityQuest&action=getQuest")
             self._http_connection.execute_command("do=CityQuest&action=send")
-        except Exception as error:
+        except Exception:
             self._logger.error("Not possible to finish ParkQuest")
 
 
@@ -78,7 +78,7 @@ class ParkQuest(Quest):
                     f"do=park_quest_entry&pid={product['pid']}"
                     + f"&amount={product['missing']}&questnr={quest_data['questnr']}"
                 )
-        except Exception as error:
+        except Exception:
             self._logger.error("Not possible to finish ParkQuest")
 
 
@@ -97,7 +97,7 @@ class DecoGardenQuest(Quest):
                 )
                 try:
                     quest_data = raw_quest_data["quest_data"]
-                except:
+                except (KeyError, TypeError):
                     pass
                 self._reward.append(quest_data["reward"])
                 for product in quest_data["products"]:
@@ -127,7 +127,7 @@ class DecoGardenQuest(Quest):
                         f"sendProducts&pid={product['pid']}&which={garden_object['id']}\
                             &questNr={quest_data['questnr']}&amount={product['missing']}"
                     )
-        except Exception as error:
+        except Exception:
             self._logger.error("Not possible to finish DecoGardenQuest")
 
 
@@ -155,7 +155,7 @@ class BeesGardenQuest(Quest):
         quest_number = quest_data["questnr"]
         for product in quest_data["questData"]["products"]:
             self._http_connection.execute_command(
-                f'do=bees_quest_entry&pid={product["pid"]}&amount={product["missing"]}&questnr={quest_number}'
+                f"do=bees_quest_entry&pid={product['pid']}&amount={product['missing']}&questnr={quest_number}"
             )
 
 

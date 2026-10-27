@@ -1,11 +1,11 @@
-import io
 import logging
 import re
 from enum import Enum, IntEnum
 
+from lxml import html
+
 import http_connection
 import message
-from lxml import html
 
 
 class MessageState(IntEnum):
@@ -113,7 +113,7 @@ class Messenger:
                 new_message.delivery_state = message_delivery_state
                 self.__sent.append(new_message)
             except:
-                self.__logger.exception(f"Exception {recipient }")
+                self.__logger.exception(f"Exception {recipient}")
                 raise
             counter += 1
             self.__logger.debug(f"{counter} von {number_recipients}")
@@ -132,7 +132,7 @@ class Messenger:
 def parse_inbox_from_html(html_string: str):
     # ElementTree needs a file to parse.
     # With BytesIO a file is created in memory, not on disk.
-    if isinstance(html_string, (bytearray, memoryview)):
+    if isinstance(html_string, bytearray | memoryview):
         html_string = bytes(html_string)
 
     html_tree = html.fromstring(html_string)

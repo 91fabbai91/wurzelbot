@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 from stock import Stock, merge_dictionaries
 
 

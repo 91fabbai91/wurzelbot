@@ -2,6 +2,7 @@ import json
 from unittest.mock import MagicMock
 
 import pytest
+
 from login_data import LoginData
 from product import Product
 

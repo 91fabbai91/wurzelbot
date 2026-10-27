@@ -20,8 +20,8 @@ This repo is mainly inspired by MrFlamez WurzelimperiumBot on github
 
 ### Dependencies
 
-- Python 3.10
-- Poetry
+- Python >= 3.10
+- uv (https://docs.astral.sh/uv/)
 - Docker/podman (if you want to run it inside a container)
 
 ### Configuration
@@ -33,8 +33,14 @@ Another option is to build a kubernetes cronjob or use systems cron service.
 
 - Clone repo into the folder of your choice
 - Put a config yaml file into the config folder (default filename: config.yaml)
-- Install the dependencies with poetry `poetry install`
-- Run main.py with `poetry run python wurzelbot`
+- Install the dependencies with uv: `uv sync`
+- Run wurzelbot with `uv run python -m wurzelbot`
+
+### Development
+
+- Run tests: `uv run pytest`
+- Lint code: `uv run ruff check`
+- Format code: `uv run ruff format`
 
 ### Executing program (with container)
 
@@ -46,7 +52,7 @@ Another option is to build a kubernetes cronjob or use systems cron service.
 ### Periodic execution (with crontab)
 
 - Edit the crontabs `crontab -e`
-- Set the tool to be executed every 10 minutes `*/10 * * * * docker run -v /home/ubuntu/wurzelbot/config:/code/config wurzelbot` or `*/10 * * * * poetry run python main.py`
+- Set the tool to be executed every 10 minutes `*/10 * * * * docker run -v /home/ubuntu/wurzelbot/config:/code/config wurzelbot` or `*/10 * * * * uv run python -m wurzelbot`
 
 ### Periodic execution (with kubernetes)
 

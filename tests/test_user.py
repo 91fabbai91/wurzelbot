@@ -1,7 +1,6 @@
-from unittest.mock import MagicMock
-
 import pytest
-from user import User, UserData, UserDataBuilder, get_user_data_from_json_content
+
+from user import User, UserData, get_user_data_from_json_content
 from wimp import WimpOrigin
 
 

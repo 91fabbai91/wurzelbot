@@ -3,8 +3,10 @@ config.yaml
 .vscode
 .idea
 *.lock
+!uv.lock
 *.log
 log.txt
+.bin/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

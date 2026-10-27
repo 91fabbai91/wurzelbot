@@ -3,8 +3,9 @@ import logging
 import os
 import re
 
-import http_connection
 from lxml import html
+
+import http_connection
 from product import Product
 
 
@@ -95,7 +96,7 @@ class ProductInformation:
                         price_npc=float("inf"),
                     )
                 )
-            except KeyError as key_error:
+            except KeyError:
                 self.__logger.error(f"Key for {name} not found")
 
         self.__set_all_prices_of_npc()

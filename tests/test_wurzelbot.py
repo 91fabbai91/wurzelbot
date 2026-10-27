@@ -1,11 +1,11 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 import quest
 from login_data import LoginData
 from product import Product
 from wimp import Wimp, WimpOrigin
-
 from wurzelbot import NotStartedException, Wurzelbot
 
 
@@ -82,12 +82,13 @@ def test_start_and_stop_wurzelbot(mock_http):
 
     bot._Wurzelbot__http_connection = mock_http
 
-    with patch("user.User") as mock_user_cls, patch("messenger.Messenger"), patch(
-        "stock.Stock"
-    ), patch("product_information.ProductInformation"), patch(
-        "marketplace.Marketplace"
-    ), patch(
-        "notes.Notes"
+    with (
+        patch("user.User") as mock_user_cls,
+        patch("messenger.Messenger"),
+        patch("stock.Stock"),
+        patch("product_information.ProductInformation"),
+        patch("marketplace.Marketplace"),
+        patch("notes.Notes"),
     ):
         mock_user = mock_user_cls.return_value
         mock_user.is_honey_farm_available.return_value = True

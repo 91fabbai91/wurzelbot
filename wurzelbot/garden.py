@@ -5,7 +5,6 @@ from datetime import datetime
 from enum import Enum
 
 import http_connection
-import parsing_utils
 from wimp import Wimp, WimpOrigin
 
 
@@ -90,7 +89,7 @@ class Garden:
         if s_x == 1 and s_y == 1:
             return str(field_id)
         if s_x == 2 and s_y == 1:
-            return f"{field_id},{field_id+1}"
+            return f"{field_id},{field_id + 1}"
         if s_x == 1 and s_y == 2:
             return f"{field_id},{field_id + 17}"
         if s_x == 2 and s_y == 2:
@@ -204,7 +203,7 @@ class Garden:
 
     def harvest(self):
         self.__http_connection.execute_command(f"do=changeGarden&garden={self.__id}")
-        status_harvest = self.__http_connection.execute_command("do=gardenHarvestAll")
+        self.__http_connection.execute_command("do=gardenHarvestAll")
 
     def grow_plants(self, plant, s_x: int, s_y: int, amount: int) -> int:
         planted = 0

@@ -11,7 +11,6 @@ import notes
 import product_information
 import quest
 import stock
-import town_park
 import user
 import wimp
 
@@ -39,8 +38,10 @@ class Wurzelbot:
         self,
         login_data: login_data.LoginData,
         product_names_filename: str,
-        blacklisted_plants: set = set(),
+        blacklisted_plants: set | None = None,
     ):
+        if blacklisted_plants is None:
+            blacklisted_plants = set()
         self.__logger.debug("Start Wurzelbot")
         self.__http_connection.login(login_data)
         self.__user = user.User(self.__http_connection)
@@ -172,7 +173,7 @@ class Wurzelbot:
             if product:
                 ordered_list += str(product.getName()).ljust(20)
                 ordered_list += str(data.get("amount", 0)).rjust(5)
-                ordered_list += str("\n")
+                ordered_list += "\n"
         return ordered_list.strip()
 
     def get_lowest_plant_stock_entry(self) -> str:
@@ -311,10 +312,11 @@ class Wurzelbot:
             self.__logger.info(
                 f"Planting {value} of {name} for {current_quest.__class__}"
             )
-            if name[-1] == "n" and not name == "Radieschen":
-                name = name.rstrip(name[-1])
-            name = self.__product_information.get_plural(name)
-            product = self.__product_information.get_product_by_name(name)
+            item_name = name
+            if item_name[-1] == "n" and not item_name == "Radieschen":
+                item_name = item_name.rstrip(item_name[-1])
+            item_name = self.__product_information.get_plural(item_name)
+            product = self.__product_information.get_product_by_name(item_name)
             current_stock = self.__stock.get_stock_by_product_id(product.id)
             try:
                 current_stock = (
@@ -323,7 +325,7 @@ class Wurzelbot:
             except KeyError:
                 self.__logger.debug(f"No product of id {product.id} planted")
             self.__logger.debug(
-                f" missing amount: {value-current_stock} {product.name}"
+                f" missing amount: {value - current_stock} {product.name}"
             )
             if value - current_stock > 0:
                 missing_quest_amount.update({product.name: value - current_stock})
@@ -366,13 +368,15 @@ class Wurzelbot:
 
         for product_name, amount in missing_amount.items():
             # if honey is needed plant as many as possible
-            if product_name.endswith("-Honig"):
-                amount = -1
-                product = self.__product_information.get_product_by_name(product_name)
+            target_name = product_name
+            target_amount = amount
+            if target_name.endswith("-Honig"):
+                target_amount = -1
+                product = self.__product_information.get_product_by_name(target_name)
                 self.__bees_farm.change_all_bee_hives_product(product.id)
-            product_name = product_name.removesuffix("n-Honig")
-            product_name = product_name.removesuffix("blüte")
-            self.grow_plants_in_gardens_by_name(product_name, amount)
+            target_name = target_name.removesuffix("n-Honig")
+            target_name = target_name.removesuffix("blüte")
+            self.grow_plants_in_gardens_by_name(target_name, target_amount)
 
     def plant_according_to_wimps(self, wimps_list, percentage):
         for current_wimp in wimps_list:
@@ -389,18 +393,15 @@ class Wurzelbot:
         for current_wimp in wimps_data:
             if not current_wimp.is_profitable(percentage):
                 self.__user.decline_wimp(current_wimp.id, current_wimp.origin)
+            elif self.check_wimps_required_amount(
+                minimal_balance, current_wimp.product_amount, stock_list
+            ):
+                self.__logger.info(f"Selling products to wimp: {current_wimp.id}")
+                self.__user.sell_products_to_wimp(current_wimp.id, current_wimp.origin)
+                for identifier, amount in current_wimp.product_amount.items():
+                    stock_list[identifier]["amount"] -= amount
             else:
-                if self.check_wimps_required_amount(
-                    minimal_balance, current_wimp.product_amount, stock_list
-                ):
-                    self.__logger.info(f"Selling products to wimp: {current_wimp.id}")
-                    new_products_counts = self.__user.sell_products_to_wimp(
-                        current_wimp.id, current_wimp.origin
-                    )
-                    for identifier, amount in current_wimp.product_amount.items():
-                        stock_list[identifier]["amount"] -= amount
-                else:
-                    pass
+                pass
 
     def get_wimps_data(self):
         wimps_data = []

@@ -6,6 +6,7 @@ from math import floor
 from urllib.parse import urlencode
 
 import httplib2
+
 import login_data
 import message
 import parsing_utils
@@ -42,7 +43,7 @@ class HTTPConnection:
     # singleton for just one login, due to the backend
     def __new__(cls):
         if not hasattr(cls, "instance"):
-            cls.instance = super(HTTPConnection, cls).__new__(cls)
+            cls.instance = super().__new__(cls)
         return cls.instance
 
     def __init__(self):
@@ -113,7 +114,7 @@ class HTTPConnection:
             {
                 "p_anzahl": str(number),
                 "p_preis1": str(floor(price)),
-                "p_preis2": "{:02d}".format(int(100 * (price - floor(price)))),
+                "p_preis2": f"{int(100 * (price - floor(price))):02d}",
                 "p_id": "p" + str(item_id),
                 "prepare_markt": "true",
             }
@@ -138,7 +139,7 @@ class HTTPConnection:
             {
                 "p_anzahl": str(number),
                 "p_preis1": str(floor(price)),
-                "p_preis2": "{:02d}".format(int(100 * (price - floor(price)))),
+                "p_preis2": f"{int(100 * (price - floor(price))):02d}",
                 "p_id": str(item_id),
                 "verkaufe_markt": "OK",
             }

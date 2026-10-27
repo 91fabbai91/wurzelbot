@@ -1,5 +1,4 @@
 from enum import Enum, auto
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, NonNegativeInt, PositiveFloat
 
@@ -14,7 +13,7 @@ class Wimp(BaseModel):
     product_amount: dict
     reward: PositiveFloat
     origin: WimpOrigin
-    marketprice_percentage: Optional[NonNegativeInt] = 1
+    marketprice_percentage: NonNegativeInt | None = 1
     model_config = ConfigDict(frozen=False, validate_assignment=True)
 
     def is_profitable(self, percentage):

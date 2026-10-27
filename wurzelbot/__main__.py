@@ -1,9 +1,8 @@
 import logging
 import sys
 
-from login_data import LoginData
-
 from config import Settings
+from login_data import LoginData
 from wurzelbot import Wurzelbot
 
 if __name__ == "__main__":

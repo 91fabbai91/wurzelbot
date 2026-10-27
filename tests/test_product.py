@@ -1,6 +1,7 @@
 import pytest
-from product import Product
 from pydantic import ValidationError
+
+from product import Product
 
 
 def test_product_is_plant():

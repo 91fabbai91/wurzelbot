@@ -1,4 +1,4 @@
-FROM python:3.10-slim-buster
+FROM python:3.12-slim
 
 ARG YOUR_ENV
 
@@ -6,15 +6,27 @@ ENV YOUR_ENV=${YOUR_ENV} \
   PYTHONFAULTHANDLER=1 \
   PYTHONUNBUFFERED=1 \
   PYTHONHASHSEED=random \
-  PIP_NO_CACHE_DIR=off \
-  PIP_DISABLE_PIP_VERSION_CHECK=on \
-  PIP_DEFAULT_TIMEOUT=100 \
-  POETRY_VERSION=1.2.1
+  UV_COMPILE_BYTECODE=1
 
-RUN pip install "poetry==$POETRY_VERSION"
-WORKDIR code
-COPY pyproject.toml /code/
-RUN poetry config virtualenvs.create false \
-  && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
+# Install uv from official binary image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /code
+
+# Install dependencies first for better layer caching
+COPY pyproject.toml uv.lock README.md /code/
+RUN if [ "$YOUR_ENV" = "production" ]; then \
+      uv sync --frozen --no-dev --no-install-project; \
+    else \
+      uv sync --frozen --no-install-project; \
+    fi
+
+# Copy application source code and install project
 COPY wurzelbot /code/wurzelbot
-ENTRYPOINT [ "poetry", "run", "python", "wurzelbot" ]
+RUN if [ "$YOUR_ENV" = "production" ]; then \
+      uv sync --frozen --no-dev; \
+    else \
+      uv sync --frozen; \
+    fi
+
+ENTRYPOINT [ "uv", "run", "python", "wurzelbot" ]

@@ -1,5 +1,6 @@
-import parsing_utils
 import pytest
+
+import parsing_utils
 
 
 def test_generate_json_content_and_check_for_ok():

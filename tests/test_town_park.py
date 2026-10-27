@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 from town_park import BlockedFieldType, TownPark
 
 

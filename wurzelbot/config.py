@@ -1,5 +1,4 @@
 import os
-from typing import FrozenSet, List, Optional
 
 from pydantic import BaseModel, PositiveInt, SecretStr, StrictStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -26,7 +25,7 @@ class Login(BaseSettings):
 
 class Logging(BaseModel):
     level: StrictStr = "INFO"
-    filename: Optional[StrictStr] = None
+    filename: StrictStr | None = None
 
 
 class SellOnMarketPlace(BaseModel):
@@ -34,13 +33,13 @@ class SellOnMarketPlace(BaseModel):
 
 
 class Tasks(BaseModel):
-    grow_for_quests: Optional[List[StrictStr]] = list()
-    sell_to_wimps_percentage: Optional[PositiveInt] = None
-    sell_on_marketplace: Optional[SellOnMarketPlace] = None
+    grow_for_quests: list[StrictStr] | None = []
+    sell_to_wimps_percentage: PositiveInt | None = None
+    sell_on_marketplace: SellOnMarketPlace | None = None
     farm_town_park: bool = True
     start_bees_tour: bool = True
-    grow_plants: Optional[List[StrictStr]] = list()
-    blacklisted_plants: Optional[FrozenSet[StrictStr]] = set()
+    grow_plants: list[StrictStr] | None = []
+    blacklisted_plants: frozenset[StrictStr] | None = set()
 
     @field_validator("sell_to_wimps_percentage")
     @classmethod

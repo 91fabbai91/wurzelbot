@@ -1,9 +1,9 @@
 import logging
 import re
-from xml.etree.ElementTree import ParseError
+
+from lxml import html
 
 import http_connection
-from lxml import html
 
 
 class Notes:

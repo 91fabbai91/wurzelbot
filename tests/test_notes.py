@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 from notes import Notes
 
 

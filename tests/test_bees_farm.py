@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 from bees_farm import BeesFarm, BeesTour
 from wimp import WimpOrigin
 

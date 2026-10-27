@@ -56,7 +56,7 @@ class BeesFarm:
         if jcontent["data"]["stock"] != []:
             for entry in list(jcontent["data"]["stock"].values()):
                 if int(entry) == 100000:
-                    self.__http_connection.execute_command(f"do=bees_fill")
+                    self.__http_connection.execute_command("do=bees_fill")
                     self.__logger.debug("Got Honey")
 
         for index, hive in self.__hives.items():

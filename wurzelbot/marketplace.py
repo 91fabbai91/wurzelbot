@@ -2,8 +2,9 @@ import logging
 import re
 import unicodedata
 
-import http_connection
 from lxml import html
+
+import http_connection
 from offer import Offer
 
 

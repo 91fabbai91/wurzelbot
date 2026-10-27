@@ -1,6 +1,7 @@
 import pytest
-from message import Message
 from pydantic import ValidationError
+
+from message import Message
 
 
 def test_message_creation_and_attributes():
