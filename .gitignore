@@ -7,6 +7,7 @@ config.yaml
 *.log
 log.txt
 .bin/
+.python3.14/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

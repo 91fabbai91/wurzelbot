@@ -97,7 +97,7 @@ class DecoGardenQuest(Quest):
                 )
                 try:
                     quest_data = raw_quest_data["quest_data"]
-                except (KeyError, TypeError):
+                except KeyError, TypeError:
                     pass
                 self._reward.append(quest_data["reward"])
                 for product in quest_data["products"]:

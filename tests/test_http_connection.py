@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock
 
+import httpx2
 import pytest
 
 from http_connection import HTTPConnection, HTTPRequestError, check_if_http_status_is_ok
@@ -14,12 +15,19 @@ def test_singleton():
 
 def test_check_if_http_status_is_ok():
     check_if_http_status_is_ok({"status": "200"})
+    check_if_http_status_is_ok(httpx2.Response(200))
 
     with pytest.raises(HTTPStateError):
         check_if_http_status_is_ok({"status": "404"})
 
     with pytest.raises(HTTPStateError):
+        check_if_http_status_is_ok(httpx2.Response(404))
+
+    with pytest.raises(HTTPStateError):
         check_if_http_status_is_ok({"status": "500"})
+
+    with pytest.raises(HTTPStateError):
+        check_if_http_status_is_ok(httpx2.Response(500))
 
 
 def test_http_request_error():
@@ -252,3 +260,22 @@ def test_sell_on_market(conn):
     )
     conn.sell_on_market(item_id=1, price=1.50, number=10)
     assert conn._HTTPConnection__webclient.request.call_count >= 4
+
+
+def test_request_with_httpx2_response(conn):
+    conn._HTTPConnection__webclient.request.return_value = httpx2.Response(
+        200, content=b'{"status":"ok", "data":{"value": 42}}'
+    )
+    result = conn.execute_command("do=testCommand")
+    assert result["status"] == "ok"
+    assert result["data"]["value"] == 42
+
+
+def test_request_with_httpx2_response(conn):
+    conn._HTTPConnection__webclient.request.return_value = httpx2.Response(
+        200, content=b'{"status":"ok", "data":{"value": 42}}'
+    )
+    result = conn.execute_command("do=testCommand")
+    assert result["status"] == "ok"
+    assert result["data"]["value"] == 42
+
